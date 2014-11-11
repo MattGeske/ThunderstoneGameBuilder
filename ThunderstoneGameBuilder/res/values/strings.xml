@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Thunderstone Game Builder</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- main screen -->
+    <string name="new_game_button_text">New Game</string>
+    <string name="title_activity_show_game">ShowGameActivity</string>
+    <string name="hello_world">Hello world!</string>
+
+</resources>
