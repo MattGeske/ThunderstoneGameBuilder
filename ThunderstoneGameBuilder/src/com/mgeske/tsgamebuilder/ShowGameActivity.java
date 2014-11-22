@@ -1,6 +1,5 @@
 package com.mgeske.tsgamebuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ListActivity;
@@ -8,9 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class ShowGameActivity extends ListActivity {
 
@@ -19,10 +15,11 @@ public class ShowGameActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		List<String> dungeonList = intent.getStringArrayListExtra("com.mgeske.tsgamebuilder.dungeonCardList");
+		List<String> thunderstoneList = intent.getStringArrayListExtra("com.mgeske.tsgamebuilder.thunderstoneCardList");
 		List<String> heroList = intent.getStringArrayListExtra("com.mgeske.tsgamebuilder.heroCardList");
 		List<String> villageList = intent.getStringArrayListExtra("com.mgeske.tsgamebuilder.villageCardList");
 //		setContentView(R.layout.activity_show_game);
-		CardListAdapter cAdapter = new CardListAdapter(this, android.R.layout.simple_list_item_1, dungeonList, heroList, villageList);
+		CardListAdapter cAdapter = new CardListAdapter(this, android.R.layout.simple_list_item_1, dungeonList, thunderstoneList, heroList, villageList);
         setListAdapter(cAdapter);
 
 

@@ -3,18 +3,20 @@ package com.mgeske.tsgamebuilder;
 import java.util.List;
 
 import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 public class CardListAdapter extends ArrayAdapter<String> {
 	
-	public CardListAdapter(Context context, int resource, List<String> monsters, List<String> heroes, List<String> village) {
+	public CardListAdapter(Context context, int resource, List<String> monsters, List<String> thunderstones, List<String> heroes, List<String> village) {
 		super(context, resource);
 		add("MONSTERS");
 		for(String m : monsters) {
 			add(m);
+		}
+		add("");
+		add("THUNDERSTONES");
+		for(String t : thunderstones) {
+			add(t);
 		}
 		add("");
 		add("HEROES");

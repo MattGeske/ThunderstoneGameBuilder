@@ -1,6 +1,6 @@
 package com.mgeske.tsgamebuilder.card;
 
-public abstract class Card {
+public abstract class Card implements Comparable<Card> {
 	private String cardName;
 	private String setName;
 	private String cardText;
@@ -22,4 +22,13 @@ public abstract class Card {
 	public String getCardText() {
 		return cardText;
 	}
+
+	@Override
+	public int compareTo(Card another) {
+		return this.cardName.compareTo(another.cardName);
+	}
+	
+	public abstract String getRandomizerKey();
+	
+	
 }

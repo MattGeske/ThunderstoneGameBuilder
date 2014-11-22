@@ -26,4 +26,14 @@ public class VillageCard extends Card {
 	public void setLight(Integer light) {
 		this.light = light;
 	}
+
+	@Override
+	public String getRandomizerKey() {
+		String cardName = getCardName();
+		if("Elite Militia".equals(cardName) || "Village Thief".equals(cardName)) {
+			//handle a couple cards that don't have the "Villager" key but, for all intents and purposes, belong with the villagers
+//			return "Villager";
+		}
+		return "Village";
+	}
 }

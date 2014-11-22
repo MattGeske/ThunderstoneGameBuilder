@@ -4,12 +4,15 @@ import java.util.ArrayList;
 
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
 import com.mgeske.tsgamebuilder.randomizer.PresetRandomizer;
+import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,7 @@ import android.view.ViewGroup;
 
 
 public class MainScreenActivity extends ActionBarActivity {
+	private IRandomizer randomizer = new SmartRandomizer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +57,19 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     public void buildNewGame(View view) {
-    	IRandomizer randomizer = new PresetRandomizer("First Game Setup");
-    	CardList cardList = randomizer.generateCardList();
+    	CardList cardList = randomizer.generateCardList(this);
     	Intent intent = new Intent(this, ShowGameActivity.class);
     	ArrayList<String> dungeonCardNames = new ArrayList<String>();
-    	for(Card c : cardList.getDungeonCards()) {
-    		dungeonCardNames.add(c.getCardName());
+    	for(DungeonCard c : cardList.getDungeonCards()) {
+    		String cardName = c.getCardName();
+    		if(c.getLevel() != null) {
+    			cardName = cardName+" (Level "+c.getLevel()+")";
+    		}
+    		dungeonCardNames.add(cardName);
+    	}
+    	ArrayList<String> thunderstoneCardNames = new ArrayList<String>();
+    	for(Card c : cardList.getThunderstoneCards()) {
+    		thunderstoneCardNames.add(c.getCardName());
     	}
     	ArrayList<String> heroCardNames = new ArrayList<String>();
     	for(Card c : cardList.getHeroCards()) {
@@ -69,8 +80,23 @@ public class MainScreenActivity extends ActionBarActivity {
     		villageCardNames.add(c.getCardName());
     	}
     	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.dungeonCardList", dungeonCardNames);
+    	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.thunderstoneCardList", thunderstoneCardNames);
     	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.heroCardList", heroCardNames);
     	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.villageCardList", villageCardNames);
+    	
+//    	CardDatabase mDb = new CardDatabase(this);
+//    	ArrayList<String> heroCardNames = new ArrayList<String>();
+//    	Cursor c = mDb.getHeroes();
+//    	while(c.moveToNext()) {
+//    		String cardName = c.getString(c.getColumnIndexOrThrow("cardName"));
+//    		heroCardNames.add(cardName);
+//    	}
+//    	c.close();
+//    	Intent intent = new Intent(this, ShowGameActivity.class);
+//    	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.dungeonCardList", new ArrayList<String>());
+//    	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.heroCardList", heroCardNames);
+//    	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.villageCardList", new ArrayList<String>());
+    	
     	startActivity(intent);
     }
 
