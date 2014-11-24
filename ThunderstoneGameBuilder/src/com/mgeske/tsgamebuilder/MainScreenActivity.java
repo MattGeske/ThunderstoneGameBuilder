@@ -2,17 +2,17 @@ package com.mgeske.tsgamebuilder;
 
 import java.util.ArrayList;
 
-import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
+import com.mgeske.tsgamebuilder.card.HeroCard;
+import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
+import com.mgeske.tsgamebuilder.card.VillageCard;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
-import com.mgeske.tsgamebuilder.randomizer.PresetRandomizer;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -68,16 +68,26 @@ public class MainScreenActivity extends ActionBarActivity {
     		dungeonCardNames.add(cardName);
     	}
     	ArrayList<String> thunderstoneCardNames = new ArrayList<String>();
-    	for(Card c : cardList.getThunderstoneCards()) {
+    	for(ThunderstoneCard c : cardList.getThunderstoneCards()) {
     		thunderstoneCardNames.add(c.getCardName());
     	}
     	ArrayList<String> heroCardNames = new ArrayList<String>();
-    	for(Card c : cardList.getHeroCards()) {
+    	for(HeroCard c : cardList.getHeroCards()) {
     		heroCardNames.add(c.getCardName());
     	}
     	ArrayList<String> villageCardNames = new ArrayList<String>();
-    	for(Card c : cardList.getVillageCards()) {
-    		villageCardNames.add(c.getCardName());
+    	for(VillageCard c : cardList.getVillageCards()) {
+    		String cardName = c.getCardName();
+			int numClasses = c.getClasses().size();
+    		if(numClasses > 0) {
+    			cardName = cardName + " (";
+    			for(int i = 0; i < numClasses-1; i++) {
+    				cardName += c.getClasses().get(i) + ", ";
+    			}
+    			cardName += c.getClasses().get(numClasses-1) + ")";
+    		}
+    		villageCardNames.add(cardName);
+    		
     	}
     	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.dungeonCardList", dungeonCardNames);
     	intent.putStringArrayListExtra("com.mgeske.tsgamebuilder.thunderstoneCardList", thunderstoneCardNames);

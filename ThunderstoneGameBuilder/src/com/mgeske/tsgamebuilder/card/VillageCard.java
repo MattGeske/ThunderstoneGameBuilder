@@ -1,13 +1,23 @@
 package com.mgeske.tsgamebuilder.card;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 public class VillageCard extends Card {
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private int cost;
 	private Integer value = null;
 	private Integer light = null;
+	private List<String> classes;
 	
-	public VillageCard(String cardName, String setName, String cardText, int cost) {
-		super(cardName, setName, cardText);
+	public VillageCard(String cardName, String setName, String cardText, int cost, List<String> attributes, List<String> classes) {
+		super(cardName, setName, cardText, attributes);
 		this.cost = cost;
+		this.classes = classes;
+		for(String cardClass : classes) {
+			addAttribute("HAS_"+cardClass.toUpperCase());
+		}
 	}
 	
 	public int getCost() {
@@ -27,13 +37,21 @@ public class VillageCard extends Card {
 		this.light = light;
 	}
 
+	public List<String> getClasses() {
+		return classes;
+	}
+
 	@Override
-	public String getRandomizerKey() {
+	public List<String> getRandomizerKeys() {
+		List<String> keys = new ArrayList<String>();
+		keys.add("Village");
+		keys.addAll(getClasses());
+		
 		String cardName = getCardName();
 		if("Elite Militia".equals(cardName) || "Village Thief".equals(cardName)) {
-			//handle a couple cards that don't have the "Villager" key but, for all intents and purposes, belong with the villagers
-//			return "Villager";
+			//handle a couple cards that don't have the "Villager" keyword but, for all intents and purposes, belong with the villagers
+			keys.add("Villager");
 		}
-		return "Village";
+		return keys;
 	}
 }

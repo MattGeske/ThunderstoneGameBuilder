@@ -1,14 +1,21 @@
 package com.mgeske.tsgamebuilder.card;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HeroCard extends Card {
+	private static List<String> randomizerKeys = new ArrayList<String>(1);
+	static {
+		randomizerKeys.add("Hero");
+	}
 	
-	public HeroCard(String cardName, String setName, String cardText) {
-		super(cardName, setName, cardText);
+	public HeroCard(String cardName, String setName, String cardText, List<String> attributes) {
+		super(cardName, setName, cardText, attributes);
 	}
 
 	@Override
-	public String getRandomizerKey() {
-		return "Hero";
+	public List<String> getRandomizerKeys() {
+		return randomizerKeys;
 	}
 
 }
