@@ -44,9 +44,12 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public List<HeroCard> getAllHeroCards() {
-		String tables = "ThunderstoneSet, HeroCard LEFT OUTER JOIN Card_CardAttribute ON HeroCard._ID = Card_CardAttribute.cardId and " +
-				"Card_CardAttribute.cardTableName = 'HeroCard' LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID";
-		String[] columns = {"cardname", "setName", "description", "group_concat(attributeName) as attributes"};
+		String tables = "ThunderstoneSet, HeroCard " +
+				"LEFT OUTER JOIN Card_CardClass ON HeroCard._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = 'HeroCard' " +
+				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
+				"LEFT OUTER JOIN Card_CardAttribute ON HeroCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'HeroCard' " +
+				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID ";
+		String[] columns = {"cardname", "setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
 		String selection = "HeroCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
 		CardBuilder<HeroCard> cardBuilder = new HeroCardBuilder();
@@ -59,8 +62,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
 				"LEFT OUTER JOIN Card_CardAttribute ON VillageCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'VillageCard' " +
 				"LEFT OUTER JOIN CardAttribute on Card_CardAttribute.attributeId = CardAttribute._ID ";
-		String[] columns = {"VillageCard.cardname", "ThunderstoneSet.setName", "VillageCard.description", "VillageCard.goldCost",
-				"group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
+		String[] columns = {"cardname", "setName", "description", "goldCost", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
 		String selection = "VillageCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
 		CardBuilder<VillageCard> cardBuilder = new VillageCardBuilder();
@@ -133,7 +135,8 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 class HeroCardBuilder extends CardBuilder<HeroCard> {
 	@Override
 	public HeroCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes) {
-		return new HeroCard(cardName, setName, cardDescription, attributes);
+		List<String> classes = getListFromGroupConcat(c, "classes");
+		return new HeroCard(cardName, setName, cardDescription, attributes, classes);
 	}
 }
 

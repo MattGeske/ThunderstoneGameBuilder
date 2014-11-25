@@ -16,7 +16,7 @@ public class VillageCard extends Card {
 		this.cost = cost;
 		this.classes = classes;
 		for(String cardClass : classes) {
-			addAttribute("HAS_"+cardClass.toUpperCase());
+			addAttribute("IS_"+cardClass.toUpperCase());
 		}
 	}
 	
