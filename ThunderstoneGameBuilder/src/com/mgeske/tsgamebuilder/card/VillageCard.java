@@ -2,22 +2,15 @@ package com.mgeske.tsgamebuilder.card;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class VillageCard extends Card {
-	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private int cost;
 	private Integer value = null;
 	private Integer light = null;
-	private List<String> classes;
 	
 	public VillageCard(String cardName, String setName, String cardText, int cost, List<String> attributes, List<String> classes) {
-		super(cardName, setName, cardText, attributes);
+		super(cardName, setName, cardText, attributes, classes);
 		this.cost = cost;
-		this.classes = classes;
-		for(String cardClass : classes) {
-			addAttribute("IS_"+cardClass.toUpperCase());
-		}
 	}
 	
 	public int getCost() {
@@ -35,10 +28,6 @@ public class VillageCard extends Card {
 	}
 	public void setLight(Integer light) {
 		this.light = light;
-	}
-
-	public List<String> getClasses() {
-		return classes;
 	}
 
 	@Override

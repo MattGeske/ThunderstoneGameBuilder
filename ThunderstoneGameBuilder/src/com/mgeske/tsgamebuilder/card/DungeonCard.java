@@ -7,8 +7,8 @@ public class DungeonCard extends Card {
 	private String cardType;
 	private Integer level;
 	
-	public DungeonCard(String cardName, String setName, String cardText, String cardType, Integer level, List<String> attributes) {
-		super(cardName, setName, cardText, attributes);
+	public DungeonCard(String cardName, String setName, String cardText, String cardType, Integer level, List<String> attributes, List<String> classes) {
+		super(cardName, setName, cardText, attributes, classes);
 		this.cardType = cardType;
 		this.level = level;
 	}

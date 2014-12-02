@@ -9,8 +9,8 @@ public class ThunderstoneCard extends Card {
 		randomizerKeys.add("Thunderstone");
 	}
 
-	public ThunderstoneCard(String cardName, String setName, String cardText, List<String> attributes) {
-		super(cardName, setName, cardText, attributes);
+	public ThunderstoneCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes) {
+		super(cardName, setName, cardText, attributes, classes);
 	}
 
 	@Override
