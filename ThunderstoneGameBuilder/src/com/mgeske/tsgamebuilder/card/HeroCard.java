@@ -9,8 +9,8 @@ public class HeroCard extends Card {
 		randomizerKeys.add("Hero");
 	}
 	
-	public HeroCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes) {
-		super(cardName, setName, cardText, attributes, classes);
+	public HeroCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements) {
+		super(cardName, setName, cardText, attributes, classes, requirements);
 	}
 
 	@Override

@@ -2,7 +2,9 @@ package com.mgeske.tsgamebuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -12,6 +14,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
+import com.mgeske.tsgamebuilder.card.Requirement;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
@@ -19,9 +22,54 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 public class CardDatabase extends SQLiteAssetHelper {
 	private static final String DATABASE_NAME = "cards.sqlite";
 	private static final int DATABASE_VERSION = 1;
+	private static Map<String,Requirement> requirementsCache = null;
 	
 	public CardDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	}
+	
+	private Map<String,Requirement> getRequirements() {
+		if(requirementsCache == null) {
+			initializeRequirementsCache();
+		}
+		return requirementsCache;
+	}
+	
+	private void initializeRequirementsCache() {
+		requirementsCache = new HashMap<String,Requirement>();
+		
+		String table = "Requirement";
+		String[] columns = {"requirementName", "requirementType", "requirementValues", "requiredOn"};
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+			queryBuilder.setTables(table);
+			c = queryBuilder.query(db, columns, null, null, null, null, null, null);
+			while(c.moveToNext()) {
+				String requirementName = c.getString(c.getColumnIndexOrThrow("requirementName"));
+				String requirementType = c.getString(c.getColumnIndexOrThrow("requirementType"));
+				if(requirementType == null) {
+					continue;
+				}
+				String raw_values = c.getString(c.getColumnIndexOrThrow("requirementValues"));
+				List<String> values;
+				if(raw_values != null) {
+					values = Arrays.asList(raw_values.split(","));
+				} else {
+					values = new ArrayList<String>();
+				}
+				String requiredOn = c.getString(c.getColumnIndexOrThrow("requiredOn"));
+				
+				Requirement r = Requirement.buildRequirement(requirementName, requirementType, values, requiredOn);
+				requirementsCache.put(requirementName, r);
+			}
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
 	}
 	
 	public List<DungeonCard> getAllDungeonCards() {
@@ -86,7 +134,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 			queryBuilder.setTables(tables);
 			c = queryBuilder.query(db, columns, selection, null, groupBy, null, null, null);
 			while(c.moveToNext()) {
-				T card = cardBuilder.buildCard(c);
+				T card = cardBuilder.buildCard(c, getRequirements());
 				allCards.add(card);
 			}
 			return allCards;
@@ -100,13 +148,20 @@ public class CardDatabase extends SQLiteAssetHelper {
 }
 
 abstract class CardBuilder<T extends Card> {
-	public T buildCard(Cursor c) {
+	public T buildCard(Cursor c, Map<String,Requirement> allRequirements) {
 		String cardName = c.getString(c.getColumnIndexOrThrow("cardName"));
 		String setName = c.getString(c.getColumnIndexOrThrow("setName"));
 		String cardDescription = c.getString(c.getColumnIndexOrThrow("description"));
 		List<String> attributes = getListFromGroupConcat(c, "attributes");
 		List<String> classes = getListFromGroupConcat(c, "classes");
-		return buildCard(c, cardName, setName, cardDescription, attributes, classes);
+		List<Requirement> cardRequirements = new ArrayList<Requirement>(); 
+		for(String attr : attributes) {
+			//TODO use the requirements table instead of attributes
+			if(attr.startsWith("REQUIRES_") || attr.startsWith("WANTS_")) {
+				cardRequirements.add(allRequirements.get(attr));
+			}
+		}
+		return buildCard(c, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 	
 	protected List<String> getListFromGroupConcat(Cursor c, String columnName) {
@@ -118,12 +173,12 @@ abstract class CardBuilder<T extends Card> {
 		}
 	}
 
-	protected abstract T buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes);
+	protected abstract T buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
 }
 
 class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 	@Override
-	public DungeonCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes) {
+	public DungeonCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		String cardType = c.getString(c.getColumnIndexOrThrow("cardType"));
 		String raw_level = c.getString(c.getColumnIndexOrThrow("level"));
 		Integer level;
@@ -132,28 +187,28 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 		} else {
 			level = Integer.valueOf(raw_level);
 		}
-		return new DungeonCard(cardName, setName, cardDescription, cardType, level, attributes, classes);
+		return new DungeonCard(cardName, setName, cardDescription, cardType, level, attributes, classes, cardRequirements);
 	}
 }
 
 class HeroCardBuilder extends CardBuilder<HeroCard> {
 	@Override
-	public HeroCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes) {
-		return new HeroCard(cardName, setName, cardDescription, attributes, classes);
+	public HeroCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+		return new HeroCard(cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 }
 
 class VillageCardBuilder extends CardBuilder<VillageCard> {
 	@Override
-	public VillageCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes) {
+	public VillageCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int cost = c.getInt(c.getColumnIndexOrThrow("goldCost"));
-		return new VillageCard(cardName, setName, cardDescription, cost, attributes, classes);
+		return new VillageCard(cardName, setName, cardDescription, cost, attributes, classes, cardRequirements);
 	}
 }
 
 class ThunderstoneCardBuilder extends CardBuilder<ThunderstoneCard> {
 	@Override
-	protected ThunderstoneCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes) {
-		return new ThunderstoneCard(cardName, setName, cardDescription, attributes, classes);
+	protected ThunderstoneCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+		return new ThunderstoneCard(cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 }

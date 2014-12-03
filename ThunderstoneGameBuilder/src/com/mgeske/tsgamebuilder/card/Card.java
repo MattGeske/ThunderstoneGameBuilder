@@ -9,13 +9,15 @@ public abstract class Card implements Comparable<Card> {
 	private String cardText;
 	private List<String> attributes;
 	private List<String> classes;
+	private List<Requirement> requirements;
 	
-	protected Card(String cardName, String setName, String cardText, List<String> attributes, List<String> classes) {
+	protected Card(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements) {
 		this.cardName = cardName;
 		this.setName = setName;
 		this.cardText = cardText;
 		this.attributes = new ArrayList<String>(attributes);
 		this.classes = classes;
+		this.requirements = requirements;
 	}
 
 	public String getCardName() {
@@ -36,6 +38,10 @@ public abstract class Card implements Comparable<Card> {
 	
 	public List<String> getClasses() {
 		return classes;
+	}
+
+	public List<Requirement> getRequirements() {
+		return requirements;
 	}
 
 	protected void addAttribute(String attribute) {

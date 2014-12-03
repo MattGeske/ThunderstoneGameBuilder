@@ -8,8 +8,8 @@ public class VillageCard extends Card {
 	private Integer value = null;
 	private Integer light = null;
 	
-	public VillageCard(String cardName, String setName, String cardText, int cost, List<String> attributes, List<String> classes) {
-		super(cardName, setName, cardText, attributes, classes);
+	public VillageCard(String cardName, String setName, String cardText, int cost, List<String> attributes, List<String> classes, List<Requirement> requirements) {
+		super(cardName, setName, cardText, attributes, classes, requirements);
 		this.cost = cost;
 	}
 	
