@@ -17,6 +17,7 @@ import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
+import com.mgeske.tsgamebuilder.card.Requirement;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
 
@@ -47,18 +48,13 @@ public class SmartRandomizer implements IRandomizer {
 			List<DungeonCard> dungeonList = chooseDungeonCards(remainingDungeonCards);
 			List<ThunderstoneCard> thunderstoneList = chooseThunderstoneCards(remainingThunderstoneCards);
 			
-			@SuppressWarnings("unchecked")
-			Set<String> attributesRequiredByMonsters = getRequiredAttributes(dungeonList, thunderstoneList);
-			
-			Set<String> requiredHeroAttributes = getHeroRequirements(attributesRequiredByMonsters);
+			Set<Requirement> requiredHeroAttributes = getHeroRequirements(dungeonList, thunderstoneList);
 			logger.info("Required attributes for heroes: "+requiredHeroAttributes);
 			
 			List<HeroCard> heroList = chooseHeroCards(remainingHeroCards, requiredHeroAttributes);
 			
 
-			@SuppressWarnings("unchecked")
-			Set<String> attributesRequiredByHeroes = getRequiredAttributes(heroList);
-			Set<String> requiredVillageAttributes = getVillageRequirements(attributesRequiredByMonsters, attributesRequiredByHeroes, heroList);
+			Set<Requirement> requiredVillageAttributes = getVillageRequirements(dungeonList, thunderstoneList, heroList);
 			logger.info("Required attributes for village: "+requiredVillageAttributes);
 			
 			List<VillageCard> villageList = chooseVillageCards(remainingVillageCards, requiredVillageAttributes);
@@ -73,25 +69,29 @@ public class SmartRandomizer implements IRandomizer {
 		}
 	}
 
-	private Set<String> getHeroRequirements(Set<String> attributesRequiredByMonsters) {
-		Set<String> heroRequirements = new HashSet<String>();
-		for(String attribute : attributesRequiredByMonsters) {
-			//TODO implement this better
-			if(attribute.equals("HAS_MAGIC_ATTACK") || attribute.equals("HAS_PHYSICAL_ATTACK") || attribute.equals("REMOVES_DISEASE")) {
-				heroRequirements.add(attribute);
-			}
-		}
+	private Set<Requirement> getHeroRequirements(List<DungeonCard> dungeonList, List<ThunderstoneCard> thunderstoneList) {
+		Set<Requirement> heroRequirements = new HashSet<Requirement>();
+		addRequirementsForType(heroRequirements, dungeonList, "Hero");
+		addRequirementsForType(heroRequirements, thunderstoneList, "Hero");
 		return heroRequirements;
 	}
 	
-	private Set<String> getVillageRequirements(Set<String> attributesRequiredByMonsters, Set<String> attributesRequiredByHeroes, List<HeroCard> heroList) {
-		Set<String> villageRequirements = new HashSet<String>();
-		villageRequirements.addAll(attributesRequiredByMonsters);
-		villageRequirements.addAll(attributesRequiredByHeroes);
-		for(HeroCard card : heroList) {
-			villageRequirements.removeAll(card.getAttributes());
-		}
+	private Set<Requirement> getVillageRequirements(List<DungeonCard> dungeonList, List<ThunderstoneCard> thunderstoneList, List<HeroCard> heroList) {
+		Set<Requirement> villageRequirements = new HashSet<Requirement>();
+		addRequirementsForType(villageRequirements, dungeonList, "Village");
+		addRequirementsForType(villageRequirements, thunderstoneList, "Village");
+		addRequirementsForType(villageRequirements, heroList, "Village");
 		return villageRequirements;
+	}
+	
+	private void addRequirementsForType(Set<Requirement> requirements, List<? extends Card> cardList, String cardType) {
+		for(Card card : cardList) {
+			for(Requirement req : card.getRequirements()) {
+				if(req.getRequiredOn().equals(cardType)) {
+					requirements.add(req);
+				}
+			}
+		}
 	}
 
 	private void populateCardLists(Context context) {
@@ -136,7 +136,7 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingThunderstoneCards, minimumNumOfCards, maximumNumOfCards, null);
 	}
 
-	private List<HeroCard> chooseHeroCards(List<HeroCard> remainingHeroCards, Set<String> requiredAttributes) {
+	private List<HeroCard> chooseHeroCards(List<HeroCard> remainingHeroCards, Set<Requirement> requiredAttributes) {
 		//TODO for now, assumes you want 4 heroes
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Hero", 4);
@@ -146,7 +146,7 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingHeroCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
 	}
 
-	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<String> requiredAttributes) {
+	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes) {
 		//TODO for now, assumes you want 8 total village cards with no more than 3 weapons, 2 items, 3 spells, and 3 villagers (TS Advance rules)
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Village", 8);
@@ -160,28 +160,27 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingVillageCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
 	}
 	
-	private <T extends Card> List<T> chooseCards(List<T> allCards, Map<String,Integer> minimumNumOfCards, Map<String,Integer> maximumNumOfCards, Set<String> requiredAttributes) {
-		List<T> localAllCards = new ArrayList<T>();
-		localAllCards.addAll(allCards);
-		Map<String,Integer> localMinNumOfCards = new HashMap<String,Integer>();
-		localMinNumOfCards.putAll(minimumNumOfCards);
-		Map<String,Integer> localMaxNumOfCards = new HashMap<String,Integer>();
-		localMaxNumOfCards.putAll(maximumNumOfCards);
-		Set<String> remainingRequiredAttributes = new HashSet<String>();
+	private <T extends Card> List<T> chooseCards(List<T> allCards, Map<String,Integer> minimumNumOfCards, Map<String,Integer> maximumNumOfCards, Set<Requirement> requiredAttributes) {
+		//make local copies of the collections so we can modify them without breaking callers
+		List<T> localAllCards = new ArrayList<T>(allCards);
+		Map<String,Integer> localMinNumOfCards = new HashMap<String,Integer>(minimumNumOfCards);
+		Map<String,Integer> localMaxNumOfCards = new HashMap<String,Integer>(maximumNumOfCards);
+		Set<Requirement> remainingRequirements = new HashSet<Requirement>();
 		if(requiredAttributes != null) {
-			remainingRequiredAttributes.addAll(requiredAttributes);
+			remainingRequirements.addAll(requiredAttributes);
 		}
 		
 		List<T> chosenCards = new ArrayList<T>();
 		Random r = new Random();
-		while(!metAllRequirements(localMinNumOfCards) && localAllCards.size() > 0) {
+		while(!metMinimumCardRequirements(localMinNumOfCards) && localAllCards.size() > 0) {
 			int index = r.nextInt(localAllCards.size());
 			T card = localAllCards.get(index);
 			List<String> keys = card.getRandomizerKeys();
 			boolean can_use_card = true;
 			Map<String,Integer> maxUpdates = new HashMap<String,Integer>();
 			Map<String,Integer> minUpdates = new HashMap<String,Integer>();
-			if(remainingRequiredAttributes.size() > 0 && !containsAny(remainingRequiredAttributes, card.getAttributes())) {
+			Set<Requirement> matchedRequirements = getMatchingRequirements(remainingRequirements, card);
+			if(remainingRequirements.size() > 0 && matchedRequirements.size() == 0) {
 				can_use_card = false;
 				logger.info("Discarding card "+card.getCardName()+" because it doesn't fulfill any requirements.");
 			} else {
@@ -203,24 +202,27 @@ public class SmartRandomizer implements IRandomizer {
 			}
 			if(can_use_card) {
 				chosenCards.add(card);
-				remainingRequiredAttributes.removeAll(card.getAttributes());
+				if(matchedRequirements.size() > 0) {
+					logger.info("Card "+card.getCardName()+" fulfills requirements "+matchedRequirements);
+				}
+				remainingRequirements.removeAll(matchedRequirements);
 				localMaxNumOfCards.putAll(maxUpdates);
 				localMinNumOfCards.putAll(minUpdates);
 			}
 			localAllCards.remove(index);
 		}
-		if(!metAllRequirements(localMinNumOfCards)) {
+		if(!metMinimumCardRequirements(localMinNumOfCards)) {
 			throw new RuntimeException("Couldn't choose cards meeting the requirements "+minimumNumOfCards+". Remaining requirements: "+localMinNumOfCards);
 		}
-		if(remainingRequiredAttributes.size() > 0) {
-			throw new RuntimeException("Couldn't choose cards meeting the requirements "+remainingRequiredAttributes+".");
+		if(remainingRequirements.size() > 0) {
+			throw new RuntimeException("Couldn't choose cards meeting the requirements "+remainingRequirements+".");
 		}
 		Collections.sort(chosenCards);
 		
 		return chosenCards;
 	}
 	
-	private boolean metAllRequirements(Map<String,Integer> minimumNumOfCards) {
+	private boolean metMinimumCardRequirements(Map<String,Integer> minimumNumOfCards) {
 		for(Integer i : minimumNumOfCards.values()) {
 			if(i > 0) {
 				return false;
@@ -229,30 +231,13 @@ public class SmartRandomizer implements IRandomizer {
 		return true;
 	}
 	
-	private Set<String> getRequiredAttributes(List<? extends Card>... chosenCards) {
-		Set<String> requiredAttributes = new HashSet<String>();
-		for(List<? extends Card> cardList : chosenCards) {
-			for(Card card : cardList) {
-				for(String attribute : card.getAttributes()) {
-					if(attribute.startsWith("REQUIRES_")) {
-						attribute = attribute.replace("REQUIRES_", "HAS_");
-						requiredAttributes.add(attribute);
-					} else if(attribute.equals("GIVES_DISEASE")) {
-						//special case since we might later want to add a requirement for GIVES_DISEASE when we have a card with REMOVES_DISEASE
-						requiredAttributes.add("REMOVES_DISEASE");
-					}
-				}
+	private Set<Requirement> getMatchingRequirements(Set<Requirement> remainingRequirements, Card card) {
+		Set<Requirement> matchingRequirements = new HashSet<Requirement>();
+		for(Requirement req : remainingRequirements) {
+			if(req.match(card)) {
+				matchingRequirements.add(req);
 			}
 		}
-		return requiredAttributes;
-	}
-	
-	private boolean containsAny(Set<String> requiredAttributes, List<String> cardAttributes) {
-		for(String attribute : cardAttributes) {
-			if(requiredAttributes.contains(attribute)) {
-				return true;
-			}
-		}
-		return false;
+		return matchingRequirements;
 	}
 }

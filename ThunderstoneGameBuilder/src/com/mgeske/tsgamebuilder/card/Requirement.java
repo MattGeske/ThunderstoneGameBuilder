@@ -19,12 +19,12 @@ public abstract class Requirement {
 	
 	
 	private String requirementName;
-	private String cardType;
+	private String requiredOn;
 	private List<String> values;
 
-	protected Requirement(String requirementName, String cardType, List<String> values) {
+	protected Requirement(String requirementName, String requiredOn, List<String> values) {
 		this.requirementName = requirementName;
-		this.cardType = cardType;
+		this.requiredOn = requiredOn;
 		this.values = values;
 	}
 	
@@ -32,12 +32,56 @@ public abstract class Requirement {
 		return requirementName;
 	}
 
-	public String getCardType() {
-		return cardType;
+	public String getRequiredOn() {
+		return requiredOn;
 	}
 
 	public List<String> getValues() {
 		return values;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((requiredOn == null) ? 0 : requiredOn.hashCode());
+		result = prime * result
+				+ ((requirementName == null) ? 0 : requirementName.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Requirement other = (Requirement) obj;
+		if (requiredOn == null) {
+			if (other.requiredOn != null)
+				return false;
+		} else if (!requiredOn.equals(other.requiredOn))
+			return false;
+		if (requirementName == null) {
+			if (other.requirementName != null)
+				return false;
+		} else if (!requirementName.equals(other.requirementName))
+			return false;
+		if (values == null) {
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName()+" [requirementName=" + requirementName + ", values="+ values + "]";
 	}
 
 	public abstract boolean match(Card c);
