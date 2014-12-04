@@ -73,12 +73,9 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public List<DungeonCard> getAllDungeonCards() {
-		String tables = "ThunderstoneSet, DungeonCard " +
-				"LEFT OUTER JOIN Card_CardClass ON DungeonCard._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = 'DungeonCard' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON DungeonCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'DungeonCard' " +
-				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID";
-		String[] columns = {"cardName", "cardType", "setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
+		String tables = getTables("DungeonCard");
+		String[] columns = {"cardName", "cardType", "setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
 		String selection = "DungeonCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
 		CardBuilder<DungeonCard> cardBuilder = new DungeonCardBuilder();
@@ -86,12 +83,9 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public List<ThunderstoneCard> getAllThunderstoneCards() {
-		String tables = "ThunderstoneSet, DungeonBossCard " +
-				"LEFT OUTER JOIN Card_CardClass ON DungeonBossCard._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = 'DungeonBossCard' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON DungeonBossCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'DungeonBossCard' " +
-				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID";
-		String[] columns = {"cardName", "cardType", "setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
+		String tables = getTables("DungeonBossCard");
+		String[] columns = {"cardName", "cardType", "setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
 		String selection = "DungeonBossCard.setId = ThunderstoneSet._ID and DungeonBossCard.cardType like 'Thunderstone%'";
 		String groupBy = "cardName";
 		CardBuilder<ThunderstoneCard> cardBuilder = new ThunderstoneCardBuilder();
@@ -99,12 +93,9 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public List<HeroCard> getAllHeroCards() {
-		String tables = "ThunderstoneSet, HeroCard " +
-				"LEFT OUTER JOIN Card_CardClass ON HeroCard._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = 'HeroCard' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON HeroCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'HeroCard' " +
-				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID ";
-		String[] columns = {"cardname", "setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
+		String tables = getTables("HeroCard");
+		String[] columns = {"cardname", "setName", "description", "strength", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
 		String selection = "HeroCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
 		CardBuilder<HeroCard> cardBuilder = new HeroCardBuilder();
@@ -112,16 +103,23 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public List<VillageCard> getAllVillageCards() {
-		String tables = "ThunderstoneSet, VillageCard " +
-				"LEFT OUTER JOIN Card_CardClass ON VillageCard._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = 'VillageCard' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON VillageCard._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = 'VillageCard' " +
-				"LEFT OUTER JOIN CardAttribute on Card_CardAttribute.attributeId = CardAttribute._ID ";
-		String[] columns = {"cardname", "setName", "description", "goldCost", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes"};
+		String tables = getTables("VillageCard");
+		String[] columns = {"cardname", "setName", "description", "goldCost", "weight", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
 		String selection = "VillageCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
 		CardBuilder<VillageCard> cardBuilder = new VillageCardBuilder();
 		return getCards(cardBuilder, tables, columns, selection, groupBy);
+	}
+	
+	private String getTables(String tableName) {
+		return "ThunderstoneSet, "+tableName+" "+
+				"LEFT OUTER JOIN Card_CardClass ON "+tableName+"._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
+				"LEFT OUTER JOIN Card_CardAttribute ON "+tableName+"._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID " +
+				"LEFT OUTER JOIN Card_Requirement ON "+tableName+"._ID = Card_Requirement.cardId and Card_Requirement.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN Requirement ON Card_Requirement.requirementId = Requirement._ID ";
 	}
 	
 	private <T extends Card> List<T> getCards(CardBuilder<T> cardBuilder, String tables, String[] columns, String selection, String groupBy) {
@@ -149,17 +147,15 @@ public class CardDatabase extends SQLiteAssetHelper {
 
 abstract class CardBuilder<T extends Card> {
 	public T buildCard(Cursor c, Map<String,Requirement> allRequirements) {
-		String cardName = c.getString(c.getColumnIndexOrThrow("cardName"));
-		String setName = c.getString(c.getColumnIndexOrThrow("setName"));
-		String cardDescription = c.getString(c.getColumnIndexOrThrow("description"));
+		String cardName = getString(c, "cardName");
+		String setName = getString(c, "setName");
+		String cardDescription = getString(c, "description");
 		List<String> attributes = getListFromGroupConcat(c, "attributes");
 		List<String> classes = getListFromGroupConcat(c, "classes");
-		List<Requirement> cardRequirements = new ArrayList<Requirement>(); 
-		for(String attr : attributes) {
-			//TODO use the requirements table instead of attributes
-			if(attr.startsWith("REQUIRES_") || attr.startsWith("WANTS_")) {
-				cardRequirements.add(allRequirements.get(attr));
-			}
+		List<String> requirementNames = getListFromGroupConcat(c, "requirements");
+		List<Requirement> cardRequirements = new ArrayList<Requirement>();
+		for(String requirementName : requirementNames) {
+			cardRequirements.add(allRequirements.get(requirementName));
 		}
 		return buildCard(c, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
@@ -172,6 +168,25 @@ abstract class CardBuilder<T extends Card> {
 			return new ArrayList<String>();
 		}
 	}
+	
+	protected Integer getInteger(Cursor c, String columnName) {
+		String raw_value = c.getString(c.getColumnIndexOrThrow(columnName));
+		Integer value;
+		try {
+			value = Integer.valueOf(raw_value);
+		} catch(Exception e) {
+			value = null;
+		}
+		return value;
+	}
+	
+	protected int getInt(Cursor c, String columnName) {
+		return c.getInt(c.getColumnIndexOrThrow(columnName));
+	}
+	
+	protected String getString(Cursor c, String columnName) {
+		return c.getString(c.getColumnIndexOrThrow(columnName));
+	}
 
 	protected abstract T buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
 }
@@ -179,14 +194,8 @@ abstract class CardBuilder<T extends Card> {
 class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 	@Override
 	public DungeonCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
-		String cardType = c.getString(c.getColumnIndexOrThrow("cardType"));
-		String raw_level = c.getString(c.getColumnIndexOrThrow("level"));
-		Integer level;
-		if(raw_level == null) {
-			level = null;
-		} else {
-			level = Integer.valueOf(raw_level);
-		}
+		String cardType = getString(c, "cardType");
+		Integer level = getInteger(c, "level");
 		return new DungeonCard(cardName, setName, cardDescription, cardType, level, attributes, classes, cardRequirements);
 	}
 }
@@ -194,15 +203,17 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 class HeroCardBuilder extends CardBuilder<HeroCard> {
 	@Override
 	public HeroCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
-		return new HeroCard(cardName, setName, cardDescription, attributes, classes, cardRequirements);
+		int strength = getInt(c, "strength");
+		return new HeroCard(cardName, setName, cardDescription, attributes, classes, cardRequirements, strength);
 	}
 }
 
 class VillageCardBuilder extends CardBuilder<VillageCard> {
 	@Override
 	public VillageCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
-		int cost = c.getInt(c.getColumnIndexOrThrow("goldCost"));
-		return new VillageCard(cardName, setName, cardDescription, cost, attributes, classes, cardRequirements);
+		int cost = getInt(c, "goldCost");
+		Integer weight = getInteger(c, "weight");
+		return new VillageCard(cardName, setName, cardDescription, attributes, classes, cardRequirements, cost, weight);
 	}
 }
 

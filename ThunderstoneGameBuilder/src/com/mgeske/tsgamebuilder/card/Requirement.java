@@ -1,8 +1,11 @@
 package com.mgeske.tsgamebuilder.card;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public abstract class Requirement {
+	protected Logger logger = Logger.getLogger(this.getClass().getName());
+	
 	public static Requirement buildRequirement(String requirementName, String requirementType, List<String> values, String requiredOn) {
 		if("HasAnyAttributes".equals(requirementType)) {
 			return new HasAnyAttributesRequirement(requirementName, requiredOn, values);
@@ -10,6 +13,10 @@ public abstract class Requirement {
 			return new HasAnyClassesRequirement(requirementName, requiredOn, values);
 		} else if("HasAllClasses".equals(requirementType)) {
 			return new HasAllClassesRequirement(requirementName, requiredOn, values);
+		} else if("HasStrength".equals(requirementType)) {
+			return new HasStrengthRequirement(requirementName, requiredOn, values);
+		} else if("LightweightEdgedWeapon".equals(requirementType)) {
+			return new LightweightEdgedWeaponRequirement(requirementName, requiredOn, values);
 		} else if("Placeholder".equals(requirementType)) {
 			return new PlaceholderRequirement(requirementName, requiredOn, values);
 		} else {
@@ -145,6 +152,41 @@ class HasAllClassesRequirement extends Requirement {
 		return classes.containsAll(getValues());
 	}
 	
+}
+
+class HasStrengthRequirement extends Requirement {
+	private int requiredStrength;
+	protected HasStrengthRequirement(String requirementName, String requiredOn, List<String> values) {
+		super(requirementName, requiredOn, values);
+		String raw_requiredStrength = values.get(0);
+		requiredStrength = Integer.parseInt(raw_requiredStrength);
+	}
+
+	@Override
+	public boolean match(Card c) {
+		if(!(c instanceof HeroCard)) {
+			return false;
+		}
+		HeroCard hero = (HeroCard)c;
+		return hero.getStrength() >= requiredStrength;
+	}
+}
+
+class LightweightEdgedWeaponRequirement extends Requirement {
+	//matches an edged weapon with weight <= 3
+	protected LightweightEdgedWeaponRequirement(String requirementName, String cardType, List<String> values) {
+		super(requirementName, cardType, values);
+	}
+	
+	@Override
+	public boolean match(Card c) {
+		if(!(c instanceof VillageCard)) {
+			return false;
+		}
+		VillageCard villageCard = (VillageCard)c;
+		logger.info("Considering card: "+c.getCardName()+"; classes="+c.getClasses()+"; weight="+villageCard.getWeight());
+		return villageCard.getClasses().contains("Weapon") && villageCard.getClasses().contains("Edged") && villageCard.getWeight() <= 3;
+	}
 }
 
 class PlaceholderRequirement extends Requirement {

@@ -6,11 +6,12 @@ import java.util.List;
 public class VillageCard extends Card {
 	private int cost;
 	private Integer value = null;
-	private Integer light = null;
+	private Integer weight = null;
 	
-	public VillageCard(String cardName, String setName, String cardText, int cost, List<String> attributes, List<String> classes, List<Requirement> requirements) {
+	public VillageCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements, int cost, Integer weight) {
 		super(cardName, setName, cardText, attributes, classes, requirements);
 		this.cost = cost;
+		this.weight = weight;
 	}
 	
 	public int getCost() {
@@ -20,14 +21,9 @@ public class VillageCard extends Card {
 	public Integer getValue() {
 		return value;
 	}
-	public void setValue(Integer value) {
-		this.value = value;
-	}
-	public Integer getLight() {
-		return light;
-	}
-	public void setLight(Integer light) {
-		this.light = light;
+
+	public Integer getWeight() {
+		return weight;
 	}
 
 	@Override

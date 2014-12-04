@@ -142,8 +142,8 @@ public class SmartRandomizer implements IRandomizer {
 		minimumNumOfCards.put("Hero", 4);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
 		maximumNumOfCards.put("Hero", 4);
-		
 		return chooseCards(remainingHeroCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
+		
 	}
 
 	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes) {

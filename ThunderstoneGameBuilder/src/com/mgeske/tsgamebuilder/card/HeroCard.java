@@ -9,13 +9,20 @@ public class HeroCard extends Card {
 		randomizerKeys.add("Hero");
 	}
 	
-	public HeroCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements) {
+	private int strength;
+	
+	public HeroCard(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements, int strength) {
 		super(cardName, setName, cardText, attributes, classes, requirements);
+		this.strength = strength;
 	}
 
 	@Override
 	public List<String> getRandomizerKeys() {
 		return randomizerKeys;
+	}
+
+	public int getStrength() {
+		return strength;
 	}
 
 }
