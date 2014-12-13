@@ -74,7 +74,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 	
 	public List<DungeonCard> getAllDungeonCards() {
 		String tables = getTables("DungeonCard");
-		String[] columns = {"cardName", "cardType", "setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+		String[] columns = {"cardName", "cardType", "abbreviation as setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
 				"group_concat(distinct requirementName) as requirements"};
 		String selection = "DungeonCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
@@ -84,7 +84,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 	
 	public List<ThunderstoneCard> getAllThunderstoneCards() {
 		String tables = getTables("DungeonBossCard");
-		String[] columns = {"cardName", "cardType", "setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+		String[] columns = {"cardName", "cardType", "abbreviation as setName", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
 				"group_concat(distinct requirementName) as requirements"};
 		String selection = "DungeonBossCard.setId = ThunderstoneSet._ID and DungeonBossCard.cardType like 'Thunderstone%'";
 		String groupBy = "cardName";
@@ -94,7 +94,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 	
 	public List<HeroCard> getAllHeroCards() {
 		String tables = getTables("HeroCard");
-		String[] columns = {"cardname", "setName", "description", "strength", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+		String[] columns = {"cardname", "abbreviation as setName", "description", "strength", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
 				"group_concat(distinct requirementName) as requirements"};
 		String selection = "HeroCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";
@@ -104,7 +104,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 	
 	public List<VillageCard> getAllVillageCards() {
 		String tables = getTables("VillageCard");
-		String[] columns = {"cardname", "setName", "description", "goldCost", "weight", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+		String[] columns = {"cardname", "abbreviation as setName", "description", "goldCost", "weight", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
 				"group_concat(distinct requirementName) as requirements"};
 		String selection = "VillageCard.setId = ThunderstoneSet._ID";
 		String groupBy = "cardName";

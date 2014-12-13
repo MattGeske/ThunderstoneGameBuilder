@@ -25,4 +25,8 @@ public class HeroCard extends Card {
 		return strength;
 	}
 
+	@Override
+	public String getCardType() {
+		return "";
+	}
 }

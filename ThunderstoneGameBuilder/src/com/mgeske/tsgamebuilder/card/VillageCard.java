@@ -39,4 +39,19 @@ public class VillageCard extends Card {
 		}
 		return keys;
 	}
+
+	@Override
+	public String getCardType() {
+		List<String> cardTypes = new ArrayList<String>();
+		cardTypes.add("Weapon");
+		cardTypes.add("Item");
+		cardTypes.add("Spell");
+		cardTypes.add("Villager");
+		for(String cardClass : getRandomizerKeys()) {
+			if(cardTypes.contains(cardClass)) {
+				return cardClass;
+			}
+		}
+		return "";
+	}
 }

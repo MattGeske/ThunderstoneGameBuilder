@@ -60,5 +60,5 @@ public abstract class Card implements Comparable<Card> {
 	
 	public abstract List<String> getRandomizerKeys();
 	
-	
+	public abstract String getCardType();
 }

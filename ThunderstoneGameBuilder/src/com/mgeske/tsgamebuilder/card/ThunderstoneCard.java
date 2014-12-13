@@ -18,4 +18,9 @@ public class ThunderstoneCard extends Card {
 		return randomizerKeys;
 	}
 
+	@Override
+	public String getCardType() {
+		return "";
+	}
+
 }
