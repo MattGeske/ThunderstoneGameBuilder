@@ -31,13 +31,12 @@ public class DungeonCard extends Card {
 
 	@Override
 	public List<String> getRandomizerKeys() {
-		List<String> keys = new ArrayList<String>(1); //we know there will always be exactly one thing in the list
+		List<String> keys = new ArrayList<String>(2); //we know there will never be more than 2 things in the list
 		String dungeonType = getDungeonType();
 		if("Monster".equals(dungeonType)) {
 			keys.add("Level"+getLevel()+dungeonType);
-		} else {
-			keys.add(dungeonType);
 		}
+		keys.add(dungeonType);
 		return keys;
 	}
 

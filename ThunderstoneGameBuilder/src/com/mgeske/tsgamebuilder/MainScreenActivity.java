@@ -7,26 +7,48 @@ import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.WindowManager;
 import android.widget.ListView;
 
 
 
 public class MainScreenActivity extends ActionBarActivity {
-	private IRandomizer randomizer = new SmartRandomizer();
+	private IRandomizer randomizer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
     }
-
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+        SharedPreferences s = PreferenceManager.getDefaultSharedPreferences(this);
+        if(s.getBoolean("keep_screen_on", false)) {
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    	int num_monster = Integer.parseInt(s.getString("num_monster", this.getString(R.string.default_num_monsters)));
+    	int num_thunderstone = Integer.parseInt(s.getString("num_thunderstone", this.getString(R.string.default_num_thunderstone)));
+    	int num_hero = Integer.parseInt(s.getString("num_hero", this.getString(R.string.default_num_hero)));
+    	int num_village = Integer.parseInt(s.getString("num_village", this.getString(R.string.default_num_village)));
+        if(randomizer == null) {
+        	randomizer = new SmartRandomizer(num_monster, num_thunderstone, num_hero, num_village);
+        } else {
+        	randomizer.setLimits(num_monster, num_thunderstone, num_hero, num_village);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -41,13 +63,19 @@ public class MainScreenActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 		switch (item.getItemId()) {
-			case R.id.action_settings: return true;
+			case R.id.action_settings: openSettings(); return true;
 			case R.id.action_newgame: buildNewGame(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
     
-    @Override
+    private void openSettings() {
+    	Intent intent = new Intent(this, SettingsActivity.class);
+    	startActivity(intent); 
+	}
+
+
+	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		
 		super.onSaveInstanceState(outState);

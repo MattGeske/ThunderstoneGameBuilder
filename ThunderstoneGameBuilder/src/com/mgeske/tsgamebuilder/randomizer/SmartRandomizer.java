@@ -27,8 +27,21 @@ public class SmartRandomizer implements IRandomizer {
 	private List<ThunderstoneCard> allThunderstoneCards = null;
 	private List<HeroCard> allHeroCards = null;
 	private List<VillageCard> allVillageCards = null;
+	
+	private int num_monster;
+	private int num_thunderstone;
+	private int num_hero;
+	private int num_village;
+	
+	public SmartRandomizer(int num_monster, int num_thunderstone, int num_hero, int num_village) {
+		setLimits(num_monster, num_thunderstone, num_hero, num_village);
+	}
 
-	public SmartRandomizer() {
+	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village) {
+		this.num_monster = num_monster;
+		this.num_thunderstone = num_thunderstone;
+		this.num_hero = num_hero;
+		this.num_village = num_village;
 	}
 
 	@Override
@@ -113,13 +126,23 @@ public class SmartRandomizer implements IRandomizer {
 	private List<DungeonCard> chooseDungeonCards(List<DungeonCard> remainingDungeonCards) {
 		//TODO for now, assumes you want a monster of each level
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
-		minimumNumOfCards.put("Level1Monster", 1);
-		minimumNumOfCards.put("Level2Monster", 1);
-		minimumNumOfCards.put("Level3Monster", 1);
+		minimumNumOfCards.put("Monster", num_monster);
+		if(num_monster == 3) {
+			//only enforce the minimum if there are enough cards to do so
+			//TODO ideally this should be when num_monster >= 3, but that introduces some difficulties that will require significant refactoring
+			//     to make the minimums behave more like requirements
+			minimumNumOfCards.put("Level1Monster", 1);
+			minimumNumOfCards.put("Level2Monster", 1);
+			minimumNumOfCards.put("Level3Monster", 1);
+		}
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
-		maximumNumOfCards.put("Level1Monster", 1);
-		maximumNumOfCards.put("Level2Monster", 1);
-		maximumNumOfCards.put("Level3Monster", 1);
+		maximumNumOfCards.put("Monster", num_monster);
+		if(num_monster <= 3) {
+			//only enforce the maximum if there are few enough cards to do so
+			maximumNumOfCards.put("Level1Monster", 1);
+			maximumNumOfCards.put("Level2Monster", 1);
+			maximumNumOfCards.put("Level3Monster", 1);
+		}
 		maximumNumOfCards.put("Treasure", 1);
 		maximumNumOfCards.put("Trap", 1);
 		
@@ -127,35 +150,36 @@ public class SmartRandomizer implements IRandomizer {
 	}
 
 	private List<ThunderstoneCard> chooseThunderstoneCards(List<ThunderstoneCard> remainingThunderstoneCards) {
-		//TODO for now, assumes you want 1 thunderstone
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
-		minimumNumOfCards.put("Thunderstone", 1);
+		minimumNumOfCards.put("Thunderstone", num_thunderstone);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
-		maximumNumOfCards.put("Thunderstone", 1);
+		maximumNumOfCards.put("Thunderstone", num_thunderstone);
 		
 		return chooseCards(remainingThunderstoneCards, minimumNumOfCards, maximumNumOfCards, null);
 	}
 
 	private List<HeroCard> chooseHeroCards(List<HeroCard> remainingHeroCards, Set<Requirement> requiredAttributes) {
-		//TODO for now, assumes you want 4 heroes
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
-		minimumNumOfCards.put("Hero", 4);
+		minimumNumOfCards.put("Hero", num_hero);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
-		maximumNumOfCards.put("Hero", 4);
+		maximumNumOfCards.put("Hero", num_hero);
 		return chooseCards(remainingHeroCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
 		
 	}
 
 	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes) {
-		//TODO for now, assumes you want 8 total village cards with no more than 3 weapons, 2 items, 3 spells, and 3 villagers (TS Advance rules)
+		//TODO for now, assumes you want no more than 3 weapons, 2 items, 3 spells, and 3 villagers (TS Advance rules)
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
-		minimumNumOfCards.put("Village", 8);
+		minimumNumOfCards.put("Village", num_village);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
-		maximumNumOfCards.put("Village", 8);
-		maximumNumOfCards.put("Weapon", 3);
-		maximumNumOfCards.put("Item", 2);
-		maximumNumOfCards.put("Spell", 3);
-		maximumNumOfCards.put("Villager", 3);
+		maximumNumOfCards.put("Village", num_village);
+		if(num_village <= 11) {
+			//only enforce the maximum if there are few enough cards to do so
+			maximumNumOfCards.put("Weapon", 3);
+			maximumNumOfCards.put("Item", 2);
+			maximumNumOfCards.put("Spell", 3);
+			maximumNumOfCards.put("Villager", 3);
+		}
 		
 		return chooseCards(remainingVillageCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
 	}

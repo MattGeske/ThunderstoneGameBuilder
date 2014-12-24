@@ -1,7 +1,5 @@
 package com.mgeske.tsgamebuilder;
 
-import java.util.logging.Logger;
-
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 
@@ -13,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class CardListAdapter extends BaseAdapter {
-	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private LayoutInflater inflater;
 	private int cardItemResource;
 	private int cardNameResourceId;
@@ -67,7 +64,6 @@ public class CardListAdapter extends BaseAdapter {
 		int type = getItemViewType(position);
 		
 
-		logger.info("Called getView for position="+position+", item="+item+", itemType="+type+", convertView="+convertView+", parent="+parent);
 		if (convertView == null) {
 			switch(type) {
 				case HEADER_TYPE: convertView = inflater.inflate(headerItemResource, parent, false); break;

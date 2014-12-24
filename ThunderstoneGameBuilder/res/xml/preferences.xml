@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/general_settings" android:key="general_settings_category">
+        <CheckBoxPreference android:title="@string/preference_general_keep_screen_on" android:key="keep_screen_on" android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/normal_game_settings" android:key="normal_game_settings_category">
+        <EditTextPreference
+            android:title="@string/preference_normal_monster_cards"
+            android:inputType="number"
+            android:key="num_monster"
+            android:defaultValue="@string/default_num_monsters"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_normal_thunderstone_cards"
+            android:inputType="number"
+            android:key="num_thunderstone"
+            android:defaultValue="@string/default_num_thunderstone"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_normal_hero_cards"
+            android:inputType="number"
+            android:key="num_hero"
+            android:defaultValue="@string/default_num_hero"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_normal_village_cards"
+            android:inputType="number"
+            android:key="num_village"
+            android:defaultValue="@string/default_num_village"
+            android:selectAllOnFocus="true"
+        />
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

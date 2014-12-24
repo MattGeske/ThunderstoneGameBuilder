@@ -6,7 +6,20 @@
 
     <!-- main screen -->
     <string name="new_game_button_text">New Game</string>
-    <string name="title_activity_show_game">ShowGameActivity</string>
-    <string name="hello_world">Hello world!</string>
+    
+    <!-- preferences screen -->
+    <string name="general_settings">General Settings</string>
+    <string name="preference_general_keep_screen_on">Keep Screen On</string>
+    <string name="normal_game_settings">Normal Game Settings</string>
+    <string name="preference_normal_monster_cards">Monster Cards</string>
+    <string name="preference_normal_thunderstone_cards">Thunderstone Cards</string>
+    <string name="preference_normal_hero_cards">Hero Cards</string>
+    <string name="preference_normal_village_cards">Village Cards</string>
+    
+    <!-- default preferences -->
+    <string name="default_num_monsters">3</string>
+    <string name="default_num_thunderstone">1</string>
+    <string name="default_num_hero">4</string>
+    <string name="default_num_village">8</string>
 
 </resources>
