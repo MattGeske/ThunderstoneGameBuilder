@@ -11,15 +11,24 @@
     <string name="general_settings">General Settings</string>
     <string name="preference_general_keep_screen_on">Keep Screen On</string>
     <string name="normal_game_settings">Normal Game Settings</string>
-    <string name="preference_normal_monster_cards">Monster Cards</string>
-    <string name="preference_normal_thunderstone_cards">Thunderstone Cards</string>
-    <string name="preference_normal_hero_cards">Hero Cards</string>
-    <string name="preference_normal_village_cards">Village Cards</string>
+    <string name="preference_monster_cards">Monster Cards</string>
+    <string name="preference_thunderstone_cards">Thunderstone Cards</string>
+    <string name="preference_hero_cards">Hero Cards</string>
+    <string name="preference_village_cards">Village Cards</string>
+    <string name="preference_village_limits">Enforce Village Limits</string>
+    <string name="preference_village_limits_summary_on">3 weapons, 2 items, 3 spells, 3 villagers</string>
+    <string name="preference_village_limits_summary_off">No village limits</string>
+    <string name="preference_monster_levels">Enforce Monster Levels</string>
+    <string name="preference_monster_levels_summary_on">One monster of each level</string>
+    <string name="preference_monster_levels_summary_off">Random monster levels</string>
     
     <!-- default preferences -->
     <string name="default_num_monsters">3</string>
     <string name="default_num_thunderstone">1</string>
     <string name="default_num_hero">4</string>
     <string name="default_num_village">8</string>
+    <string name="default_village_limits">true</string>
+    <string name="default_monster_levels">true</string>
+    
 
 </resources>

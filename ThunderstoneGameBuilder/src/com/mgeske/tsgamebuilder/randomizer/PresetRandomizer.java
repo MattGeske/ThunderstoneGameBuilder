@@ -20,7 +20,7 @@ public class PresetRandomizer implements IRandomizer {
 	}
 
 	@Override
-	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village) {
+	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
 		// TODO Auto-generated method stub
 		
 	}

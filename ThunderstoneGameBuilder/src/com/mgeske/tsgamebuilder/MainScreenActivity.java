@@ -33,21 +33,34 @@ public class MainScreenActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
     	super.onResume();
-        SharedPreferences s = PreferenceManager.getDefaultSharedPreferences(this);
-        if(s.getBoolean("keep_screen_on", false)) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(preferences.getBoolean("keep_screen_on", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-    	int num_monster = Integer.parseInt(s.getString("num_monster", this.getString(R.string.default_num_monsters)));
-    	int num_thunderstone = Integer.parseInt(s.getString("num_thunderstone", this.getString(R.string.default_num_thunderstone)));
-    	int num_hero = Integer.parseInt(s.getString("num_hero", this.getString(R.string.default_num_hero)));
-    	int num_village = Integer.parseInt(s.getString("num_village", this.getString(R.string.default_num_village)));
+    	int num_monster = getIntPreference(preferences, "num_monster", R.string.default_num_monsters);
+    	int num_thunderstone = getIntPreference(preferences, "num_thunderstone", R.string.default_num_thunderstone);
+    	int num_hero = getIntPreference(preferences, "num_hero", R.string.default_num_hero);
+    	int num_village = getIntPreference(preferences, "num_village", R.string.default_num_village);
+    	boolean village_limits = getBooleanPreference(preferences, "village_limits", R.string.default_village_limits);
+    	boolean monster_levels = getBooleanPreference(preferences, "monster_levels", R.string.default_monster_levels);
         if(randomizer == null) {
-        	randomizer = new SmartRandomizer(num_monster, num_thunderstone, num_hero, num_village);
+        	randomizer = new SmartRandomizer(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
         } else {
-        	randomizer.setLimits(num_monster, num_thunderstone, num_hero, num_village);
+        	randomizer.setLimits(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
         }
+    }
+    
+    private int getIntPreference(SharedPreferences preferences, String key, int default_id) {
+    	String default_string_value = getString(default_id);
+    	return Integer.parseInt(preferences.getString(key, default_string_value));
+    }
+    
+    private boolean getBooleanPreference(SharedPreferences preferences, String key, int default_id) {
+    	String default_string_value = getString(default_id);
+    	boolean default_value = Boolean.parseBoolean(default_string_value);
+    	return preferences.getBoolean(key, default_value);
     }
 
     @Override

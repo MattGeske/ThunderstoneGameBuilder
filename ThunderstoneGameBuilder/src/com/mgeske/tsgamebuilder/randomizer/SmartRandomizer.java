@@ -32,16 +32,20 @@ public class SmartRandomizer implements IRandomizer {
 	private int num_thunderstone;
 	private int num_hero;
 	private int num_village;
+	private boolean village_limits;
+	private boolean monster_levels;
 	
-	public SmartRandomizer(int num_monster, int num_thunderstone, int num_hero, int num_village) {
-		setLimits(num_monster, num_thunderstone, num_hero, num_village);
+	public SmartRandomizer(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
+		setLimits(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
 	}
 
-	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village) {
+	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
 		this.num_monster = num_monster;
 		this.num_thunderstone = num_thunderstone;
 		this.num_hero = num_hero;
 		this.num_village = num_village;
+		this.village_limits = village_limits;
+		this.monster_levels = monster_levels;
 	}
 
 	@Override
@@ -124,20 +128,23 @@ public class SmartRandomizer implements IRandomizer {
 	}
 	
 	private List<DungeonCard> chooseDungeonCards(List<DungeonCard> remainingDungeonCards) {
-		//TODO for now, assumes you want a monster of each level
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Monster", num_monster);
-		if(num_monster == 3) {
+		
+		if(monster_levels &&  num_monster == 3) {
 			//only enforce the minimum if there are enough cards to do so
 			//TODO ideally this should be when num_monster >= 3, but that introduces some difficulties that will require significant refactoring
 			//     to make the minimums behave more like requirements
+			//     (e.g. if num_monster == 4, you could get 2xLevel1 and 2xLevel2, satisfying the maximum for "Monster" but not the minimum for "Level3Monster")
 			minimumNumOfCards.put("Level1Monster", 1);
 			minimumNumOfCards.put("Level2Monster", 1);
 			minimumNumOfCards.put("Level3Monster", 1);
 		}
+		
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
 		maximumNumOfCards.put("Monster", num_monster);
-		if(num_monster <= 3) {
+		
+		if(monster_levels && num_monster <= 3) {
 			//only enforce the maximum if there are few enough cards to do so
 			maximumNumOfCards.put("Level1Monster", 1);
 			maximumNumOfCards.put("Level2Monster", 1);
@@ -164,16 +171,15 @@ public class SmartRandomizer implements IRandomizer {
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
 		maximumNumOfCards.put("Hero", num_hero);
 		return chooseCards(remainingHeroCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
-		
 	}
 
 	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes) {
-		//TODO for now, assumes you want no more than 3 weapons, 2 items, 3 spells, and 3 villagers (TS Advance rules)
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Village", num_village);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
 		maximumNumOfCards.put("Village", num_village);
-		if(num_village <= 11) {
+		
+		if(village_limits && num_village <= 11) {
 			//only enforce the maximum if there are few enough cards to do so
 			maximumNumOfCards.put("Weapon", 3);
 			maximumNumOfCards.put("Item", 2);
