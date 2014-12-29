@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="rule_types">
+        <item>Original Thunderstone</item>
+        <item>Thunderstone Advance</item>
+        <item>Custom Rules</item>
+    </array>
+    
+    <array name="rule_types_values">
+        <item>@string/rule_type_original</item>
+        <item>@string/rule_type_advance</item>
+        <item>@string/rule_type_custom</item>
+    </array>
+</resources>

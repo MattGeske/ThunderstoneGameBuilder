@@ -21,6 +21,11 @@
     <string name="preference_monster_levels">Enforce Monster Levels</string>
     <string name="preference_monster_levels_summary_on">One monster of each level</string>
     <string name="preference_monster_levels_summary_off">Random monster levels</string>
+   	
+    <!-- Game rule types -->
+    <string name="rule_type_original">original_thunderstone</string>
+    <string name="rule_type_advance">thunderstone_advance</string>
+    <string name="rule_type_custom">custom_rules</string>
     
     <!-- default preferences -->
     <string name="default_num_monsters">3</string>
