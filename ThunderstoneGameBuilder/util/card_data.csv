@@ -1,0 +1,12 @@
+Card Name,Set Name,Description,Attributes,Classes,Requirements,Category,"CardType (D,DB)",Level (D),Race (H),Strength (H),Gold Value (V),Gold Cost (V),Weight (V)
+Dragon - Humanoid,Worlds Collide,Skywyrm dragonriders ignore specific classes in combat. They destroy heroes as Battle effects as well.,,,,Dungeon,Monster,3,,,,,
+Giant,Worlds Collide,Giants destroy heroes with low Strength as Battle effects.,,,,Dungeon,Monster,2,,,,,
+Clan,Worlds Collide,This fighter has Physical Attack. He adds Physical Attack to other equipped heroes as well.,HAS_PHYSICAL_ATTACK,Fighter,WANTS_WEAPON,Hero,,,Dwarf,8,,,
+Harruli,Worlds Collide,This fighter/wizard has Physical Attack. He adds Magic Attack for each spell present. At level 3 he gains the potential to draw spells while in the dungeon.,"HAS_PHYSICAL_ATTACK,HAS_MAGIC_ATTACK","Fighter,Wizard",WANTS_SPELL,Hero,,,Human,7,,,
+Stoneguard,Worlds Collide,This fighter has Physical Attack. He adds Physical Attack after equipping and while mercenaries are present.,HAS_PHYSICAL_ATTACK,Fighter,"WANTS_WEAPON,WANTS_MERCENARY",Hero,,,Dwarf,8,,,
+Chieftain's Drum,Worlds Collide,"Village/Dungeon: Choose hero, village, or monster. Reveal the top card of your deck. If you named the card's type correctly, draw 2 cards. If not, return it.",,"Item,Magic",,Village,,,,,2,3,
+Guardian Blade,Worlds Collide,"Physical Attack +3
+If the equipped hero would be destroyed, discard that hero instead.",HAS_PHYSICAL_ATTACK,"Weapon,Edged",,Village,,,,,2,5,5
+Guide,Worlds Collide,Village: You may buy 1 additional card.,"HAS_ADDITIONAL_BUY,HAS_LIGHT","Villager,Mercenary",,Village,,,,,2,4,
+Trader,Worlds Collide,"Village: Destroy 1 card to place 1 village card that costs up to 2 gold more into your discard pile. (This card may destroy itself.)
+Dungeon: Draw 1 card. If it is a monster, draw another card.",,"Villager,Mercenary",,Village,,,,,,4,
