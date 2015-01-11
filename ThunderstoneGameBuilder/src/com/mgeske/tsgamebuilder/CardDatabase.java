@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,6 +25,100 @@ public class CardDatabase extends SQLiteAssetHelper {
 	
 	public CardDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	}
+	
+	public List<DungeonCard> getAllDungeonCards() {
+		String[] columns = {"cardName", "cardType", "abbreviation as setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
+		String selection = null;
+		CardBuilder<DungeonCard> cardBuilder = new DungeonCardBuilder();
+		return getCards(cardBuilder, "DungeonCard", columns, selection);
+	}
+	
+	public List<ThunderstoneCard> getAllThunderstoneCards() {
+		String[] columns = {"cardName", "cardType", "abbreviation as setName",  "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
+		String selection = "DungeonBossCard.cardType like 'Thunderstone%'";
+		CardBuilder<ThunderstoneCard> cardBuilder = new ThunderstoneCardBuilder();
+		return getCards(cardBuilder, "DungeonBossCard", columns, selection);
+	}
+	
+	public List<HeroCard> getAllHeroCards() {
+		String[] columns = {"cardname", "abbreviation as setName", "description",  "strength", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
+		String selection = null;
+		CardBuilder<HeroCard> cardBuilder = new HeroCardBuilder();
+		return getCards(cardBuilder, "HeroCard", columns, selection);
+	}
+	
+	public List<VillageCard> getAllVillageCards() {
+		String[] columns = {"cardname", "abbreviation as setName", "description",  "goldCost", "weight", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
+				"group_concat(distinct requirementName) as requirements"};
+		String selection = null;
+		CardBuilder<VillageCard> cardBuilder = new VillageCardBuilder();
+		return getCards(cardBuilder, "VillageCard", columns, selection);
+	}
+
+	public List<String> getThunderstoneSets() {
+		String[] columns = {"setName", "abbreviation", "releaseOrder"};
+		String tables = "ThunderstoneSet";
+		String sortOrder = "releaseOrder ASC";
+		
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+			queryBuilder.setTables(tables);
+			c = queryBuilder.query(db, columns, null, null, null, null, sortOrder);
+			List<String> thunderstoneSets = new ArrayList<String>();
+			int setNameIndex = c.getColumnIndexOrThrow("setName");
+			while(c.moveToNext()) {
+				String setName = c.getString(setNameIndex);
+				thunderstoneSets.add(setName);
+			}
+			return thunderstoneSets;
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
+	}
+	
+	private String getTables(String tableName) {
+		return tableName+" "+
+				"LEFT OUTER JOIN Card_CardClass ON "+tableName+"._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
+				"LEFT OUTER JOIN Card_CardAttribute ON "+tableName+"._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID " +
+				"LEFT OUTER JOIN Card_Requirement ON "+tableName+"._ID = Card_Requirement.cardId and Card_Requirement.cardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN Requirement ON Card_Requirement.requirementId = Requirement._ID " + 
+				"LEFT OUTER JOIN Card_ThunderstoneSet ON "+tableName+"._ID = Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.CardTableName = '"+tableName+"' " +
+				"LEFT OUTER JOIN ThunderstoneSet ON Card_ThunderstoneSet.setId = ThunderstoneSet._ID";
+	}
+	
+	private <T extends Card> List<T> getCards(CardBuilder<T> cardBuilder, String cardTableName, String[] columns, String selection) {
+		String tables = getTables(cardTableName);
+		String groupBy = "cardName";
+		String having = "releaseOrder = max(releaseOrder)";
+		List<T> allCards = new ArrayList<T>();
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+			queryBuilder.setTables(tables);
+			c = queryBuilder.query(db, columns, selection, null, groupBy, having, null, null);
+			while(c.moveToNext()) {
+				T card = cardBuilder.buildCard(c, getRequirements());
+				allCards.add(card);
+			}
+			return allCards;
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
 	}
 	
 	private Map<String,Requirement> getRequirements() {
@@ -65,74 +158,6 @@ public class CardDatabase extends SQLiteAssetHelper {
 				Requirement r = Requirement.buildRequirement(requirementName, requirementType, values, requiredOn);
 				requirementsCache.put(requirementName, r);
 			}
-		} finally {
-			if(c != null) {
-				c.close();
-			}
-		}
-	}
-	
-	public List<DungeonCard> getAllDungeonCards() {
-		String[] columns = {"cardName", "cardType", "abbreviation as setName", "level", "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
-				"group_concat(distinct requirementName) as requirements"};
-		String selection = null;
-		CardBuilder<DungeonCard> cardBuilder = new DungeonCardBuilder();
-		return getCards(cardBuilder, "DungeonCard", columns, selection);
-	}
-	
-	public List<ThunderstoneCard> getAllThunderstoneCards() {
-		String[] columns = {"cardName", "cardType", "abbreviation as setName",  "description", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
-				"group_concat(distinct requirementName) as requirements"};
-		String selection = "DungeonBossCard.cardType like 'Thunderstone%'";
-		CardBuilder<ThunderstoneCard> cardBuilder = new ThunderstoneCardBuilder();
-		return getCards(cardBuilder, "DungeonBossCard", columns, selection);
-	}
-	
-	public List<HeroCard> getAllHeroCards() {
-		String[] columns = {"cardname", "abbreviation as setName", "description",  "strength", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
-				"group_concat(distinct requirementName) as requirements"};
-		String selection = null;
-		CardBuilder<HeroCard> cardBuilder = new HeroCardBuilder();
-		return getCards(cardBuilder, "HeroCard", columns, selection);
-	}
-	
-	public List<VillageCard> getAllVillageCards() {
-		String[] columns = {"cardname", "abbreviation as setName", "description",  "goldCost", "weight", "group_concat(distinct className) as classes", "group_concat(distinct attributeName) as attributes",
-				"group_concat(distinct requirementName) as requirements"};
-		String selection = null;
-		CardBuilder<VillageCard> cardBuilder = new VillageCardBuilder();
-		return getCards(cardBuilder, "VillageCard", columns, selection);
-	}
-	
-	private String getTables(String tableName) {
-		return tableName+" "+
-				"LEFT OUTER JOIN Card_CardClass ON "+tableName+"._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = '"+tableName+"' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON "+tableName+"._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = '"+tableName+"' " +
-				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID " +
-				"LEFT OUTER JOIN Card_Requirement ON "+tableName+"._ID = Card_Requirement.cardId and Card_Requirement.cardTableName = '"+tableName+"' " +
-				"LEFT OUTER JOIN Requirement ON Card_Requirement.requirementId = Requirement._ID " + 
-				"LEFT OUTER JOIN Card_ThunderstoneSet ON "+tableName+"._ID = Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.CardTableName = '"+tableName+"' " +
-				"LEFT OUTER JOIN ThunderstoneSet ON Card_ThunderstoneSet.setId = ThunderstoneSet._ID";
-	}
-	
-	private <T extends Card> List<T> getCards(CardBuilder<T> cardBuilder, String cardTableName, String[] columns, String selection) {
-		String tables = getTables(cardTableName);
-		String groupBy = "cardName";
-		String having = "setPrecedence = max(setPrecedence)";
-		List<T> allCards = new ArrayList<T>();
-		SQLiteDatabase db = null;
-		Cursor c = null;
-		try {
-			db = getReadableDatabase();
-			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-			queryBuilder.setTables(tables);
-			c = queryBuilder.query(db, columns, selection, null, groupBy, having, null, null);
-			while(c.moveToNext()) {
-				T card = cardBuilder.buildCard(c, getRequirements());
-				allCards.add(card);
-			}
-			return allCards;
 		} finally {
 			if(c != null) {
 				c.close();

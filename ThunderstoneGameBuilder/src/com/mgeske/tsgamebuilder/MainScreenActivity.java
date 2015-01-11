@@ -1,6 +1,9 @@
 package com.mgeske.tsgamebuilder;
 
 
+import java.util.Arrays;
+import java.util.logging.Logger;
+
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
@@ -22,6 +25,7 @@ import android.widget.ListView;
 
 
 public class MainScreenActivity extends ActionBarActivity {
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private IRandomizer randomizer = null;
 
     @Override
@@ -30,10 +34,14 @@ public class MainScreenActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main_screen);
     }
     
-    @Override
+	@Override
     protected void onResume() {
     	super.onResume();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String chosenSetsString = preferences.getString("chosenSets", "");
+        logger.info("chosenSetsRaw="+chosenSetsString);
+        String[] chosenSets = chosenSetsString.split(",");
+        logger.info("chosenSets="+Arrays.deepToString(chosenSets));
         if(preferences.getBoolean("keep_screen_on", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
@@ -77,6 +85,7 @@ public class MainScreenActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 		switch (item.getItemId()) {
 			case R.id.action_settings: openSettings(); return true;
+			case R.id.action_choosesets: openChooseSets(); return true;
 			case R.id.action_newgame: buildNewGame(); return true;
 		}
         return super.onOptionsItemSelected(item);
@@ -86,6 +95,11 @@ public class MainScreenActivity extends ActionBarActivity {
     	Intent intent = new Intent(this, SettingsActivity.class);
     	startActivity(intent); 
 	}
+    
+    private void openChooseSets() {
+    	Intent intent = new Intent(this, ChooseSetsActivity.class);
+    	startActivity(intent);
+    }
 
 
 	@Override
