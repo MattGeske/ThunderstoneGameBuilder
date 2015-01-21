@@ -10,8 +10,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import android.content.Context;
-
 import com.mgeske.tsgamebuilder.CardDatabase;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
@@ -27,63 +25,46 @@ public class SmartRandomizer implements IRandomizer {
 	private List<ThunderstoneCard> allThunderstoneCards = null;
 	private List<HeroCard> allHeroCards = null;
 	private List<VillageCard> allVillageCards = null;
+	private CardDatabase cardDb;
 	
-	private int num_monster;
-	private int num_thunderstone;
-	private int num_hero;
-	private int num_village;
-	private boolean village_limits;
-	private boolean monster_levels;
-	
-	public SmartRandomizer(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
-		setLimits(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
+	public SmartRandomizer(CardDatabase cardDb) {
+		this.cardDb = cardDb;
 	}
-
-	public void setLimits(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
-		this.num_monster = num_monster;
-		this.num_thunderstone = num_thunderstone;
-		this.num_hero = num_hero;
-		this.num_village = num_village;
-		this.village_limits = village_limits;
-		this.monster_levels = monster_levels;
+	
+	public void setCards(List<DungeonCard> dungeonCards, List<ThunderstoneCard> thunderstoneCards, List<HeroCard> heroCards, List<VillageCard> villageCards) {
+		this.allDungeonCards = dungeonCards;
+		this.allThunderstoneCards = thunderstoneCards;
+		this.allHeroCards = heroCards;
+		this.allVillageCards = villageCards;
 	}
 
 	@Override
-	public CardList generateCardList(Context context) {
+	public CardList generateCardList(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
 		if(allDungeonCards == null || allThunderstoneCards == null || allHeroCards == null || allVillageCards == null) {
-			populateCardLists(context);
+			populateCardLists();
 		}
-		CardDatabase cardDb = null;
-		try {
-			cardDb = new CardDatabase(context);
-			//after choosing cards, these lists will contain all cards not yet considered by the randomizer
-			List<DungeonCard> remainingDungeonCards = new ArrayList<DungeonCard>(allDungeonCards);
-			List<ThunderstoneCard> remainingThunderstoneCards = new ArrayList<ThunderstoneCard>(allThunderstoneCards);
-			List<HeroCard> remainingHeroCards = new ArrayList<HeroCard>(allHeroCards);
-			List<VillageCard> remainingVillageCards = new ArrayList<VillageCard>(allVillageCards);
-			
-			List<DungeonCard> dungeonList = chooseDungeonCards(remainingDungeonCards);
-			List<ThunderstoneCard> thunderstoneList = chooseThunderstoneCards(remainingThunderstoneCards);
-			
-			Set<Requirement> requiredHeroAttributes = getHeroRequirements(dungeonList, thunderstoneList);
-			logger.info("Required attributes for heroes: "+requiredHeroAttributes);
-			
-			List<HeroCard> heroList = chooseHeroCards(remainingHeroCards, requiredHeroAttributes);
-			
+		//after choosing cards, these lists will contain all cards not yet considered by the randomizer
+		List<DungeonCard> remainingDungeonCards = new ArrayList<DungeonCard>(allDungeonCards);
+		List<ThunderstoneCard> remainingThunderstoneCards = new ArrayList<ThunderstoneCard>(allThunderstoneCards);
+		List<HeroCard> remainingHeroCards = new ArrayList<HeroCard>(allHeroCards);
+		List<VillageCard> remainingVillageCards = new ArrayList<VillageCard>(allVillageCards);
+		
+		List<DungeonCard> dungeonList = chooseDungeonCards(remainingDungeonCards, num_monster, monster_levels);
+		List<ThunderstoneCard> thunderstoneList = chooseThunderstoneCards(remainingThunderstoneCards, num_thunderstone);
+		
+		Set<Requirement> requiredHeroAttributes = getHeroRequirements(dungeonList, thunderstoneList);
+		logger.info("Required attributes for heroes: "+requiredHeroAttributes);
+		
+		List<HeroCard> heroList = chooseHeroCards(remainingHeroCards, requiredHeroAttributes, num_hero);
+		
 
-			Set<Requirement> requiredVillageAttributes = getVillageRequirements(dungeonList, thunderstoneList, heroList);
-			logger.info("Required attributes for village: "+requiredVillageAttributes);
-			
-			List<VillageCard> villageList = chooseVillageCards(remainingVillageCards, requiredVillageAttributes);
-	
-			logger.info("Finished generating card set.");
-			CardList cardList = new CardList(dungeonList, thunderstoneList, heroList, villageList);
-			return cardList;
-		} finally {
-			if(cardDb != null) {
-				cardDb.close();
-			}
-		}
+		Set<Requirement> requiredVillageAttributes = getVillageRequirements(dungeonList, thunderstoneList, heroList);
+		logger.info("Required attributes for village: "+requiredVillageAttributes);
+		
+		List<VillageCard> villageList = chooseVillageCards(remainingVillageCards, requiredVillageAttributes, num_village, village_limits);
+
+		logger.info("Finished generating card set.");
+		return new CardList(dungeonList, thunderstoneList, heroList, villageList);
 	}
 
 	private Set<Requirement> getHeroRequirements(List<DungeonCard> dungeonList, List<ThunderstoneCard> thunderstoneList) {
@@ -111,23 +92,14 @@ public class SmartRandomizer implements IRandomizer {
 		}
 	}
 
-	private void populateCardLists(Context context) {
-		CardDatabase cardDb = null;
-		try {
-			cardDb = new CardDatabase(context);
-			//first select some dungeon cards
-			allDungeonCards = cardDb.getAllDungeonCards();
-			allThunderstoneCards = cardDb.getAllThunderstoneCards();
-			allHeroCards = cardDb.getAllHeroCards();
-			allVillageCards = cardDb.getAllVillageCards();
-		} finally {
-			if(cardDb != null) {
-				cardDb.close();
-			}
-		}
+	private void populateCardLists() {
+		allDungeonCards = cardDb.getAllDungeonCards();
+		allThunderstoneCards = cardDb.getAllThunderstoneCards();
+		allHeroCards = cardDb.getAllHeroCards();
+		allVillageCards = cardDb.getAllVillageCards();
 	}
 	
-	private List<DungeonCard> chooseDungeonCards(List<DungeonCard> remainingDungeonCards) {
+	private List<DungeonCard> chooseDungeonCards(List<DungeonCard> remainingDungeonCards, int num_monster, boolean monster_levels) {
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Monster", num_monster);
 		
@@ -156,7 +128,7 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingDungeonCards, minimumNumOfCards, maximumNumOfCards, null);
 	}
 
-	private List<ThunderstoneCard> chooseThunderstoneCards(List<ThunderstoneCard> remainingThunderstoneCards) {
+	private List<ThunderstoneCard> chooseThunderstoneCards(List<ThunderstoneCard> remainingThunderstoneCards, int num_thunderstone) {
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Thunderstone", num_thunderstone);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
@@ -165,7 +137,7 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingThunderstoneCards, minimumNumOfCards, maximumNumOfCards, null);
 	}
 
-	private List<HeroCard> chooseHeroCards(List<HeroCard> remainingHeroCards, Set<Requirement> requiredAttributes) {
+	private List<HeroCard> chooseHeroCards(List<HeroCard> remainingHeroCards, Set<Requirement> requiredAttributes, int num_hero) {
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Hero", num_hero);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
@@ -173,7 +145,7 @@ public class SmartRandomizer implements IRandomizer {
 		return chooseCards(remainingHeroCards, minimumNumOfCards, maximumNumOfCards, requiredAttributes);
 	}
 
-	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes) {
+	private List<VillageCard> chooseVillageCards(List<VillageCard> remainingVillageCards, Set<Requirement> requiredAttributes, int num_village, boolean village_limits) {
 		Map<String,Integer> minimumNumOfCards = new HashMap<String,Integer>();
 		minimumNumOfCards.put("Village", num_village);
 		Map<String,Integer> maximumNumOfCards = new HashMap<String,Integer>();
@@ -241,11 +213,11 @@ public class SmartRandomizer implements IRandomizer {
 			}
 			localAllCards.remove(index);
 		}
-		if(!metMinimumCardRequirements(localMinNumOfCards)) {
-			throw new RuntimeException("Couldn't choose cards meeting the requirements "+minimumNumOfCards+". Remaining requirements: "+localMinNumOfCards);
-		}
 		if(remainingRequirements.size() > 0) {
 			throw new RuntimeException("Couldn't choose cards meeting the requirements "+remainingRequirements+".");
+		}
+		if(!metMinimumCardRequirements(localMinNumOfCards)) {
+			throw new RuntimeException("Couldn't choose cards meeting the requirements "+minimumNumOfCards+". Remaining requirements: "+localMinNumOfCards);
 		}
 		Collections.sort(chosenCards);
 		
