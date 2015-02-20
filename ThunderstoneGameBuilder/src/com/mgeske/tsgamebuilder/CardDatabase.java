@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
+import java.util.Random;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -321,10 +321,19 @@ class CardResultIterator implements Iterator<Card> {
 	private int nextItemPosition = 0;
 	private String[] cardIds;
 	private CardBuilder<? extends Card> cardBuilder;
+	private Random random = new Random();
 	
 	public CardResultIterator(String[] cardIds, CardBuilder<? extends Card> cardBuilder) {
 		this.cardIds = cardIds;
 		this.cardBuilder = cardBuilder;
+		
+		//randomize the order of the cardIds
+		for(int i = cardIds.length-1; i > 0; i--) {
+			int j = random.nextInt(i+1);
+			String temp = cardIds[i];
+			cardIds[i] = cardIds[j];
+			cardIds[j] = temp;
+		}
 	}
 
 	@Override
@@ -344,7 +353,7 @@ class CardResultIterator implements Iterator<Card> {
 
 	@Override
 	public void remove() {
-		// TODO do nothing?
+		//do nothing
 	}
 	
 }
@@ -365,11 +374,7 @@ abstract class RequirementQueryBuilder {
 	}
 	
 	public Iterator<? extends Card> queryMatchingCards(Requirement requirement, CardList currentCards, SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		Logger logger = Logger.getLogger("CardDatabase");
-		long startTime = System.currentTimeMillis();
 		String[] cardIds = getMatchingCardIds(requirement, currentCards, db);
-		long afterGetCardIds = System.currentTimeMillis();
-		logger.info("Time to get card ids: "+(afterGetCardIds-startTime));
 		
 		String mainTableName = getMainTableName(requirement);
 		CardBuilder<? extends Card> cardBuilder = getCardBuilder(mainTableName, db, allRequirements);
