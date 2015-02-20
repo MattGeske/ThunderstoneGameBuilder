@@ -1,43 +1,41 @@
-package com.mgeske.tsgamebuilder.test.randomizer;
+package com.mgeske.tsgamebuilder.randomizer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import android.test.AndroidTestCase;
+import android.util.SparseIntArray;
 
 import com.mgeske.tsgamebuilder.CardDatabase;
+import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
-import com.mgeske.tsgamebuilder.card.Requirement;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
+import com.mgeske.tsgamebuilder.requirement.Requirement;
+import com.mgeske.tsgamebuilder.testutil.CardGenerator;
 
 import static org.mockito.Mockito.*;
+import static com.mgeske.tsgamebuilder.testutil.Assert.*;
 
 
 public class SmartRandomizerTest extends AndroidTestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		//workaround for dexmaker issue on 4.3
+		System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-	}
-	
-	protected static <T> void assertContains(Collection<T> collection, T item) {
-		assertTrue("Item '"+item+"' not found in collection "+collection, collection.contains(item));
-	}
-	
-	protected static void assertInRange(int num, int lowerBound, int upperBound) {
-		String message = num+" is not in the range ("+lowerBound+", "+upperBound+")";
-		assertTrue(message, num >= lowerBound);
-		assertTrue(message, num <= upperBound);
 	}
 	
 	protected static CardList getAndAssertCardList(SmartRandomizer randomizer) {
@@ -51,7 +49,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		cardTypeCounts.put("Monster", 0);
 		cardTypeCounts.put("Treasure", 0);
 		cardTypeCounts.put("Trap", 0);
-		Map<Integer,Integer> monsterLevelCounts = new HashMap<Integer,Integer>();
+		SparseIntArray monsterLevelCounts = new SparseIntArray();
 		monsterLevelCounts.put(1, 0);
 		monsterLevelCounts.put(2, 0);
 		monsterLevelCounts.put(3, 0);
@@ -77,13 +75,13 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		assertTrue(cardTypeCounts.get("Trap") <= 1);
 		if(monster_levels) {
 			if(num_monster == 3) {
-				assertEquals(1, monsterLevelCounts.get(1).intValue());
-				assertEquals(1, monsterLevelCounts.get(2).intValue());
-				assertEquals(1, monsterLevelCounts.get(3).intValue());
+				assertEquals(1, monsterLevelCounts.get(1));
+				assertEquals(1, monsterLevelCounts.get(2));
+				assertEquals(1, monsterLevelCounts.get(3));
 			} else if(num_monster < 3) {
-				assertInRange(monsterLevelCounts.get(1).intValue(), 0, 1);
-				assertInRange(monsterLevelCounts.get(2).intValue(), 0, 1);
-				assertInRange(monsterLevelCounts.get(3).intValue(), 0, 1);
+				assertInRange(monsterLevelCounts.get(1), 0, 1);
+				assertInRange(monsterLevelCounts.get(2), 0, 1);
+				assertInRange(monsterLevelCounts.get(3), 0, 1);
 			} //TODO ideally we'd like to test something if num_monster > 3 as well, but currently the randomizer can't handle that
 		}
 		
@@ -118,176 +116,80 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		return cardList;
 	}
 	
-	/*
-	 * Defaults for something resembling a basic thunderstone set: 8 monsters, 1 treasure, 1 trap, 2 thunderstones, 11 heroes, 19 village cards
-	 */
-	private List<DungeonCard> getDungeonCards() {
-		return getDungeonCards(8, 1, 1, null, null);
-	}
-	private List<DungeonCard> getDungeonCards(Requirement globalRequirement) {
-		return getDungeonCards(8, 1, 1, globalRequirement, null);
-	}
-	
-	private List<DungeonCard> getMonsters(int num_monster, int level) {
-		return getDungeonCards(num_monster, 0, 0, null, level);
-	}
-	
-	private List<ThunderstoneCard> getThunderstoneCards() {
-		return getThunderstoneCards(2, null);
-	}
-	
-	private List<ThunderstoneCard> getThunderstoneCards(Requirement globalRequirement) {
-		return getThunderstoneCards(2, globalRequirement);
-	}
-	
-	private List<HeroCard> getHeroCards() {
-		return getHeroCards(11, null);
-	}
-	
-	private List<HeroCard> getHeroCards(Requirement globalRequirement) {
-		return getHeroCards(11, globalRequirement);
-	}
-	
-	private List<VillageCard> getVillageCards() {
-		//a basic thunderstone set has roughly 6 weapons, 4 items, 4 spells, and 5 villagers
-		return getVillageCards(6, 4, 4, 5);
-	}
-	
-	private List<DungeonCard> getDungeonCards(int total_monster, int total_treasure, int total_trap, Requirement globalRequirement, Integer level) {
-		List<String> attributes = new ArrayList<String>();
-		List<String> classes = new ArrayList<String>();
-		List<Requirement> requirements = new ArrayList<Requirement>();
-		if(globalRequirement != null) {
-			requirements.add(globalRequirement);
-		}
-		
-		List<DungeonCard> dungeonCards = new ArrayList<DungeonCard>();
-		for(int i = 0; i < total_monster; i++) {
-			int monster_level;
-			if(level != null) {
-				monster_level = level;
-			} else {
-				monster_level = (i%3)+1;
-			}
-			DungeonCard monster = new DungeonCard("Monster "+i, "test", "", "Monster", monster_level, attributes, classes, requirements);
-			dungeonCards.add(monster);
-		}
-		
-		//create some treasure cards
-		for(int i = 0; i < total_treasure; i++) {
-			DungeonCard treasure = new DungeonCard("Treasure "+i, "test", "", "Treasure", null, attributes, classes, requirements);
-			dungeonCards.add(treasure);
-		}
-		
-		//create some trap cards
-		for(int i = 0; i < total_trap; i++) {
-			DungeonCard trap = new DungeonCard("Trap "+i, "test", "", "Trap", null, attributes, classes, requirements);
-			dungeonCards.add(trap);
-		}
-		
-		return dungeonCards;
-	}
-	private List<ThunderstoneCard> getThunderstoneCards(int total_thunderstone, Requirement globalRequirement) {
-		List<Requirement> requirements = new ArrayList<Requirement>();
-		if(globalRequirement != null) {
-			requirements.add(globalRequirement);
-		}
-		List<ThunderstoneCard> thunderstoneCards = new ArrayList<ThunderstoneCard>();
-		for(int i = 0; i < total_thunderstone; i++) {
-			ThunderstoneCard thunderstone = new ThunderstoneCard("Thunderstone "+i, "test", "", new ArrayList<String>(), new ArrayList<String>(), requirements);
-			thunderstoneCards.add(thunderstone);
-		}
-		
-		return thunderstoneCards;
-	}
-	
-	private List<HeroCard> getHeroCards(int total_hero, Requirement globalRequirement) {
-		List<Requirement> requirements = new ArrayList<Requirement>();
-		if(globalRequirement != null) {
-			requirements.add(globalRequirement);
-		}
-		List<HeroCard> heroCards = new ArrayList<HeroCard>();
-		for(int i = 0; i < total_hero; i++) {
-			HeroCard hero = new HeroCard("Hero "+i, "test", "", new ArrayList<String>(), new ArrayList<String>(), requirements, 5);
-			heroCards.add(hero);
-		}
-		
-		return heroCards;
-	}
-	
-	private List<VillageCard> getVillageCards(int total_weapons, int total_items, int total_spells, int total_villagers) {
-		List<VillageCard> villageCards = new ArrayList<VillageCard>();
-		List<String> attributes = new ArrayList<String>();
-		List<Requirement> requirements = new ArrayList<Requirement>();
-
-		List<String> classes = new ArrayList<String>();
-		classes.add("Weapon");
-		for(int i = 0; i < total_weapons; i++) {
-			VillageCard village = new VillageCard("Weapon "+i, "test", "", attributes, classes, requirements, 3, null);
-			villageCards.add(village);
-		}
-		
-		classes = new ArrayList<String>();
-		classes.add("Item");
-		for(int i = 0; i < total_items; i++) {
-			VillageCard village = new VillageCard("Item "+i, "test", "", attributes, classes, requirements, 3, null);
-			villageCards.add(village);
-		}
-		
-		classes = new ArrayList<String>();
-		classes.add("Spell");
-		for(int i = 0; i < total_spells; i++) {
-			VillageCard village = new VillageCard("Spell "+i, "test", "", attributes, classes, requirements, 3, null);
-			villageCards.add(village);
-		}
-		
-		classes = new ArrayList<String>();
-		classes.add("Villager");
-		for(int i = 0; i < total_villagers; i++) {
-			VillageCard village = new VillageCard("Villager "+i, "test", "", attributes, classes, requirements, 3, null);
-			villageCards.add(village);
-		}
-		
-		return villageCards;
-	}
 	
 	private SmartRandomizer getConfiguredRandomizer(List<DungeonCard> dungeonCards, List<ThunderstoneCard> thunderstoneCards, List<HeroCard> heroCards, List<VillageCard> villageCards) {
 		if(dungeonCards == null) {
-			dungeonCards = getDungeonCards();
+			dungeonCards = CardGenerator.getDungeonCards();
 		}
 		if(thunderstoneCards == null) {
-			thunderstoneCards = getThunderstoneCards();
+			thunderstoneCards = CardGenerator.getThunderstoneCards();
 		}
 		if(heroCards == null) {
-			heroCards = getHeroCards();
+			heroCards = CardGenerator.getHeroCards();
 		}
 		if(villageCards == null) {
-			villageCards = getVillageCards();
+			villageCards = CardGenerator.getVillageCards();
 		}
 		CardDatabase mockDb = mock(CardDatabase.class);
-		when(mockDb.getAllDungeonCards()).thenReturn(dungeonCards);
-		when(mockDb.getAllThunderstoneCards()).thenReturn(thunderstoneCards);
-		when(mockDb.getAllHeroCards()).thenReturn(heroCards);
-		when(mockDb.getAllVillageCards()).thenReturn(villageCards);
-		SmartRandomizer randomizer = new SmartRandomizer(null);
-		randomizer.setCards(dungeonCards, thunderstoneCards, heroCards, villageCards);
+		when(mockDb.getMatchingCards(any(Requirement.class), any(CardList.class))).then(
+				returnMatchingCards(dungeonCards, thunderstoneCards, heroCards, villageCards));
+		SmartRandomizer randomizer = new SmartRandomizer(mockDb);
 		return randomizer;
 	}
 	
+	private Answer<List<Card>> returnMatchingCards(List<DungeonCard> dungeonCards, List<ThunderstoneCard> thunderstoneCards,
+			List<HeroCard> heroCards, List<VillageCard> villageCards) {
+		final Map<String,List<? extends Card>> cardTypeMap = new HashMap<String,List<? extends Card>>();
+		cardTypeMap.put("Monster", dungeonCards);
+		cardTypeMap.put("Level1Monster", dungeonCards);
+		cardTypeMap.put("Level2Monster", dungeonCards);
+		cardTypeMap.put("Level3Monster", dungeonCards);
+		cardTypeMap.put("Thunderstone", thunderstoneCards);
+		cardTypeMap.put("Hero", heroCards);
+		cardTypeMap.put("Village", villageCards);
+		return new Answer<List<Card>>() {
+			@Override
+			public List<Card> answer(InvocationOnMock invocation) throws Throwable {
+				List<Card> matchingCards = new ArrayList<Card>();
+				Requirement requirement = invocation.getArgumentAt(0, Requirement.class);
+				String cardType = requirement.getRequiredOn();
+				List<? extends Card> allCards = cardTypeMap.get(cardType);
+				for(Card card : allCards) {
+					if(requirement.match(card)) {
+						matchingCards.add(card);
+					}
+				}
+				return matchingCards;
+			}
+		};
+	}
+	
+	public void testBasicRandomize() {
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, null);
+		getAndAssertCardList(randomizer);
+	}
+	
 	public void testMonsterRequiresHero() {
-		//add a requirement to every monster requiring magic attack, and add the magic attack attribute to exactly one hero - that hero should always be the one chosen
+		//TODO make a base test and use it to modify the other requirement tests
+		//force it to choose a monster requiring magic attack, and add the magic attack attribute to exactly one hero - that hero should always be chosen
 		List<String> attributeNames = new ArrayList<String>();
 		attributeNames.add("HAS_MAGIC_ATTACK");
 		Requirement requireMagicAttack = Requirement.buildRequirement("REQUIRES_MAGIC_ATTACK", "HasAnyAttributes", attributeNames, "Hero");
-		List<DungeonCard> dungeonCards = getDungeonCards(requireMagicAttack);
-		List<HeroCard> heroCards = getHeroCards();
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(requireMagicAttack);
+		
+		List<HeroCard> heroCards = CardGenerator.getHeroCards();
 		HeroCard magicAttackHero = new HeroCard("MagicAttackHero", "test", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1);
 		heroCards.add(magicAttackHero);
-		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, heroCards, null);
-		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 1, 8, true, true);
 		
-		List<HeroCard> chosenHeroCards = cardList.getHeroCards();
-		assertContains(chosenHeroCards, magicAttackHero);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, heroCards, null);
+		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Monster");
+		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
+		boolean result = randomizer.chooseCards(requireMonster, cardList);
+		
+		assertTrue(result);
+		assertEquals(1, cardList.getDungeonCards().size());
+		assertEquals(1, cardList.getHeroCards().size());
+		assertContains(cardList.getHeroCards(), magicAttackHero);
 	}
 	
 	public void testMonsterRequiresVillage() {
@@ -295,15 +197,21 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		List<String> attributeNames = new ArrayList<String>();
 		attributeNames.add("HAS_LIGHT");
 		Requirement requireLight = Requirement.buildRequirement("REQUIRES_LIGHT", "HasAnyAttributes", attributeNames, "Village");
-		List<DungeonCard> dungeonCards = getDungeonCards(requireLight);
-		List<VillageCard> villageCards = getVillageCards();
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(requireLight);
+		
+		List<VillageCard> villageCards = CardGenerator.getVillageCards();
 		VillageCard lightCard = new VillageCard("LightCard", "test", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1, null);
 		villageCards.add(lightCard);
-		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, villageCards);
-		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 1, true, true);
 		
-		List<VillageCard> chosenVillageCards = cardList.getVillageCards();
-		assertContains(chosenVillageCards, lightCard);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, villageCards);
+		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Monster");
+		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
+		boolean result = randomizer.chooseCards(requireMonster, cardList);
+		
+		assertTrue(result);
+		assertEquals(1, cardList.getDungeonCards().size());
+		assertEquals(1, cardList.getVillageCards().size());
+		assertContains(cardList.getVillageCards(), lightCard);
 	}
 	
 	public void testThunderstoneRequiresHero() {
@@ -311,15 +219,21 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		List<String> attributeNames = new ArrayList<String>();
 		attributeNames.add("HAS_MAGIC_ATTACK");
 		Requirement requireMagicAttack = Requirement.buildRequirement("REQUIRES_MAGIC_ATTACK", "HasAnyAttributes", attributeNames, "Hero");
-		List<ThunderstoneCard> thunderstoneCards = getThunderstoneCards(requireMagicAttack);
-		List<HeroCard> heroCards = getHeroCards();
+		List<ThunderstoneCard> thunderstoneCards = CardGenerator.getThunderstoneCards(requireMagicAttack);
+		
+		List<HeroCard> heroCards = CardGenerator.getHeroCards();
 		HeroCard magicAttackHero = new HeroCard("MagicAttackHero", "test", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1);
 		heroCards.add(magicAttackHero);
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, heroCards, null);
-		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 1, 8, true, true);
 		
-		List<HeroCard> chosenHeroCards = cardList.getHeroCards();
-		assertContains(chosenHeroCards, magicAttackHero);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, heroCards, null);
+		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Thunderstone");
+		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
+		boolean result = randomizer.chooseCards(requireMonster, cardList);
+		
+		assertTrue(result);
+		assertEquals(1, cardList.getThunderstoneCards().size());
+		assertEquals(1, cardList.getHeroCards().size());
+		assertContains(cardList.getHeroCards(), magicAttackHero);
 	}
 	
 	public void testThunderstoneRequiresVillage() {
@@ -327,15 +241,21 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		List<String> attributeNames = new ArrayList<String>();
 		attributeNames.add("HAS_LIGHT");
 		Requirement requireLight = Requirement.buildRequirement("REQUIRES_LIGHT", "HasAnyAttributes", attributeNames, "Village");
-		List<ThunderstoneCard> thunderstoneCards = getThunderstoneCards(requireLight);
-		List<VillageCard> villageCards = getVillageCards();
+		List<ThunderstoneCard> thunderstoneCards = CardGenerator.getThunderstoneCards(requireLight);
+		
+		List<VillageCard> villageCards = CardGenerator.getVillageCards();
 		VillageCard lightCard = new VillageCard("LightCard", "test", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1, null);
 		villageCards.add(lightCard);
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, null, villageCards);
-		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 1, true, true);
 		
-		List<VillageCard> chosenVillageCards = cardList.getVillageCards();
-		assertContains(chosenVillageCards, lightCard);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, null, villageCards);
+		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Thunderstone");
+		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
+		boolean result = randomizer.chooseCards(requireMonster, cardList);
+		
+		assertTrue(result);
+		assertEquals(1, cardList.getThunderstoneCards().size());
+		assertEquals(1, cardList.getVillageCards().size());
+		assertContains(cardList.getVillageCards(), lightCard);
 	}
 	
 	public void testHeroRequiresVillage() {
@@ -343,15 +263,21 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		List<String> classNames = new ArrayList<String>();
 		classNames.add("Bow");
 		Requirement requireLight = Requirement.buildRequirement("WANTS_BOW", "HasAllClasses", classNames, "Village");
-		List<HeroCard> heroCards = getHeroCards(requireLight);
-		List<VillageCard> villageCards = getVillageCards();
+		List<HeroCard> heroCards = CardGenerator.getHeroCards(requireLight);
+		
+		List<VillageCard> villageCards = CardGenerator.getVillageCards();
 		VillageCard bowCard = new VillageCard("BowCard", "test", "", new ArrayList<String>(), classNames, new ArrayList<Requirement>(), 1, null);
 		villageCards.add(bowCard);
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, heroCards, villageCards);
-		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 1, true, true);
 		
-		List<VillageCard> chosenVillageCards = cardList.getVillageCards();
-		assertContains(chosenVillageCards, bowCard);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, heroCards, villageCards);
+		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Hero");
+		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
+		boolean result = randomizer.chooseCards(requireMonster, cardList);
+		
+		assertTrue(result);
+		assertEquals(1, cardList.getHeroCards().size());
+		assertEquals(1, cardList.getVillageCards().size());
+		assertContains(cardList.getVillageCards(), bowCard);
 	}
 	
 	private void _testVillageLimitBase(String villageType, boolean village_limits) {
@@ -386,7 +312,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		} else if("Villager".equals(villageType)) {
 			num_villager += 20;
 		}
-		List<VillageCard> villageCards = getVillageCards(num_weapon, num_item, num_spell, num_villager);
+		List<VillageCard> villageCards = CardGenerator.getVillageCards(num_weapon, num_item, num_spell, num_villager);
 		
 		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, villageCards);
 		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 8, village_limits, true);
@@ -444,9 +370,9 @@ public class SmartRandomizerTest extends AndroidTestCase {
 	
 	public void testMonsterLevelsOn() {
 		//creates a set of dungeon cards with lots of level 1 monsters and exactly one each of level 2 and 3; the level 2 and 3 monsters should always be in the results
-		List<DungeonCard> level1 = getMonsters(10, 1);
-		List<DungeonCard> level2 = getMonsters(1, 2);
-		List<DungeonCard> level3 = getMonsters(1, 3);
+		List<DungeonCard> level1 = CardGenerator.getMonsters(10, 1);
+		List<DungeonCard> level2 = CardGenerator.getMonsters(1, 2);
+		List<DungeonCard> level3 = CardGenerator.getMonsters(1, 3);
 		
 		List<DungeonCard> allMonsters = new ArrayList<DungeonCard>();
 		allMonsters.addAll(level1);
@@ -462,7 +388,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 	
 	public void testMonsterLevelsOff() {
 		//creates a set of dungeon cards with only level 1 monsters - the randomizer should still be able to produce a valid game
-		List<DungeonCard> monsters = getMonsters(10, 1);
+		List<DungeonCard> monsters = CardGenerator.getMonsters(10, 1);
 		
 		SmartRandomizer randomizer = getConfiguredRandomizer(monsters, null, null, null);
 		getAndAssertCardList(randomizer, 3, 1, 4, 8, true, false); //this does all the asserts we need

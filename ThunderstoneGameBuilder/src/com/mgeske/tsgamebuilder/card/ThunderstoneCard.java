@@ -3,6 +3,8 @@ package com.mgeske.tsgamebuilder.card;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mgeske.tsgamebuilder.requirement.Requirement;
+
 public class ThunderstoneCard extends Card {
 	private static List<String> randomizerKeys = new ArrayList<String>(1);
 	static {

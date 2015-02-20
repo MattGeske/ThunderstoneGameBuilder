@@ -3,6 +3,8 @@ package com.mgeske.tsgamebuilder.card;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mgeske.tsgamebuilder.requirement.Requirement;
+
 public class DungeonCard extends Card {
 	private String dungeonType;
 	private Integer level;
