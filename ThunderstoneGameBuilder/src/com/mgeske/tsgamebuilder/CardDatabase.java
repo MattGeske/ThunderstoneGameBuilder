@@ -128,43 +128,44 @@ abstract class CardBuilder<T extends Card> {
 	
 	protected T buildCard(String cardId) {
 		String mainTableName = getMainTableName();
-		String joinTables = getJoinTables(mainTableName);
+		String tables = mainTableName+", Card_ThunderstoneSet, ThunderstoneSet";
 		
 		List<String> columns = new ArrayList<String>();
 		columns.add("cardName");
 		columns.add("abbreviation as setName");
 		columns.add("description");
-		columns.add("group_concat(distinct className) as classes");
-		columns.add("group_concat(distinct attributeName) as attributes");
-		columns.add("group_concat(distinct requirementName) as requirements");
 		columns.addAll(getAdditionalColumns());
 		
-		String selection = mainTableName+"._ID=?";
-		String[] selectionArgs = new String[]{cardId};
+		String selection = mainTableName+"._ID=Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.cardTableName=?"+
+						   " and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+mainTableName+"._ID=?";
+		String[] selectionArgs = new String[]{mainTableName, cardId};
 		String groupBy = "cardName";
 		String having = "releaseOrder = max(releaseOrder)";
 		
 		Cursor c = null;
+		T card = null;
 		try {
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-			queryBuilder.setTables(joinTables);
+			queryBuilder.setTables(tables);
 			c = queryBuilder.query(db, columns.toArray(new String[]{}), selection, selectionArgs, groupBy, having, null, null);
 			c.moveToNext();
-			return buildCard(c, allRequirements);
+			card = buildCard(c, allRequirements, mainTableName, cardId);
 		} finally {
 			if(c != null) {
 				c.close();
 			}
 		}
+		return card;
 	}
 	
-	protected T buildCard(Cursor c, Map<String,Requirement> allRequirements) {
+	protected T buildCard(Cursor c, Map<String,Requirement> allRequirements, String mainTableName, String cardId) {
 		String cardName = getString(c, "cardName");
 		String setName = getString(c, "setName");
 		String cardDescription = getString(c, "description");
-		List<String> attributes = getListFromGroupConcat(c, "attributes");
-		List<String> classes = getListFromGroupConcat(c, "classes");
-		List<String> requirementNames = getListFromGroupConcat(c, "requirements");
+		
+		List<String> attributes = getMultipleValues("Card_CardAttribute", "CardAttribute", "attributeId", "attributeName", mainTableName, cardId);
+		List<String> classes = getMultipleValues("Card_CardClass", "CardClass", "classId", "className", mainTableName, cardId);
+		List<String> requirementNames = getMultipleValues("Card_Requirement","Requirement", "requirementId", "requirementName", mainTableName, cardId); 
 		List<Requirement> cardRequirements = new ArrayList<Requirement>();
 		for(String requirementName : requirementNames) {
 			cardRequirements.add(allRequirements.get(requirementName));
@@ -172,29 +173,31 @@ abstract class CardBuilder<T extends Card> {
 		return buildCard(c, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 	
+	protected List<String> getMultipleValues(String joinTableName, String tableName, String joinColumnName, String valueColumnName, String mainTableName, String cardId) {
+		String[] columnNames = new String[]{valueColumnName};
+		String selection = joinTableName+"."+joinColumnName+"="+tableName+"._ID AND "+
+						   joinTableName+".cardTableName=? AND "+joinTableName+".cardId=?";
+		String[] selectionArgs = new String[]{mainTableName, cardId};
+		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+		queryBuilder.setTables(joinTableName+", "+tableName);
+		Cursor c = null;
+		List<String> values = new ArrayList<String>();
+		try {
+			c = queryBuilder.query(db, columnNames, selection, selectionArgs, null, null, null);
+			while(c.moveToNext()) {
+				String value = c.getString(c.getColumnIndexOrThrow(valueColumnName));
+				values.add(value);
+			}
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
+		return values;
+	}
+	
 	protected abstract String getMainTableName();
 	protected abstract List<String> getAdditionalColumns();
-	
-	private String getJoinTables(String mainTableName) {
-		return mainTableName+" "+
-				"LEFT OUTER JOIN Card_CardClass ON "+mainTableName+"._ID = Card_CardClass.cardId and Card_CardClass.cardTableName = '"+mainTableName+"' " +
-				"LEFT OUTER JOIN CardClass ON Card_CardClass.classId = CardClass._ID " +
-				"LEFT OUTER JOIN Card_CardAttribute ON "+mainTableName+"._ID = Card_CardAttribute.cardId and Card_CardAttribute.cardTableName = '"+mainTableName+"' " +
-				"LEFT OUTER JOIN CardAttribute ON Card_CardAttribute.attributeId = CardAttribute._ID " +
-				"LEFT OUTER JOIN Card_Requirement ON "+mainTableName+"._ID = Card_Requirement.cardId and Card_Requirement.cardTableName = '"+mainTableName+"' " +
-				"LEFT OUTER JOIN Requirement ON Card_Requirement.requirementId = Requirement._ID " + 
-				"LEFT OUTER JOIN Card_ThunderstoneSet ON "+mainTableName+"._ID = Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.CardTableName = '"+mainTableName+"' " +
-				"LEFT OUTER JOIN ThunderstoneSet ON Card_ThunderstoneSet.setId = ThunderstoneSet._ID";
-	}
-	
-	protected List<String> getListFromGroupConcat(Cursor c, String columnName) {
-		String raw_value = c.getString(c.getColumnIndexOrThrow(columnName));
-		if(raw_value != null) {
-			return Arrays.asList(raw_value.split(","));
-		} else {
-			return new ArrayList<String>();
-		}
-	}
 	
 	protected Integer getInteger(Cursor c, String columnName) {
 		String raw_value = c.getString(c.getColumnIndexOrThrow(columnName));
