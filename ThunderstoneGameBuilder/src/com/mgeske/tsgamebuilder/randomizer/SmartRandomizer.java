@@ -5,10 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import com.mgeske.tsgamebuilder.CardDatabase;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
 public class SmartRandomizer implements IRandomizer {

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.mgeske.tsgamebuilder.db.CardDatabase;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;

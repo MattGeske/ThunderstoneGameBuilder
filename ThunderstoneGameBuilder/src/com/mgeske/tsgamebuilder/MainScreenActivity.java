@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 

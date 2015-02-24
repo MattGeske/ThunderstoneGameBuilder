@@ -11,13 +11,13 @@ import org.mockito.stubbing.Answer;
 import android.test.AndroidTestCase;
 import android.util.SparseIntArray;
 
-import com.mgeske.tsgamebuilder.CardDatabase;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
+import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 import com.mgeske.tsgamebuilder.testutil.CardGenerator;
