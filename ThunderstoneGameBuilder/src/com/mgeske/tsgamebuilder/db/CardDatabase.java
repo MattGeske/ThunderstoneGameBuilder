@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.preference.PreferenceManager;
 
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
@@ -21,9 +23,11 @@ public class CardDatabase extends SQLiteAssetHelper {
 	private static final String DATABASE_NAME = "cards.sqlite";
 	private static final int DATABASE_VERSION = 1;
 	private static Map<String,Requirement> requirementsCache = null;
+	private Context context;
 	
 	public CardDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		this.context = context;
 	}
 	
 	public List<String> getThunderstoneSets() {
@@ -97,10 +101,13 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 	
 	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards) {
-		RequirementQueryBuilder queryBuilder = RequirementQueryBuilder.getRequirementQueryBuilder(requirement);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		String chosenSetsString = preferences.getString("chosenSets", "");
+		String[] chosenSets = chosenSetsString.split(",");
+		RequirementQueryBuilder queryBuilder = RequirementQueryBuilder.getRequirementQueryBuilder(chosenSets, requirement);
 		
 		SQLiteDatabase db = getReadableDatabase();
-		return queryBuilder.queryMatchingCards(requirement, currentCards, db, getRequirements());
+		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements());
 	}
 
 }
