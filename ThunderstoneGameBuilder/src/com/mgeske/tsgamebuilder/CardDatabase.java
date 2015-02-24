@@ -170,7 +170,7 @@ abstract class CardBuilder<T extends Card> {
 		for(String requirementName : requirementNames) {
 			cardRequirements.add(allRequirements.get(requirementName));
 		}
-		return buildCard(c, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+		return buildCard(c, cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 	
 	protected List<String> getMultipleValues(String joinTableName, String tableName, String joinColumnName, String valueColumnName, String mainTableName, String cardId) {
@@ -218,7 +218,7 @@ abstract class CardBuilder<T extends Card> {
 		return c.getString(c.getColumnIndexOrThrow(columnName));
 	}
 
-	protected abstract T buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
+	protected abstract T buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
 }
 
 class DungeonCardBuilder extends CardBuilder<DungeonCard> {
@@ -227,10 +227,10 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 	}
 
 	@Override
-	public DungeonCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public DungeonCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		String cardType = getString(c, "cardType");
 		Integer level = getInteger(c, "level");
-		return new DungeonCard(cardName, setName, cardDescription, cardType, level, attributes, classes, cardRequirements);
+		return new DungeonCard(cardId, cardName, setName, cardDescription, cardType, level, attributes, classes, cardRequirements);
 	}
 
 	@Override
@@ -253,9 +253,9 @@ class HeroCardBuilder extends CardBuilder<HeroCard> {
 	}
 
 	@Override
-	public HeroCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public HeroCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int strength = getInt(c, "strength");
-		return new HeroCard(cardName, setName, cardDescription, attributes, classes, cardRequirements, strength);
+		return new HeroCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements, strength);
 	}
 
 	@Override
@@ -277,10 +277,10 @@ class VillageCardBuilder extends CardBuilder<VillageCard> {
 	}
 
 	@Override
-	public VillageCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public VillageCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int cost = getInt(c, "goldCost");
 		Integer weight = getInteger(c, "weight");
-		return new VillageCard(cardName, setName, cardDescription, attributes, classes, cardRequirements, cost, weight);
+		return new VillageCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements, cost, weight);
 	}
 
 	@Override
@@ -303,8 +303,8 @@ class ThunderstoneCardBuilder extends CardBuilder<ThunderstoneCard> {
 	}
 
 	@Override
-	protected ThunderstoneCard buildCard(Cursor c, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
-		return new ThunderstoneCard(cardName, setName, cardDescription, attributes, classes, cardRequirements);
+	protected ThunderstoneCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+		return new ThunderstoneCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
 
 	@Override
@@ -397,11 +397,15 @@ abstract class RequirementQueryBuilder {
 		String selection = getSelection(requirement, currentCards);
 		String[] selectionArgs = getSelectionArgs(requirement, currentCards);
 		
+		List<? extends Card> currentCardsOfSameType = currentCards.getCardsByType(requirement.getRequiredOn());
+		String additionalWhere = buildAdditionalWhere(cardIdColumn, currentCardsOfSameType);
+		
 		String[] matchingCardIds = null;
 		Cursor c = null;
 		try {
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 			queryBuilder.setTables(tableName);
+			queryBuilder.appendWhere(additionalWhere);
 			c = queryBuilder.query(db, columns, selection, selectionArgs, null, null, null, null);
 			matchingCardIds = new String[c.getCount()];
 			while(c.moveToNext()) {
@@ -445,6 +449,21 @@ abstract class RequirementQueryBuilder {
 				sb.append(",");
 			}
 			sb.append("?");
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+	
+	protected String buildAdditionalWhere(String cardIdColumn, List<? extends Card> currentCards) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(cardIdColumn);
+		sb.append(" not in (");
+		for(int i = 0; i < currentCards.size(); i++) {
+			if(i > 0) {
+				sb.append(",");
+			}
+			Card card = currentCards.get(i);
+			sb.append(card.getCardId());
 		}
 		sb.append(")");
 		return sb.toString();

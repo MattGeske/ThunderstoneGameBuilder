@@ -22,6 +22,22 @@ public class CardList {
 		this.maximumCards = maximumCards;
 		foundKeys = new HashMap<String,Integer>();
 	}
+	
+	public List<? extends Card> getCardsByType(String cardType) {
+		if("Monster".equals(cardType)) {
+			return getDungeonCards();
+		} else if(cardType != null && cardType.startsWith("Level")) {
+			return getDungeonCards();
+		} else if("Thunderstone".equals(cardType)) {
+			return getThunderstoneCards();
+		} else if("Hero".equals(cardType)) {
+			return getHeroCards();
+		} else if("Village".equals(cardType)) {
+			return getVillageCards();
+		} else {
+			throw new RuntimeException("Unexpected card type: "+cardType);
+		}
+	}
 
 	public List<DungeonCard> getDungeonCards() {
 		return dungeonCards;

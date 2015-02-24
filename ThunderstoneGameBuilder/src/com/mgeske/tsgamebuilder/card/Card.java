@@ -6,6 +6,7 @@ import java.util.List;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
 public abstract class Card implements Comparable<Card> {
+	private String cardId;
 	private String cardName;
 	private String setName;
 	private String cardText;
@@ -13,13 +14,19 @@ public abstract class Card implements Comparable<Card> {
 	private List<String> classes;
 	private List<Requirement> requirements;
 	
-	protected Card(String cardName, String setName, String cardText, List<String> attributes, List<String> classes, List<Requirement> requirements) {
+	protected Card(String cardId, String cardName, String setName, String cardText, List<String> attributes,
+			       List<String> classes, List<Requirement> requirements) {
+		this.cardId = cardId;
 		this.cardName = cardName;
 		this.setName = setName;
 		this.cardText = cardText;
 		this.attributes = new ArrayList<String>(attributes);
 		this.classes = classes;
 		this.requirements = requirements;
+	}
+	
+	public String getCardId() {
+		return cardId;
 	}
 
 	public String getCardName() {

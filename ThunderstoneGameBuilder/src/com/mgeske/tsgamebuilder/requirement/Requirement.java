@@ -99,20 +99,7 @@ public abstract class Requirement {
 	}
 	
 	public boolean match(CardList cardList) {
-		List<? extends Card> cards;
-		if("Monster".equals(requiredOn)) {
-			cards = cardList.getDungeonCards();
-		} else if (requiredOn.startsWith("Level")) {
-			cards = cardList.getDungeonCards();
-		} else if("Thunderstone".equals(requiredOn)) {
-			cards = cardList.getThunderstoneCards();
-		} else if("Hero".equals(requiredOn)) {
-			cards = cardList.getHeroCards();
-		} else if("Village".equals(requiredOn)) {
-			cards =  cardList.getVillageCards();
-		} else {
-			return false;
-		}
+		List<? extends Card> cards = cardList.getCardsByType(requiredOn);
 		
 		for(Card card : cards) {
 			if(match(card)) {
