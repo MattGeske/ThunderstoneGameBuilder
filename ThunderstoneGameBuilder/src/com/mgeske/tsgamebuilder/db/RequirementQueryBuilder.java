@@ -24,7 +24,6 @@ import com.mgeske.tsgamebuilder.requirement.Requirement;
 
 public abstract class RequirementQueryBuilder {
 	private static Map<String,String> tableNameMap;
-	private static Map<Requirement,RequirementQueryBuilder> instanceMap = new HashMap<Requirement,RequirementQueryBuilder>();
 	protected String[] chosenSets;
 	protected Requirement requirement;
 	
@@ -48,7 +47,7 @@ public abstract class RequirementQueryBuilder {
 		String[] cardIds = getMatchingCardIds(currentCards, db);
 		
 		String mainTableName = getMainTableName();
-		CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(mainTableName, db, allRequirements);
+		CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(mainTableName, db, allRequirements, chosenSets);
 		
 		return new CardResultIterator(cardIds, cardBuilder);
 	}
@@ -59,14 +58,17 @@ public abstract class RequirementQueryBuilder {
 	}
 	
 	protected String[] getMatchingCardIds(CardList currentCards, SQLiteDatabase db) {
-		String tableName = getTableName();
+		String tableName = getTableName()+", Card_ThunderstoneSet, ThunderstoneSet";
 		String cardIdColumn = getCardIdColumn();
-		String[] columns = new String[]{"distinct("+cardIdColumn+")"};
+		String[] columns = new String[]{"distinct("+cardIdColumn+") as cardId"};
 		String selection = getSelection(currentCards);
 		String[] selectionArgs = getSelectionArgs(currentCards);
-		
+
 		List<? extends Card> currentCardsOfSameType = currentCards.getCardsByType(requirement.getRequiredOn());
-		String additionalWhere = buildAdditionalWhere(cardIdColumn, currentCardsOfSameType);
+		
+		String additionalWhere = buildWhereNotInCurrentCards(cardIdColumn, currentCardsOfSameType) +
+								" and Card_ThunderstoneSet.cardId="+cardIdColumn+" and Card_ThunderstoneSet.cardTableName='"+getMainTableName() +
+								"' and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+buildInClause("ThunderstoneSet.setName", chosenSets, false);
 		
 		String[] matchingCardIds = null;
 		Cursor c = null;
@@ -77,7 +79,7 @@ public abstract class RequirementQueryBuilder {
 			c = queryBuilder.query(db, columns, selection, selectionArgs, null, null, null, null);
 			matchingCardIds = new String[c.getCount()];
 			while(c.moveToNext()) {
-				String cardId = c.getString(c.getColumnIndexOrThrow(cardIdColumn));
+				String cardId = c.getString(c.getColumnIndexOrThrow("cardId"));
 				matchingCardIds[c.getPosition()] = cardId;
 			}
 		} finally {
@@ -89,15 +91,14 @@ public abstract class RequirementQueryBuilder {
 	}
 	
 	protected abstract String getTableName();
+	protected abstract String getCardIdColumn();
 	protected abstract String getSelection(CardList currentCards);
 	protected abstract String[] getSelectionArgs(CardList currentCards);
-	protected String getCardIdColumn() {
-		return "cardId";
-	}
-	
-	protected String buildInClausePlaceholders(int num_values) {
-		StringBuilder sb = new StringBuilder(2*num_values+1);
-		sb.append("(");
+
+	protected String buildInClausePlaceholders(String columnName, int num_values) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(columnName);
+		sb.append(" in (");
 		for(int i = 0; i < num_values; i++) {
 			if(i > 0) {
 				sb.append(",");
@@ -108,43 +109,50 @@ public abstract class RequirementQueryBuilder {
 		return sb.toString();
 	}
 	
-	protected String buildAdditionalWhere(String cardIdColumn, List<? extends Card> currentCards) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(cardIdColumn);
-		sb.append(" not in (");
+	private String buildWhereNotInCurrentCards(String cardIdColumn, List<? extends Card> currentCards) {
+		String[] values = new String[currentCards.size()];
 		for(int i = 0; i < currentCards.size(); i++) {
+			Card card = currentCards.get(i);
+			values[i] = card.getCardId();
+		}
+		return buildInClause(cardIdColumn, values, true);
+	}
+	
+	protected String buildInClause(String columnName, String[] values, boolean invert) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(columnName);
+		if(invert) {
+			sb.append(" not");
+		}
+		sb.append(" in (");
+		for(int i = 0; i < values.length; i++) {
 			if(i > 0) {
 				sb.append(",");
 			}
-			Card card = currentCards.get(i);
-			sb.append(card.getCardId());
+			sb.append("'");
+			sb.append(values[i]);
+			sb.append("'");
 		}
 		sb.append(")");
 		return sb.toString();
 	}
 	
 	public static RequirementQueryBuilder getRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
-		if(instanceMap.containsKey(requirement)) {
-			return instanceMap.get(requirement);
-		}
-		RequirementQueryBuilder instance;
 		if(requirement instanceof HasAnyAttributesRequirement) {
-			instance = new HasAnyAttributesRequirementQueryBuilder(chosenSets, requirement);
+			return new HasAnyAttributesRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasAnyClassesRequirement) {
-			instance = new HasAnyClassesRequirementQueryBuilder(chosenSets, requirement);
+			return new HasAnyClassesRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasAllClassesRequirement) {
-			instance = new HasAllClassesRequirementQueryBuilder(chosenSets, requirement);
+			return new HasAllClassesRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasStrengthRequirement) {
-			instance = new HasStrengthRequirementQueryBuilder(chosenSets, requirement);
+			return new HasStrengthRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof LightweightEdgedWeaponRequirement) {
-			instance = new LightweightEdgedWeaponRequirementQueryBuilder(chosenSets, requirement);
+			return new LightweightEdgedWeaponRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof CardTypeRequirement) {
-			instance = new CardTypeRequirementQueryBuilder(chosenSets, requirement);
+			return new CardTypeRequirementQueryBuilder(chosenSets, requirement);
 		} else {
 			throw new RuntimeException("Unknown requirement type "+requirement.getClass());
 		}
-		instanceMap.put(requirement, instance);
-		return instance;
 	}
 }
 
@@ -157,11 +165,16 @@ class HasAnyAttributesRequirementQueryBuilder extends RequirementQueryBuilder {
 	protected String getTableName() {
 		return "Card_CardAttribute, CardAttribute";
 	}
+	
+	@Override
+	protected String getCardIdColumn() {
+		return "Card_CardAttribute.cardId";
+	}
 
 	@Override
 	protected String getSelection(CardList currentCards) {
 		int num_attributes = requirement.getValues().size();
-		return "CardAttribute.attributeName in "+buildInClausePlaceholders(num_attributes)+ 
+		return buildInClausePlaceholders("CardAttribute.attributeName", num_attributes)+ 
 				" and Card_CardAttribute.cardTableName = ? and Card_CardAttribute.attributeId = CardAttribute._ID";
 	}
 
@@ -185,11 +198,16 @@ class HasAnyClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	protected String getTableName() {
 		return "Card_CardClass, CardClass";
 	}
+	
+	@Override
+	protected String getCardIdColumn() {
+		return "Card_CardClass.cardId";
+	}
 
 	@Override
 	protected String getSelection(CardList currentCards) {
 		int num_classes = requirement.getValues().size();
-		return "CardClass.className in "+buildInClausePlaceholders(num_classes)+ 
+		return buildInClausePlaceholders("CardClass.className", num_classes)+ 
 				" and Card_CardClass.cardTableName = ? and Card_CardClass.classId = CardClass._ID";
 	}
 
@@ -209,10 +227,16 @@ class HasAllClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 		super(chosenSets, requirement);
 	}
 
-	private final String SUBQUERY = "cardId in (SELECT cardId from Card_CardClass, CardClass where Card_CardClass.classId=CardClass._ID and CardClass.className=?)";
+	private final String SUBQUERY = "Card_CardClass.cardId in (SELECT Card_CardClass.cardId from Card_CardClass, CardClass where Card_CardClass.classId=CardClass._ID and CardClass.className=?)";
+	
 	@Override
 	protected String getTableName() {
 		return "Card_CardClass";
+	}
+	
+	@Override
+	protected String getCardIdColumn() {
+		return "Card_CardClass.cardId";
 	}
 	
 	protected String buildSubQueryPlaceholders(int num_classes) {
@@ -231,7 +255,7 @@ class HasAllClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	protected String getSelection(CardList currentCards) {
 		int num_classes = requirement.getValues().size();
 		
-		String selection = buildSubQueryPlaceholders(num_classes)+" and cardTableName = ?";
+		String selection = buildSubQueryPlaceholders(num_classes)+" and Card_CardClass.cardTableName = ?";
 		return selection;
 	}
 
@@ -253,7 +277,7 @@ class HasStrengthRequirementQueryBuilder extends RequirementQueryBuilder {
 
 	@Override
 	protected String getCardIdColumn() {
-		return "_ID";
+		return "HeroCard._ID";
 	}
 	
 	@Override
@@ -283,6 +307,11 @@ class LightweightEdgedWeaponRequirementQueryBuilder extends HasAllClassesRequire
 	protected String getTableName() {
 		return "VillageCard, Card_CardClass";
 	}
+	
+	@Override
+	protected String getCardIdColumn() {
+		return "VillageCard._ID";
+	}
 
 	@Override
 	protected String getSelection(CardList currentCards) {
@@ -303,7 +332,7 @@ class CardTypeRequirementQueryBuilder extends RequirementQueryBuilder {
 
 	@Override
 	protected String getCardIdColumn() {
-		return "_ID";
+		return getTableName()+"._ID";
 	}
 	
 	@Override

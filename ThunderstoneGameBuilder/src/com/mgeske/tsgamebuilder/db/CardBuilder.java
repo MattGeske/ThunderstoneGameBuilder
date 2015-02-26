@@ -18,21 +18,24 @@ import com.mgeske.tsgamebuilder.requirement.Requirement;
 public abstract class CardBuilder<T extends Card> {
 	private SQLiteDatabase db;
 	private Map<String, Requirement> allRequirements;
+	private String[] chosenSets;
 
-	protected CardBuilder(SQLiteDatabase db, Map<String,Requirement> allRequirements) {
+	protected CardBuilder(SQLiteDatabase db, Map<String,Requirement> allRequirements, String[] chosenSets) {
 		this.db = db;
 		this.allRequirements = allRequirements;
+		this.chosenSets = chosenSets;
 	}
 	
-	public static CardBuilder<? extends Card> getCardBuilder(String mainTableName, SQLiteDatabase db, Map<String,Requirement> allRequirements) {
+	public static CardBuilder<? extends Card> getCardBuilder(String mainTableName, SQLiteDatabase db, Map<String,Requirement> allRequirements,
+				String[] chosenSets) {
 		if("DungeonCard".equals(mainTableName)) {
-			return new DungeonCardBuilder(db, allRequirements);
+			return new DungeonCardBuilder(db, allRequirements, chosenSets);
 		} else if("DungeonBossCard".equals(mainTableName)) {
-			return new ThunderstoneCardBuilder(db, allRequirements);
+			return new ThunderstoneCardBuilder(db, allRequirements, chosenSets);
 		} else if("HeroCard".equals(mainTableName)) {
-			return new HeroCardBuilder(db, allRequirements);
+			return new HeroCardBuilder(db, allRequirements, chosenSets);
 		} else if("VillageCard".equals(mainTableName)) {
-			return new VillageCardBuilder(db, allRequirements);
+			return new VillageCardBuilder(db, allRequirements, chosenSets);
 		} else {
 			throw new RuntimeException("Couldn't determine card builder for table "+mainTableName);
 		}
@@ -49,8 +52,13 @@ public abstract class CardBuilder<T extends Card> {
 		columns.addAll(getAdditionalColumns());
 		
 		String selection = mainTableName+"._ID=Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.cardTableName=?"+
-						   " and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+mainTableName+"._ID=?";
-		String[] selectionArgs = new String[]{mainTableName, cardId};
+						   " and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+mainTableName+"._ID=? and "+
+						   buildInClausePlaceholders("ThunderstoneSet.setName", chosenSets.length);
+
+		String[] selectionArgs = new String[chosenSets.length+2];
+		selectionArgs[0] = mainTableName;
+		selectionArgs[1] = cardId;
+		System.arraycopy(chosenSets, 0, selectionArgs, 2, chosenSets.length);
 		String groupBy = "cardName";
 		String having = "releaseOrder = max(releaseOrder)";
 		
@@ -83,6 +91,20 @@ public abstract class CardBuilder<T extends Card> {
 			cardRequirements.add(allRequirements.get(requirementName));
 		}
 		return buildCard(c, cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+	}
+
+	protected String buildInClausePlaceholders(String columnName, int num_values) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(columnName);
+		sb.append(" in (");
+		for(int i = 0; i < num_values; i++) {
+			if(i > 0) {
+				sb.append(",");
+			}
+			sb.append("?");
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 	
 	protected List<String> getMultipleValues(String joinTableName, String tableName, String joinColumnName, String valueColumnName, String mainTableName, String cardId) {
@@ -134,8 +156,8 @@ public abstract class CardBuilder<T extends Card> {
 }
 
 class DungeonCardBuilder extends CardBuilder<DungeonCard> {
-	public DungeonCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		super(db, allRequirements);
+	public DungeonCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
+		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
@@ -160,8 +182,8 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 }
 
 class HeroCardBuilder extends CardBuilder<HeroCard> {
-	public HeroCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		super(db, allRequirements);
+	public HeroCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
+		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
@@ -184,8 +206,8 @@ class HeroCardBuilder extends CardBuilder<HeroCard> {
 }
 
 class VillageCardBuilder extends CardBuilder<VillageCard> {
-	public VillageCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		super(db, allRequirements);
+	public VillageCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
+		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
@@ -210,8 +232,8 @@ class VillageCardBuilder extends CardBuilder<VillageCard> {
 }
 
 class ThunderstoneCardBuilder extends CardBuilder<ThunderstoneCard> {
-	public ThunderstoneCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		super(db, allRequirements);
+	public ThunderstoneCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
+		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
