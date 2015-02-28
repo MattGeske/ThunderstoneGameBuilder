@@ -110,5 +110,33 @@ public class CardDatabase extends SQLiteAssetHelper {
 		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements());
 	}
 
+	public String[] getSavedGames() {
+		String[] columns = {"gameName"};
+		String tables = "SavedGame";
+		String sortOrder = "gameName ASC";
+		
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+			queryBuilder.setTables(tables);
+			c = queryBuilder.query(db, columns, null, null, null, null, sortOrder);
+			int count = c.getCount();
+			String[] gameNames = new String[count];
+			int gameNameIndex = c.getColumnIndexOrThrow("gameName");
+			for(int i = 0; i < count; i++) {
+				c.moveToNext();
+				String gameName = c.getString(gameNameIndex);
+				gameNames[i] = gameName;
+			}
+			return gameNames;
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
+	}
+
 }
 

@@ -26,6 +26,7 @@ import android.widget.ListView;
 
 
 public class MainScreenActivity extends ActionBarActivity {
+	private final int REQUEST_CODE_LOAD_GAME = 1;
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private IRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
@@ -56,7 +57,21 @@ public class MainScreenActivity extends ActionBarActivity {
         	randomizer = new SmartRandomizer(cardDb);
         }
     }
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		
+		super.onSaveInstanceState(outState);
+	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		logger.info("Called onActivityResult with requestCode="+requestCode+", resultCode="+resultCode+", data="+data);
+		if(data != null) {
+			logger.info("gameName="+data.getStringExtra("gameName"));
+		}
+	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -91,6 +106,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			case R.id.action_settings: openSettings(); return true;
 			case R.id.action_choosesets: openChooseSets(); return true;
 			case R.id.action_newgame: buildNewGame(); return true;
+			case R.id.action_loadgame: loadGame(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
@@ -104,18 +120,6 @@ public class MainScreenActivity extends ActionBarActivity {
     	Intent intent = new Intent(this, ChooseSetsActivity.class);
     	startActivity(intent);
     }
-
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		
-		super.onSaveInstanceState(outState);
-	}
-
-
-	public void buildNewGame(View view) {
-    	buildNewGame();
-    }
     
     private void buildNewGame() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -128,6 +132,11 @@ public class MainScreenActivity extends ActionBarActivity {
     	CardList cardList = randomizer.generateCardList(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
 		ListView lv = (ListView) findViewById(R.id.card_list);
 		lv.setAdapter(new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList));
+    }
+    
+    private void loadGame() {
+    	Intent intent = new Intent(this, LoadGameActivity.class);
+    	startActivityForResult(intent, REQUEST_CODE_LOAD_GAME);
     }
 
     /**

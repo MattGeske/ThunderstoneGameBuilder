@@ -4,10 +4,12 @@
     <string name="app_name">Thunderstone Game Builder</string>
     <string name="action_settings">Settings</string>
     <string name="action_choosesets">Choose Sets</string>
+    <string name="action_loadgame">Load Game</string>
 
     <!-- main screen -->
     <string name="new_game_button_text">New Game</string>
-    
+    <string name="load_game_button_text">Load Game</string>
+
     <!-- preferences screen -->
     <string name="general_settings">General Settings</string>
     <string name="preference_general_keep_screen_on">Keep Screen On</string>
@@ -22,12 +24,12 @@
     <string name="preference_monster_levels">Enforce Monster Levels</string>
     <string name="preference_monster_levels_summary_on">One monster of each level</string>
     <string name="preference_monster_levels_summary_off">Random monster levels</string>
-   	
+
     <!-- Game rule types -->
     <string name="rule_type_original">original_thunderstone</string>
     <string name="rule_type_advance">thunderstone_advance</string>
     <string name="rule_type_custom">custom_rules</string>
-    
+
     <!-- default preferences -->
     <string name="default_num_monsters">3</string>
     <string name="default_num_thunderstone">1</string>
@@ -35,6 +37,5 @@
     <string name="default_num_village">8</string>
     <string name="default_village_limits">true</string>
     <string name="default_monster_levels">true</string>
-    
 
 </resources>

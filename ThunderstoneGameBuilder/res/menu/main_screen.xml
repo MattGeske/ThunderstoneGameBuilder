@@ -9,6 +9,12 @@
           app:showAsAction="ifRoom"  
           />
     
+    <item android:id="@+id/action_loadgame"
+          android:icon="@drawable/ic_action_collection"
+          android:title="@string/load_game_button_text"
+          app:showAsAction="ifRoom"
+          />
+    
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"

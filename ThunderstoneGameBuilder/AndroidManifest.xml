@@ -36,6 +36,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
         </activity>
+        <activity
+            android:name=".LoadGameActivity"
+            android:label="@string/action_loadgame" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
     </application>
 
 </manifest>
