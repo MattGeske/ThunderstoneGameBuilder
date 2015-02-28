@@ -14,4 +14,9 @@ public class CardTypeRequirement extends Requirement {
 		//superclass already checks card type, so nothing to do here
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName()+" [requirementName=" + getRequirementName() + ", requiredOn="+ getRequiredOn() + "]";
+	}
 }

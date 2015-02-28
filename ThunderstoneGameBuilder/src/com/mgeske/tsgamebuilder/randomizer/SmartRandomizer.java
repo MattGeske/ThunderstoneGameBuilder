@@ -5,12 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
+
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
 public class SmartRandomizer implements IRandomizer {
+	
+	//TODO while unlikely, it's still possible for this to fail to choose cards
+	//(e.g.: 4 heroes have already been chosen, none with physical attack, and another monster is needed but all remaining monsters require magic attack)
+	//happened once using TS Advance rules with only Root of Corruption chosen; haven't been able to reproduce
+	//how to handle this? start over?
+	
 	private CardDatabase cardDb;
 	private Random random;
 	
@@ -29,7 +37,7 @@ public class SmartRandomizer implements IRandomizer {
 		while(cardList.hasRemainingMinimums()) {
 			Requirement randomRequirement = getRandomCardRequirement(cardList.getRemainingMinimums());
 			if(!chooseCards(randomRequirement, cardList)) {
-				throw new RuntimeException("Couldn't choose cards! Remaining minimums: "+cardList.getRemainingMinimums());
+				throw new RuntimeException("Couldn't choose cards! Remaining minimums: "+cardList.getRemainingMinimums()+"; cards="+cardList.toString());
 			}
 		}
 		return cardList;
@@ -80,23 +88,27 @@ public class SmartRandomizer implements IRandomizer {
 	}
 	
 	protected boolean chooseCards(Requirement currentRequirement, CardList currentCards) {
+		Logger logger = Logger.getLogger("chooseCards");
 		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(currentRequirement, currentCards);
 		while(matchingCards.hasNext()) {
 			Card potentialCard = matchingCards.next();
+			logger.info("Considering card "+potentialCard.getCardName());
 			
 			if(!currentCards.addCard(potentialCard)) {
+				logger.info("Rejected card "+potentialCard.getCardName()+" because it did not fit the maximums");
 				continue;
 			}
 			
 			if(!chooseCards(potentialCard.getRequirements(), currentCards)) {
 				//remove potentialCard and everything that was added after it
 				currentCards.removeCardsAfter(potentialCard);
+				logger.info("Rejected card "+potentialCard.getCardName()+" because the requirements could not be met.");
 				continue;
 			}
 			
 			return true;
 		}
-		
+		logger.info("Requirement "+currentRequirement+" could not be met.");
 		return false;
 	}
 	

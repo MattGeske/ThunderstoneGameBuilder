@@ -1,5 +1,7 @@
 package com.mgeske.tsgamebuilder;
 
+import java.util.Collections;
+
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 
@@ -46,7 +48,10 @@ public class CardListAdapter extends BaseAdapter {
 		this.headerItemResource = headerItemResource;
 		this.headerNameResourceId = headerNameResourceId;
 		this.cardList = cardList;
-		
+		Collections.sort(this.cardList.getDungeonCards());
+		Collections.sort(this.cardList.getThunderstoneCards());
+		Collections.sort(this.cardList.getHeroCards());
+		Collections.sort(this.cardList.getVillageCards());
 
 		this.dungeonHeaderPosition = 0;
 		this.dungeonStartPosition = dungeonHeaderPosition+1;

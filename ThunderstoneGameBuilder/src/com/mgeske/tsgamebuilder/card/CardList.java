@@ -168,4 +168,11 @@ public class CardList {
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "CardList [dungeonCards=" + dungeonCards
+				+ ", thunderstoneCards=" + thunderstoneCards + ", heroCards="
+				+ heroCards + ", villageCards=" + villageCards + "]";
+	}
 }
