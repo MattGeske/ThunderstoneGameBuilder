@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-public class CardList {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class CardList implements Parcelable {
 	private List<DungeonCard> dungeonCards = new ArrayList<DungeonCard>();
 	private List<ThunderstoneCard> thunderstoneCards = new ArrayList<ThunderstoneCard>();
 	private List<HeroCard> heroCards = new ArrayList<HeroCard>();
@@ -175,4 +178,36 @@ public class CardList {
 				+ ", thunderstoneCards=" + thunderstoneCards + ", heroCards="
 				+ heroCards + ", villageCards=" + villageCards + "]";
 	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeTypedList(dungeonCards);
+		dest.writeTypedList(thunderstoneCards);
+		dest.writeTypedList(heroCards);
+		dest.writeTypedList(villageCards);
+		//TODO write minimumCards/maximumCards/foundKeys here?
+		//TODO write cardOrder here? or make removeCardsAfter handle the possibility that a card might
+		//     be the list but not in cardOrder?
+	}
+	
+	private CardList(Parcel parcel) {
+		parcel.readTypedList(dungeonCards, DungeonCard.CREATOR);
+		parcel.readTypedList(thunderstoneCards, ThunderstoneCard.CREATOR);
+		parcel.readTypedList(heroCards, HeroCard.CREATOR);
+		parcel.readTypedList(villageCards, VillageCard.CREATOR);
+	}
+	
+	public static final Parcelable.Creator<CardList> CREATOR = new Parcelable.Creator<CardList>() {
+		public CardList createFromParcel(Parcel parcel) {
+			return new CardList(parcel);
+		}
+		public CardList[] newArray(int size) {
+			return new CardList[size];
+		}
+	};
 }

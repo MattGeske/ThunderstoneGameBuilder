@@ -3,6 +3,9 @@ package com.mgeske.tsgamebuilder.card;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
 public class VillageCard extends Card {
@@ -57,4 +60,33 @@ public class VillageCard extends Card {
 		}
 		return "";
 	}
+	/**
+	 * 
+	private int cost;
+	private Integer value = null;
+	private Integer weight = null;
+	 */
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		super.writeToParcel(dest, flags);
+		dest.writeInt(cost);
+		dest.writeValue(value);
+		dest.writeValue(weight);
+	}
+	
+	private VillageCard(Parcel parcel) {
+		super(parcel);
+		cost = parcel.readInt();
+		value = (Integer)parcel.readValue(null);
+		weight = (Integer)parcel.readValue(null);
+	}
+
+	public static final Parcelable.Creator<VillageCard> CREATOR = new Parcelable.Creator<VillageCard>() {
+		public VillageCard createFromParcel(Parcel parcel) {
+			return new VillageCard(parcel);
+		}
+		public VillageCard[] newArray(int size) {
+			return new VillageCard[size];
+		}
+	};
 }

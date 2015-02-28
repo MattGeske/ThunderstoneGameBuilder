@@ -3,9 +3,12 @@ package com.mgeske.tsgamebuilder.card;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
-public abstract class Card implements Comparable<Card> {
+public abstract class Card implements Comparable<Card>,Parcelable {
 	private String cardId;
 	private String cardName;
 	private String setName;
@@ -65,6 +68,33 @@ public abstract class Card implements Comparable<Card> {
 	@Override
 	public int compareTo(Card another) {
 		return this.cardName.compareTo(another.cardName);
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(cardId);
+		dest.writeString(cardName);
+		dest.writeString(setName);
+		dest.writeString(cardText);
+		dest.writeStringList(attributes);
+		dest.writeStringList(classes);
+		//TODO write requirements here?
+	}
+	
+	protected Card(Parcel parcel) {
+		cardId = parcel.readString();
+		cardName = parcel.readString();
+		setName = parcel.readString();
+		cardText = parcel.readString();
+		attributes = new ArrayList<String>();
+		parcel.readStringList(attributes);
+		classes = new ArrayList<String>();
+		parcel.readStringList(classes);
 	}
 	
 	public abstract List<String> getRandomizerKeys();
