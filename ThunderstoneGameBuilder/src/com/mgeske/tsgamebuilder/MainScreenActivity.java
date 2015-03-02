@@ -66,9 +66,9 @@ public class MainScreenActivity extends ActionBarActivity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		logger.info("Called onActivityResult with requestCode="+requestCode+", resultCode="+resultCode+", data="+data);
-		if(data != null) {
-			logger.info("gameName="+data.getStringExtra("gameName"));
+		if(requestCode == REQUEST_CODE_LOAD_GAME && resultCode == 1) {
+			CardList cardList = data.getParcelableExtra("cardList");
+			displayGame(cardList);
 		}
 	}
 
@@ -130,7 +130,11 @@ public class MainScreenActivity extends ActionBarActivity {
     	boolean village_limits = getBooleanPreference(preferences, "village_limits", R.string.default_village_limits);
     	boolean monster_levels = getBooleanPreference(preferences, "monster_levels", R.string.default_monster_levels);
     	CardList cardList = randomizer.generateCardList(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
-		ListView lv = (ListView) findViewById(R.id.card_list);
+		displayGame(cardList);
+    }
+    
+    private void displayGame(CardList cardList) {
+    	ListView lv = (ListView) findViewById(R.id.card_list);
 		lv.setAdapter(new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList));
     }
     

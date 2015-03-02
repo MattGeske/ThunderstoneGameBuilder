@@ -2,6 +2,7 @@ package com.mgeske.tsgamebuilder.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -100,10 +101,14 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 	
-	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards) {
+	private String[] getChosenSets() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		String chosenSetsString = preferences.getString("chosenSets", "");
-		String[] chosenSets = chosenSetsString.split(",");
+		return chosenSetsString.split(",");
+	}
+	
+	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards) {
+		String[] chosenSets = getChosenSets();
 		RequirementQueryBuilder queryBuilder = RequirementQueryBuilder.getRequirementQueryBuilder(chosenSets, requirement);
 		
 		SQLiteDatabase db = getReadableDatabase();
@@ -138,5 +143,37 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 
+	public CardList loadSavedGame(String gameName) {
+		Map<String,Integer> emptyMap = Collections.emptyMap();
+		CardList cardList = new CardList(emptyMap, emptyMap);
+		
+		String[] columns = {"cardId", "cardTableName"};
+		String tables = "Card_SavedGame, SavedGame";
+		String selection = "Card_SavedGame.savedGameId=SavedGame._ID and SavedGame.gameName=?";
+		String[] selectionArgs = new String[]{gameName};
+		
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+			queryBuilder.setTables(tables);
+			c = queryBuilder.query(db, columns, selection, selectionArgs, null, null, null);
+			int cardIdIndex = c.getColumnIndexOrThrow("cardId");
+			int cardTableNameIndex = c.getColumnIndexOrThrow("cardTableName");
+			while(c.moveToNext()) {
+				String cardId = c.getString(cardIdIndex);
+				String cardTableName = c.getString(cardTableNameIndex);
+				CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(cardTableName, db, getRequirements(), getChosenSets());
+				Card card = cardBuilder.buildCard(cardId);
+				cardList.addCard(card);
+			}
+			return cardList;
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
+	}
 }
 

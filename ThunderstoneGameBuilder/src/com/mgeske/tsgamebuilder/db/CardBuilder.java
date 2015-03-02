@@ -52,23 +52,30 @@ public abstract class CardBuilder<T extends Card> {
 		columns.addAll(getAdditionalColumns());
 		
 		String selection = mainTableName+"._ID=Card_ThunderstoneSet.cardId and Card_ThunderstoneSet.cardTableName=?"+
-						   " and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+mainTableName+"._ID=? and "+
-						   buildInClausePlaceholders("ThunderstoneSet.setName", chosenSets.length);
+						   " and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+mainTableName+"._ID=?"; // and "+
+		String[] selectionArgs = new String[]{mainTableName, cardId};
 
-		String[] selectionArgs = new String[chosenSets.length+2];
-		selectionArgs[0] = mainTableName;
-		selectionArgs[1] = cardId;
-		System.arraycopy(chosenSets, 0, selectionArgs, 2, chosenSets.length);
-		String groupBy = "cardName";
-		String having = "releaseOrder = max(releaseOrder)";
+		String orderBy = "releaseOrder DESC";
 		
 		Cursor c = null;
 		T card = null;
 		try {
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 			queryBuilder.setTables(tables);
-			c = queryBuilder.query(db, columns.toArray(new String[]{}), selection, selectionArgs, groupBy, having, null, null);
-			c.moveToNext();
+			c = queryBuilder.query(db, columns.toArray(new String[]{}), selection, selectionArgs, null, null, orderBy, null);
+			boolean foundSet = false;
+			while(c.moveToNext()) {
+				//look for the most recently released set that has been selected by the user
+				String setName = c.getString(c.getColumnIndexOrThrow("setName"));
+				if(arrayContains(chosenSets, setName)) {
+					foundSet = true;
+					break;
+				}
+			}
+			if(!foundSet) {
+				//if no sets were found that match the user's selection, use the most recently released set
+				c.moveToFirst();
+			}
 			card = buildCard(c, allRequirements, mainTableName, cardId);
 		} finally {
 			if(c != null) {
@@ -150,6 +157,15 @@ public abstract class CardBuilder<T extends Card> {
 	
 	protected String getString(Cursor c, String columnName) {
 		return c.getString(c.getColumnIndexOrThrow(columnName));
+	}
+	
+	protected <V extends Object> boolean arrayContains(V[] arr, V value) {
+		for(V arrValue : arr) {
+			if(value == arrValue || (value != null && value.equals(arrValue))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected abstract T buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
