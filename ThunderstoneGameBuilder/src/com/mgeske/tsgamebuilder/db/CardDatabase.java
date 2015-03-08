@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
+import com.mgeske.tsgamebuilder.SavedGame;
+import com.mgeske.tsgamebuilder.Util;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
@@ -29,6 +32,23 @@ public class CardDatabase extends SQLiteAssetHelper {
 	public CardDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		this.context = context;
+	}
+
+	protected static String buildInClausePlaceholders(String columnName, int num_values, boolean invert) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(columnName);
+		if(invert) {
+			sb.append(" not");
+		}
+		sb.append(" in (");
+		for(int i = 0; i < num_values; i++) {
+			if(i > 0) {
+				sb.append(",");
+			}
+			sb.append("?");
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 	
 	public List<String> getThunderstoneSets() {
@@ -101,24 +121,18 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 	
-	private String[] getChosenSets() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		String chosenSetsString = preferences.getString("chosenSets", "");
-		return chosenSetsString.split(",");
-	}
-	
 	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards) {
-		String[] chosenSets = getChosenSets();
+		String[] chosenSets = Util.getChosenSets(context);
 		RequirementQueryBuilder queryBuilder = RequirementQueryBuilder.getRequirementQueryBuilder(chosenSets, requirement);
 		
 		SQLiteDatabase db = getReadableDatabase();
 		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements());
 	}
 
-	public String[] getSavedGames() {
-		String[] columns = {"gameName"};
+	public List<SavedGame> getSavedGames() {
+		String[] columns = {"_ID", "gameName"};
 		String tables = "SavedGame";
-		String sortOrder = "gameName ASC";
+		String orderBy = "gameName ASC";
 		
 		SQLiteDatabase db = null;
 		Cursor c = null;
@@ -126,23 +140,67 @@ public class CardDatabase extends SQLiteAssetHelper {
 			db = getReadableDatabase();
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 			queryBuilder.setTables(tables);
-			c = queryBuilder.query(db, columns, null, null, null, null, sortOrder);
-			int count = c.getCount();
-			String[] gameNames = new String[count];
+			c = queryBuilder.query(db, columns, null, null, null, null, orderBy);
+			List<SavedGame> gameInfo = new ArrayList<SavedGame>();
 			int gameNameIndex = c.getColumnIndexOrThrow("gameName");
-			for(int i = 0; i < count; i++) {
-				c.moveToNext();
+			int gameIdIndex = c.getColumnIndexOrThrow("_ID");
+			while(c.moveToNext()) {
 				String gameName = c.getString(gameNameIndex);
-				gameNames[i] = gameName;
+				String gameId = c.getString(gameIdIndex);
+				String setNames = getSetNamesForSavedGame(gameId);
+				SavedGame savedGame = new SavedGame(gameName, setNames);
+				gameInfo.add(savedGame);
 			}
-			return gameNames;
+			return gameInfo;
 		} finally {
 			if(c != null) {
 				c.close();
 			}
 		}
 	}
-
+	
+	private String getSetNamesForSavedGame(String savedGameId) {
+		String sql = "SELECT group_concat(setName) as setNames " +
+					 "FROM ( " +
+					 "    SELECT Card_SavedGame.cardId, setName " +
+					 "    FROM Card_SavedGame, Card_ThunderstoneSet, ThunderstoneSet " +
+					 "    WHERE Card_SavedGame.cardId=Card_ThunderstoneSet.cardId AND " +
+					 "    Card_SavedGame.cardTableName=Card_ThunderstoneSet.cardTableName AND " +
+					 "    Card_ThunderstoneSet.setId=ThunderstoneSet._ID AND " +
+					 "    Card_SavedGame.savedGameId=? " +
+					 "    ORDER BY Card_SavedGame.cardId, releaseOrder ASC " +
+					 ") " +
+					 "GROUP BY cardId";
+		Set<String> foundSets = new HashSet<String>();
+		String[] chosenSets = Util.getChosenSets(context);
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+			c = db.rawQuery(sql, new String[]{savedGameId});
+			while(c.moveToNext()) {
+				String setNamesString = c.getString(c.getColumnIndexOrThrow("setNames"));
+				String[] setNames = setNamesString.split(",");
+				boolean foundSet = false;
+				for(String setName : setNames) {
+					if(Util.arrayContains(chosenSets, setName)) {
+						foundSets.add(setName);
+						foundSet = true;
+						break;
+					}
+				}
+				if(!foundSet) {
+					foundSets.add(setNames[0]);
+				}
+			}
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+		}
+		return TextUtils.join(",", foundSets);
+	}
+	
 	public CardList loadSavedGame(String gameName) {
 		Map<String,Integer> emptyMap = Collections.emptyMap();
 		CardList cardList = new CardList(emptyMap, emptyMap);
@@ -164,7 +222,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 			while(c.moveToNext()) {
 				String cardId = c.getString(cardIdIndex);
 				String cardTableName = c.getString(cardTableNameIndex);
-				CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(cardTableName, db, getRequirements(), getChosenSets());
+				CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(cardTableName, db, getRequirements(), Util.getChosenSets(context));
 				Card card = cardBuilder.buildCard(cardId);
 				cardList.addCard(card);
 			}

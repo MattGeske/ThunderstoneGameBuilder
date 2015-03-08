@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				android:layout_height="fill_parent" android:orientation="horizontal"
+				android:layout_height="fill_parent" android:orientation="vertical"
 				android:layout_width="fill_parent"
 				>
 
 	<TextView android:id="@+id/game_name"
-			  style="@style/CardListHeader" />
-	<!-- TextView android:id="@+id/card_type"
-				android:layout_weight="0.3"
-				style="@style/CardListItem" />
-	<TextView android:id="@+id/card_set"
-				android:layout_weight="0.2"
-				style="@style/CardListItem" /-->
+			  style="@android:style/TextAppearance.Large"
+			  android:layout_width="fill_parent"
+        	  android:layout_height="wrap_content"
+			   />
+	<TextView android:id="@+id/set_names"
+			  style="@android:style/TextAppearance.Small"
+			  android:layout_width="fill_parent"
+        	  android:layout_height="wrap_content"
+			   />
 	
 </LinearLayout>

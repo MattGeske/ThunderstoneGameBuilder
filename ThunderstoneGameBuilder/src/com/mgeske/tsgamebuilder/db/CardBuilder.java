@@ -99,20 +99,6 @@ public abstract class CardBuilder<T extends Card> {
 		}
 		return buildCard(c, cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
 	}
-
-	protected String buildInClausePlaceholders(String columnName, int num_values) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(columnName);
-		sb.append(" in (");
-		for(int i = 0; i < num_values; i++) {
-			if(i > 0) {
-				sb.append(",");
-			}
-			sb.append("?");
-		}
-		sb.append(")");
-		return sb.toString();
-	}
 	
 	protected List<String> getMultipleValues(String joinTableName, String tableName, String joinColumnName, String valueColumnName, String mainTableName, String cardId) {
 		String[] columnNames = new String[]{valueColumnName};

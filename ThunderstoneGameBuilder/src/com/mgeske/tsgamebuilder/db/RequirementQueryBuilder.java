@@ -94,20 +94,6 @@ public abstract class RequirementQueryBuilder {
 	protected abstract String getCardIdColumn();
 	protected abstract String getSelection(CardList currentCards);
 	protected abstract String[] getSelectionArgs(CardList currentCards);
-
-	protected String buildInClausePlaceholders(String columnName, int num_values) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(columnName);
-		sb.append(" in (");
-		for(int i = 0; i < num_values; i++) {
-			if(i > 0) {
-				sb.append(",");
-			}
-			sb.append("?");
-		}
-		sb.append(")");
-		return sb.toString();
-	}
 	
 	private String buildWhereNotInCurrentCards(String cardIdColumn, List<? extends Card> currentCards) {
 		String[] values = new String[currentCards.size()];
@@ -174,7 +160,7 @@ class HasAnyAttributesRequirementQueryBuilder extends RequirementQueryBuilder {
 	@Override
 	protected String getSelection(CardList currentCards) {
 		int num_attributes = requirement.getValues().size();
-		return buildInClausePlaceholders("CardAttribute.attributeName", num_attributes)+ 
+		return CardDatabase.buildInClausePlaceholders("CardAttribute.attributeName", num_attributes, false)+ 
 				" and Card_CardAttribute.cardTableName = ? and Card_CardAttribute.attributeId = CardAttribute._ID";
 	}
 
@@ -207,7 +193,7 @@ class HasAnyClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	@Override
 	protected String getSelection(CardList currentCards) {
 		int num_classes = requirement.getValues().size();
-		return buildInClausePlaceholders("CardClass.className", num_classes)+ 
+		return CardDatabase.buildInClausePlaceholders("CardClass.className", num_classes, false)+ 
 				" and Card_CardClass.cardTableName = ? and Card_CardClass.classId = CardClass._ID";
 	}
 
