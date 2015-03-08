@@ -55,7 +55,7 @@ public class SavedGameListAdapter extends BaseAdapter {
 		TextView gameNameView = (TextView)convertView.findViewById(gameNameResourceId);
 		gameNameView.setText(savedGame.getGameName());
 		TextView setNamesView = (TextView)convertView.findViewById(setNamesResourceId);
-		setNamesView.setText("Required sets: "+savedGame.getRequiredSetNamesString());
+		setNamesView.setText("Requires: "+savedGame.getRequiredSetNamesString());
 		return convertView;
 	}
 

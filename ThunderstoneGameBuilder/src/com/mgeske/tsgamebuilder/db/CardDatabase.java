@@ -14,7 +14,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.text.TextUtils;
 
 import com.mgeske.tsgamebuilder.SavedGame;
 import com.mgeske.tsgamebuilder.Util;
@@ -147,7 +146,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 			while(c.moveToNext()) {
 				String gameName = c.getString(gameNameIndex);
 				String gameId = c.getString(gameIdIndex);
-				String setNames = getSetNamesForSavedGame(gameId);
+				String[] setNames = getSetNamesForSavedGame(gameId);
 				SavedGame savedGame = new SavedGame(gameName, setNames);
 				gameInfo.add(savedGame);
 			}
@@ -159,7 +158,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 	
-	private String getSetNamesForSavedGame(String savedGameId) {
+	private String[] getSetNamesForSavedGame(String savedGameId) {
 		String sql = "SELECT group_concat(setName) as setNames " +
 					 "FROM ( " +
 					 "    SELECT Card_SavedGame.cardId, setName " +
@@ -198,7 +197,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 				c.close();
 			}
 		}
-		return TextUtils.join(",", foundSets);
+		return foundSets.toArray(new String[foundSets.size()]);
 	}
 	
 	public CardList loadSavedGame(String gameName) {

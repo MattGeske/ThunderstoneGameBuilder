@@ -1,10 +1,12 @@
 package com.mgeske.tsgamebuilder;
 
+import android.text.TextUtils;
+
 public class SavedGame {
 	private String gameName;
-	private String requiredSetNames;
+	private String[] requiredSetNames;
 	
-	public SavedGame(String gameName, String requiredSetNames) {
+	public SavedGame(String gameName, String[] requiredSetNames) {
 		this.gameName = gameName;
 		this.requiredSetNames = requiredSetNames;
 	}
@@ -14,10 +16,10 @@ public class SavedGame {
 	}
 
 	public String getRequiredSetNamesString() {
-		return requiredSetNames;
+		return TextUtils.join(", ", requiredSetNames);
 	}
 	
 	public String[] getRequiredSetNamesArray() {
-		return requiredSetNames.split(",");
+		return requiredSetNames;
 	}
 }
