@@ -3,7 +3,7 @@
 
     <string name="app_name">Thunderstone Game Builder</string>
     <string name="action_settings">Settings</string>
-    <string name="action_choosesets">Choose Sets</string>
+    <string name="action_choosesets">Choose Expansions</string>
     <string name="action_loadgame">Load Game</string>
 
     <!-- main screen -->
@@ -37,5 +37,8 @@
     <string name="default_num_village">8</string>
     <string name="default_village_limits">true</string>
     <string name="default_monster_levels">true</string>
+    
+    <!-- load game screen -->
+    <string name="load_game_show_all">Show games for all expansions</string>
 
 </resources>

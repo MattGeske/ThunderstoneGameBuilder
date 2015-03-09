@@ -17,6 +17,10 @@ public class Util {
 	public static String[] getChosenSets(Context context) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		String chosenSetsString = preferences.getString("chosenSets", "");
-		return chosenSetsString.split(",");
+		if("".equals(chosenSetsString)) {
+			return new String[]{};
+		} else {
+			return chosenSetsString.split(",");
+		}
 	}
 }

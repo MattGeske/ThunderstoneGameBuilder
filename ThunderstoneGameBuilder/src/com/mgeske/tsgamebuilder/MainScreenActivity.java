@@ -1,9 +1,6 @@
 package com.mgeske.tsgamebuilder;
 
 
-import java.util.Arrays;
-import java.util.logging.Logger;
-
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
@@ -19,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ListView;
@@ -27,9 +25,11 @@ import android.widget.ListView;
 
 public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
-	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private IRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
+	private MenuItem newGameButton = null;
+	private MenuItem loadGameButton = null;
+	private boolean userHasChosenSets = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +40,41 @@ public class MainScreenActivity extends ActionBarActivity {
 	@Override
     protected void onResume() {
     	super.onResume();
+        String[] chosenSets = Util.getChosenSets(this);
+    	userHasChosenSets = (chosenSets.length > 0);
+        if(userHasChosenSets) {
+        	findViewById(R.id.card_list).setVisibility(View.VISIBLE);
+        	findViewById(R.id.no_sets_warning).setVisibility(View.INVISIBLE);
+        	if(newGameButton != null) {
+        		newGameButton.setEnabled(true);
+        	}
+        	if(loadGameButton != null) {
+        		loadGameButton.setEnabled(true);
+        	}
+        } else {
+        	findViewById(R.id.card_list).setVisibility(View.INVISIBLE);
+        	findViewById(R.id.no_sets_warning).setVisibility(View.VISIBLE);
+        	if(newGameButton != null) {
+        		newGameButton.setEnabled(false);
+        	}
+        	if(loadGameButton != null) {
+        		loadGameButton.setEnabled(false);
+        	}
+        }
+        findViewById(R.id.choose_sets_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				openChooseSets();
+			}
+        });
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String chosenSetsString = preferences.getString("chosenSets", "");
-        logger.info("chosenSetsRaw="+chosenSetsString);
-        String[] chosenSets = chosenSetsString.split(",");
-        logger.info("chosenSets="+Arrays.deepToString(chosenSets));
         if(preferences.getBoolean("keep_screen_on", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+        
     	if(cardDb == null) {
     		cardDb = new CardDatabase(this);
     	}
@@ -94,6 +119,10 @@ public class MainScreenActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_screen, menu);
+        newGameButton = menu.findItem(R.id.action_newgame);
+        loadGameButton = menu.findItem(R.id.action_loadgame);
+    	newGameButton.setEnabled(userHasChosenSets);
+    	loadGameButton.setEnabled(userHasChosenSets);
         return true;
     }
 

@@ -11,7 +11,7 @@
 
 	<CheckBox
 	    android:id="@+id/show_all_saved_games"
-	    android:text="Show games for all sets"
+	    android:text="@string/load_game_show_all"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	/>
