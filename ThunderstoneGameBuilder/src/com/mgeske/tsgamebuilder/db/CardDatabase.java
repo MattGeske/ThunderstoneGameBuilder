@@ -221,7 +221,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 			while(c.moveToNext()) {
 				String cardId = c.getString(cardIdIndex);
 				String cardTableName = c.getString(cardTableNameIndex);
-				CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(cardTableName, db, getRequirements(), Util.getChosenSets(context));
+				CardBuilder cardBuilder = CardBuilder.getCardBuilder(cardTableName, db, getRequirements(), Util.getChosenSets(context));
 				Card card = cardBuilder.buildCard(cardId);
 				cardList.addCard(card);
 			}

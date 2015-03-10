@@ -11,6 +11,7 @@ import android.os.Parcelable;
 
 public class CardList implements Parcelable {
 	private List<DungeonCard> dungeonCards = new ArrayList<DungeonCard>();
+	private List<GuardianCard> guardianCards = new ArrayList<GuardianCard>();
 	private List<ThunderstoneCard> thunderstoneCards = new ArrayList<ThunderstoneCard>();
 	private List<HeroCard> heroCards = new ArrayList<HeroCard>();
 	private List<VillageCard> villageCards = new ArrayList<VillageCard>();
@@ -31,6 +32,8 @@ public class CardList implements Parcelable {
 			return getDungeonCards();
 		} else if(cardType != null && cardType.startsWith("Level")) {
 			return getDungeonCards();
+		} else if("Guardian".equals(cardType)) {
+			return getGuardianCards();
 		} else if("Thunderstone".equals(cardType)) {
 			return getThunderstoneCards();
 		} else if("Hero".equals(cardType)) {
@@ -44,6 +47,10 @@ public class CardList implements Parcelable {
 
 	public List<DungeonCard> getDungeonCards() {
 		return dungeonCards;
+	}
+	
+	public List<GuardianCard> getGuardianCards() {
+		return guardianCards;
 	}
 
 	public List<HeroCard> getHeroCards() {
@@ -109,6 +116,8 @@ public class CardList implements Parcelable {
 		//add it to the appropriate list
 		if(card instanceof DungeonCard) {
 			dungeonCards.add((DungeonCard)card);
+		} else if(card instanceof GuardianCard) {
+			guardianCards.add((GuardianCard)card);
 		} else if(card instanceof ThunderstoneCard) {
 			thunderstoneCards.add((ThunderstoneCard)card);
 		} else if(card instanceof HeroCard) {
@@ -153,6 +162,8 @@ public class CardList implements Parcelable {
 			
 			if(lastCard instanceof DungeonCard) {
 				dungeonCards.remove(lastCard);
+			} else if(lastCard instanceof GuardianCard) {
+				guardianCards.remove(lastCard);
 			} else if(lastCard instanceof ThunderstoneCard) {
 				thunderstoneCards.remove(lastCard);
 			} else if(lastCard instanceof HeroCard) {
@@ -174,7 +185,7 @@ public class CardList implements Parcelable {
 
 	@Override
 	public String toString() {
-		return "CardList [dungeonCards=" + dungeonCards
+		return "CardList [dungeonCards=" + dungeonCards + ", guardianCards=" + guardianCards
 				+ ", thunderstoneCards=" + thunderstoneCards + ", heroCards="
 				+ heroCards + ", villageCards=" + villageCards + "]";
 	}
@@ -187,6 +198,7 @@ public class CardList implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeTypedList(dungeonCards);
+		dest.writeTypedList(guardianCards);
 		dest.writeTypedList(thunderstoneCards);
 		dest.writeTypedList(heroCards);
 		dest.writeTypedList(villageCards);
@@ -197,6 +209,7 @@ public class CardList implements Parcelable {
 	
 	private CardList(Parcel parcel) {
 		parcel.readTypedList(dungeonCards, DungeonCard.CREATOR);
+		parcel.readTypedList(guardianCards, GuardianCard.CREATOR);
 		parcel.readTypedList(thunderstoneCards, ThunderstoneCard.CREATOR);
 		parcel.readTypedList(heroCards, HeroCard.CREATOR);
 		parcel.readTypedList(villageCards, VillageCard.CREATOR);

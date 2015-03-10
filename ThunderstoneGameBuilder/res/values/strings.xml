@@ -9,6 +9,13 @@
     <!-- main screen -->
     <string name="new_game_button_text">New Game</string>
     <string name="load_game_button_text">Load Game</string>
+    
+    <!-- card list -->
+    <string name="dungeon_cards_header">DUNGEON</string>
+    <string name="guardian_cards_header">GUARDIAN</string>
+    <string name="thunderstone_cards_header">THUNDERSTONE</string>
+    <string name="hero_cards_header">HERO</string>
+    <string name="village_cards_header">VILLAGE</string>
 
     <!-- preferences screen -->
     <string name="general_settings">General Settings</string>

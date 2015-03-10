@@ -47,7 +47,7 @@ public abstract class RequirementQueryBuilder {
 		String[] cardIds = getMatchingCardIds(currentCards, db);
 		
 		String mainTableName = getMainTableName();
-		CardBuilder<? extends Card> cardBuilder = CardBuilder.getCardBuilder(mainTableName, db, allRequirements, chosenSets);
+		CardBuilder cardBuilder = CardBuilder.getCardBuilder(mainTableName, db, allRequirements, chosenSets);
 		
 		return new CardResultIterator(cardIds, cardBuilder);
 	}
@@ -340,10 +340,10 @@ class CardTypeRequirementQueryBuilder extends RequirementQueryBuilder {
 class CardResultIterator implements Iterator<Card> {
 	private int nextItemPosition = 0;
 	private String[] cardIds;
-	private CardBuilder<? extends Card> cardBuilder;
+	private CardBuilder cardBuilder;
 	private Random random = new Random();
 	
-	public CardResultIterator(String[] cardIds, CardBuilder<? extends Card> cardBuilder) {
+	public CardResultIterator(String[] cardIds, CardBuilder cardBuilder) {
 		this.cardIds = cardIds;
 		this.cardBuilder = cardBuilder;
 		

@@ -1,6 +1,8 @@
 package com.mgeske.tsgamebuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
@@ -13,6 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class CardListAdapter extends BaseAdapter {
+	private Context context;
 	private LayoutInflater inflater;
 	private int cardItemResource;
 	private int cardNameResourceId;
@@ -20,26 +23,19 @@ public class CardListAdapter extends BaseAdapter {
 	private int cardSetResourceId;
 	private int headerItemResource;
 	private int headerNameResourceId;
-	private CardList cardList;
+	private List<Object> items;
 	private int dungeonHeaderPosition;
-	private int dungeonStartPosition;
+	private int guardianHeaderPosition;
 	private int thunderstoneHeaderPosition;
-	private int thunderstoneStartPosition;
 	private int heroHeaderPosition;
-	private int heroStartPosition;
 	private int villageHeaderPosition;
-	private int villageStartPosition;
-	
-	private static final String DUNGEON_HEADER = "DUNGEON";
-	private static final String THUNDERSTONE_HEADER = "THUNDERSTONE";
-	private static final String HERO_HEADER = "HERO";
-	private static final String VILLAGE_HEADER = "VILLAGE";
 	
 	private static final int HEADER_TYPE = 0;
 	private static final int CARD_ITEM_TYPE = 1;
 	
 	public CardListAdapter(Context context, int cardItemResource, int cardNameResourceId, int cardTypeResourceId, int cardSetResourceId, 
 			int headerItemResource, int headerNameResourceId, CardList cardList) {
+		this.context = context;
 		this.inflater = LayoutInflater.from(context);
 		this.cardItemResource = cardItemResource;
 		this.cardNameResourceId = cardNameResourceId;
@@ -47,20 +43,25 @@ public class CardListAdapter extends BaseAdapter {
 		this.cardSetResourceId = cardSetResourceId;
 		this.headerItemResource = headerItemResource;
 		this.headerNameResourceId = headerNameResourceId;
-		this.cardList = cardList;
-		Collections.sort(this.cardList.getDungeonCards());
-		Collections.sort(this.cardList.getThunderstoneCards());
-		Collections.sort(this.cardList.getHeroCards());
-		Collections.sort(this.cardList.getVillageCards());
-
-		this.dungeonHeaderPosition = 0;
-		this.dungeonStartPosition = dungeonHeaderPosition+1;
-		this.thunderstoneHeaderPosition = dungeonStartPosition+cardList.getDungeonCards().size();
-		this.thunderstoneStartPosition = thunderstoneHeaderPosition+1;
-		this.heroHeaderPosition = thunderstoneStartPosition+cardList.getThunderstoneCards().size();
-		this.heroStartPosition = heroHeaderPosition+1;
-		this.villageHeaderPosition = heroStartPosition+cardList.getHeroCards().size();
-		this.villageStartPosition = villageHeaderPosition+1;
+		
+		items = new ArrayList<Object>();
+		this.dungeonHeaderPosition = addItems(R.string.dungeon_cards_header, cardList.getDungeonCards());
+		this.guardianHeaderPosition = addItems(R.string.guardian_cards_header, cardList.getGuardianCards());
+		this.thunderstoneHeaderPosition = addItems(R.string.thunderstone_cards_header, cardList.getThunderstoneCards());
+		this.heroHeaderPosition = addItems(R.string.hero_cards_header, cardList.getHeroCards());
+		this.villageHeaderPosition = addItems(R.string.village_cards_header, cardList.getVillageCards());
+	}
+	
+	private int addItems(int headerId, List<? extends Card> cards) {
+		if(!cards.isEmpty()) {
+			int headerPosition = items.size();
+			String header = context.getString(headerId);
+			items.add(header);
+			Collections.sort(cards);
+			items.addAll(cards);
+			return headerPosition;
+		}
+		return -1;
 	}
 
 	@Override
@@ -99,35 +100,12 @@ public class CardListAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return cardList.getDungeonCards().size() + cardList.getThunderstoneCards().size() + cardList.getHeroCards().size() + cardList.getVillageCards().size() + 4;
+		return items.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		/*
-		 * Order: dungeon header, dungeon cards, thunderstone header, thunderstone cards, hero header, hero cards, village header, village cards
-		 */
-		if(position == dungeonHeaderPosition) {
-			return DUNGEON_HEADER;
-		} else if(position == thunderstoneHeaderPosition) {
-			return THUNDERSTONE_HEADER;
-		} else if(position == heroHeaderPosition) {
-			return HERO_HEADER;
-		} else if(position == villageHeaderPosition) {
-			return VILLAGE_HEADER;
-		} else if(position < thunderstoneHeaderPosition) {
-			int index = position-dungeonStartPosition;
-			return cardList.getDungeonCards().get(index);
-		} else if(position < heroHeaderPosition) {
-			int index = position-thunderstoneStartPosition;
-			return cardList.getThunderstoneCards().get(index);
-		} else if(position < villageHeaderPosition) {
-			int index = position-heroStartPosition;
-			return cardList.getHeroCards().get(index);
-		} else {
-			int index = position-villageStartPosition;
-			return cardList.getVillageCards().get(index);
-		}
+		return items.get(position);
 	}
 
 	@Override
@@ -137,7 +115,9 @@ public class CardListAdapter extends BaseAdapter {
 
 	@Override
 	public int getItemViewType(int position) {
-		if(position == dungeonHeaderPosition || position == thunderstoneHeaderPosition || position == heroHeaderPosition || position == villageHeaderPosition) {
+		if(position == dungeonHeaderPosition || position == guardianHeaderPosition 
+				|| position == thunderstoneHeaderPosition || position == heroHeaderPosition
+				|| position == villageHeaderPosition) {
 			return HEADER_TYPE;
 		} else {
 			return CARD_ITEM_TYPE;

@@ -34,12 +34,16 @@ public class SmartRandomizer implements IRandomizer {
 		Map<String,Integer> maximumCards = getMaximumCards(num_monster, num_thunderstone, num_hero, num_village, village_limits, monster_levels);
 		
 		CardList cardList = new CardList(minimumCards, maximumCards);
+		long startTime = System.currentTimeMillis();
 		while(cardList.hasRemainingMinimums()) {
 			Requirement randomRequirement = getRandomCardRequirement(cardList.getRemainingMinimums());
 			if(!chooseCards(randomRequirement, cardList)) {
 				throw new RuntimeException("Couldn't choose cards! Remaining minimums: "+cardList.getRemainingMinimums()+"; cards="+cardList.toString());
 			}
 		}
+		long endTime = System.currentTimeMillis();
+		Logger logger = Logger.getLogger("SmartRandomizer");
+		logger.info("Time to choose cards: "+(endTime-startTime)+"ms.");
 		return cardList;
 	}
 	
@@ -73,6 +77,7 @@ public class SmartRandomizer implements IRandomizer {
 		}
 		maximumCards.put("Treasure", 1);
 		maximumCards.put("Trap", 1);
+		maximumCards.put("Guardian", 1);
 		maximumCards.put("Thunderstone", num_thunderstone);
 		maximumCards.put("Hero", num_hero);
 		maximumCards.put("Village", num_village);
@@ -88,27 +93,22 @@ public class SmartRandomizer implements IRandomizer {
 	}
 	
 	protected boolean chooseCards(Requirement currentRequirement, CardList currentCards) {
-		Logger logger = Logger.getLogger("chooseCards");
 		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(currentRequirement, currentCards);
 		while(matchingCards.hasNext()) {
 			Card potentialCard = matchingCards.next();
-			logger.info("Considering card "+potentialCard.getCardName());
 			
 			if(!currentCards.addCard(potentialCard)) {
-				logger.info("Rejected card "+potentialCard.getCardName()+" because it did not fit the maximums");
 				continue;
 			}
 			
 			if(!chooseCards(potentialCard.getRequirements(), currentCards)) {
 				//remove potentialCard and everything that was added after it
 				currentCards.removeCardsAfter(potentialCard);
-				logger.info("Rejected card "+potentialCard.getCardName()+" because the requirements could not be met.");
 				continue;
 			}
 			
 			return true;
 		}
-		logger.info("Requirement "+currentRequirement+" could not be met.");
 		return false;
 	}
 	

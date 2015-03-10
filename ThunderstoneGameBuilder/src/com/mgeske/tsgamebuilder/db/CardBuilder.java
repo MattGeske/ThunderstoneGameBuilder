@@ -10,12 +10,13 @@ import android.database.sqlite.SQLiteQueryBuilder;
 
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
+import com.mgeske.tsgamebuilder.card.GuardianCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
-public abstract class CardBuilder<T extends Card> {
+public abstract class CardBuilder {
 	private SQLiteDatabase db;
 	private Map<String, Requirement> allRequirements;
 	private String[] chosenSets;
@@ -26,7 +27,7 @@ public abstract class CardBuilder<T extends Card> {
 		this.chosenSets = chosenSets;
 	}
 	
-	public static CardBuilder<? extends Card> getCardBuilder(String mainTableName, SQLiteDatabase db, Map<String,Requirement> allRequirements,
+	public static CardBuilder getCardBuilder(String mainTableName, SQLiteDatabase db, Map<String,Requirement> allRequirements,
 				String[] chosenSets) {
 		if("DungeonCard".equals(mainTableName)) {
 			return new DungeonCardBuilder(db, allRequirements, chosenSets);
@@ -41,7 +42,7 @@ public abstract class CardBuilder<T extends Card> {
 		}
 	}
 	
-	protected T buildCard(String cardId) {
+	protected Card buildCard(String cardId) {
 		String mainTableName = getMainTableName();
 		String tables = mainTableName+", Card_ThunderstoneSet, ThunderstoneSet";
 		
@@ -58,7 +59,7 @@ public abstract class CardBuilder<T extends Card> {
 		String orderBy = "releaseOrder DESC";
 		
 		Cursor c = null;
-		T card = null;
+		Card card = null;
 		try {
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 			queryBuilder.setTables(tables);
@@ -85,7 +86,7 @@ public abstract class CardBuilder<T extends Card> {
 		return card;
 	}
 	
-	protected T buildCard(Cursor c, Map<String,Requirement> allRequirements, String mainTableName, String cardId) {
+	protected Card buildCard(Cursor c, Map<String,Requirement> allRequirements, String mainTableName, String cardId) {
 		String cardName = getString(c, "cardName");
 		String setName = getString(c, "setName");
 		String cardDescription = getString(c, "description");
@@ -154,16 +155,16 @@ public abstract class CardBuilder<T extends Card> {
 		return false;
 	}
 
-	protected abstract T buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
+	protected abstract Card buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements);
 }
 
-class DungeonCardBuilder extends CardBuilder<DungeonCard> {
+class DungeonCardBuilder extends CardBuilder {
 	public DungeonCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
 		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
-	public DungeonCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public Card buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		String cardType = getString(c, "cardType");
 		Integer level = getInteger(c, "level");
 		return new DungeonCard(cardId, cardName, setName, cardDescription, cardType, level, attributes, classes, cardRequirements);
@@ -183,13 +184,13 @@ class DungeonCardBuilder extends CardBuilder<DungeonCard> {
 	}
 }
 
-class HeroCardBuilder extends CardBuilder<HeroCard> {
+class HeroCardBuilder extends CardBuilder {
 	public HeroCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
 		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
-	public HeroCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public Card buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int strength = getInt(c, "strength");
 		return new HeroCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements, strength);
 	}
@@ -207,13 +208,13 @@ class HeroCardBuilder extends CardBuilder<HeroCard> {
 	}
 }
 
-class VillageCardBuilder extends CardBuilder<VillageCard> {
+class VillageCardBuilder extends CardBuilder {
 	public VillageCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
 		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
-	public VillageCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+	public Card buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int cost = getInt(c, "goldCost");
 		Integer weight = getInteger(c, "weight");
 		return new VillageCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements, cost, weight);
@@ -233,14 +234,19 @@ class VillageCardBuilder extends CardBuilder<VillageCard> {
 	}
 }
 
-class ThunderstoneCardBuilder extends CardBuilder<ThunderstoneCard> {
+class ThunderstoneCardBuilder extends CardBuilder {
 	public ThunderstoneCardBuilder(SQLiteDatabase db, Map<String, Requirement> allRequirements, String[] chosenSets) {
 		super(db, allRequirements, chosenSets);
 	}
 
 	@Override
-	protected ThunderstoneCard buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
-		return new ThunderstoneCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+	protected Card buildCard(Cursor c, String cardId, String cardName, String setName, String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+		String cardType = getString(c, "cardType");
+		if("Guardian".equals(cardType)) {
+			return new GuardianCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+		} else {
+			return new ThunderstoneCard(cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+		}
 	}
 
 	@Override
@@ -251,7 +257,7 @@ class ThunderstoneCardBuilder extends CardBuilder<ThunderstoneCard> {
 	@Override
 	protected List<String> getAdditionalColumns() {
 		List<String> additionalColumns = new ArrayList<String>();
-		//ThunderstoneCard doesn't have any additional columns
+		additionalColumns.add("cardType");
 		return additionalColumns;
 	}
 }
