@@ -48,7 +48,8 @@ public abstract class CardBuilder {
 		
 		List<String> columns = new ArrayList<String>();
 		columns.add("cardName");
-		columns.add("abbreviation as setName");
+		columns.add("abbreviation");
+		columns.add("setName");
 		columns.add("description");
 		columns.addAll(getAdditionalColumns());
 		
@@ -74,8 +75,8 @@ public abstract class CardBuilder {
 				}
 			}
 			if(!foundSet) {
-				//if no sets were found that match the user's selection, use the most recently released set
-				c.moveToFirst();
+				//if no sets were found that match the user's selection, use the first released set
+				c.moveToLast();
 			}
 			card = buildCard(c, allRequirements, mainTableName, cardId);
 		} finally {
@@ -88,7 +89,7 @@ public abstract class CardBuilder {
 	
 	protected Card buildCard(Cursor c, Map<String,Requirement> allRequirements, String mainTableName, String cardId) {
 		String cardName = getString(c, "cardName");
-		String setName = getString(c, "setName");
+		String setAbbreviation = getString(c, "abbreviation");
 		String cardDescription = getString(c, "description");
 		
 		List<String> attributes = getMultipleValues("Card_CardAttribute", "CardAttribute", "attributeId", "attributeName", mainTableName, cardId);
@@ -98,7 +99,7 @@ public abstract class CardBuilder {
 		for(String requirementName : requirementNames) {
 			cardRequirements.add(allRequirements.get(requirementName));
 		}
-		return buildCard(c, cardId, cardName, setName, cardDescription, attributes, classes, cardRequirements);
+		return buildCard(c, cardId, cardName, setAbbreviation, cardDescription, attributes, classes, cardRequirements);
 	}
 	
 	protected List<String> getMultipleValues(String joinTableName, String tableName, String joinColumnName, String valueColumnName, String mainTableName, String cardId) {
