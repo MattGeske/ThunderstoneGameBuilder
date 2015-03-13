@@ -12,9 +12,10 @@ public class DungeonCard extends Card {
 	private String dungeonType;
 	private Integer level;
 	
-	public DungeonCard(String cardId, String cardName, String setName, String cardText, String dungeonType,
-			           Integer level, List<String> attributes, List<String> classes, List<Requirement> requirements) {
-		super(cardId ,cardName, setName, cardText, attributes, classes, requirements);
+	public DungeonCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
+			String dungeonType, Integer level, List<String> attributes, List<String> classes,
+			List<Requirement> requirements) {
+		super(cardId ,cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
 		this.dungeonType = dungeonType;
 		this.level = level;
 	}

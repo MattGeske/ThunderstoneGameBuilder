@@ -14,9 +14,9 @@ public class ThunderstoneCard extends Card {
 		randomizerKeys.add("Thunderstone");
 	}
 
-	public ThunderstoneCard(String cardId, String cardName, String setName, String cardText, List<String> attributes,
-			                List<String> classes, List<Requirement> requirements) {
-		super(cardId, cardName, setName, cardText, attributes, classes, requirements);
+	public ThunderstoneCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
+			List<String> attributes, List<String> classes, List<Requirement> requirements) {
+		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
 	}
 
 	@Override

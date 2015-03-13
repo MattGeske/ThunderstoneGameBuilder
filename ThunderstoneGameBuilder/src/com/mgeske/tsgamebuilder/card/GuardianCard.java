@@ -14,10 +14,10 @@ public class GuardianCard extends Card {
 		randomizerKeys.add("Guardian");
 	}
 
-	public GuardianCard(String cardId, String cardName, String setName,
+	public GuardianCard(String cardId, String cardName, String setName, String setAbbreviation,
 			String cardText, List<String> attributes, List<String> classes,
 			List<Requirement> requirements) {
-		super(cardId, cardName, setName, cardText, attributes, classes,
+		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes,
 				requirements);
 	}
 

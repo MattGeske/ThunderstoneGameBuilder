@@ -16,9 +16,9 @@ public class HeroCard extends Card {
 	
 	private int strength;
 	
-	public HeroCard(String cardId, String cardName, String setName, String cardText, List<String> attributes, List<String> classes,
-					List<Requirement> requirements, int strength) {
-		super(cardId, cardName, setName, cardText, attributes, classes, requirements);
+	public HeroCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
+			List<String> attributes, List<String> classes, List<Requirement> requirements, int strength) {
+		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
 		this.strength = strength;
 	}
 

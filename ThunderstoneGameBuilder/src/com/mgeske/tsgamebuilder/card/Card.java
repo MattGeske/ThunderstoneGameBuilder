@@ -12,16 +12,18 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 	private String cardId;
 	private String cardName;
 	private String setName;
+	private String setAbbreviation;
 	private String cardText;
 	private List<String> attributes;
 	private List<String> classes;
 	private List<Requirement> requirements;
 	
-	protected Card(String cardId, String cardName, String setName, String cardText, List<String> attributes,
-			       List<String> classes, List<Requirement> requirements) {
+	protected Card(String cardId, String cardName, String setName, String setAbbreviation, String cardText, 
+			List<String> attributes, List<String> classes, List<Requirement> requirements) {
 		this.cardId = cardId;
 		this.cardName = cardName;
 		this.setName = setName;
+		this.setAbbreviation = setAbbreviation;
 		this.cardText = cardText;
 		this.attributes = new ArrayList<String>(attributes);
 		this.classes = classes;
@@ -38,6 +40,10 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 
 	public String getSetName() {
 		return setName;
+	}
+	
+	public String getSetAbbreviation() {
+		return setAbbreviation;
 	}
 
 	public String getCardText() {

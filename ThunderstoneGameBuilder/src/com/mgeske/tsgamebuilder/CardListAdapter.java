@@ -30,8 +30,8 @@ public class CardListAdapter extends BaseAdapter {
 	private int heroHeaderPosition;
 	private int villageHeaderPosition;
 	
-	private static final int HEADER_TYPE = 0;
-	private static final int CARD_ITEM_TYPE = 1;
+	public static final int HEADER_TYPE = 0;
+	public static final int CARD_ITEM_TYPE = 1;
 	
 	public CardListAdapter(Context context, int cardItemResource, int cardNameResourceId, int cardTypeResourceId, int cardSetResourceId, 
 			int headerItemResource, int headerNameResourceId, CardList cardList) {
@@ -95,7 +95,7 @@ public class CardListAdapter extends BaseAdapter {
 		TextView cardTypeView = (TextView)view.findViewById(cardTypeResourceId);
 		cardTypeView.setText(card.getCardType());
 		TextView cardSetView = (TextView)view.findViewById(cardSetResourceId);
-		cardSetView.setText(card.getSetName());
+		cardSetView.setText(card.getSetAbbreviation());
 	}
 
 	@Override
