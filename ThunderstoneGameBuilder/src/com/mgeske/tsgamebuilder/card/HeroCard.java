@@ -14,17 +14,23 @@ public class HeroCard extends Card {
 		randomizerKeys.add("Hero");
 	}
 	
+	private String race;
 	private int strength;
 	
 	public HeroCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
-			List<String> attributes, List<String> classes, List<Requirement> requirements, int strength) {
+			List<String> attributes, List<String> classes, List<Requirement> requirements, String race, int strength) {
 		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
 		this.strength = strength;
+		this.race = race;
 	}
 
 	@Override
 	public List<String> getRandomizerKeys() {
 		return randomizerKeys;
+	}
+	
+	public String getRace() {
+		return race;
 	}
 
 	public int getStrength() {

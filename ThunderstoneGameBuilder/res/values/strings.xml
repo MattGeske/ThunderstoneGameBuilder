@@ -16,6 +16,10 @@
     <string name="thunderstone_cards_header">THUNDERSTONE</string>
     <string name="hero_cards_header">HERO</string>
     <string name="village_cards_header">VILLAGE</string>
+    
+    <!-- card details -->
+    <string name="gives_disease">-Gives Disease</string>
+    <string name="provides_light">-Provides Light</string>
 
     <!-- preferences screen -->
     <string name="general_settings">General Settings</string>

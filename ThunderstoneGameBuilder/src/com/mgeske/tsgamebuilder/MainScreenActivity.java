@@ -1,6 +1,7 @@
 package com.mgeske.tsgamebuilder;
 
 
+import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 
@@ -35,6 +38,25 @@ public class MainScreenActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
+
+        findViewById(R.id.choose_sets_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				openChooseSets();
+			}
+        });
+        ListView cardList = (ListView)findViewById(R.id.card_list);
+        cardList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				int type = parent.getAdapter().getItemViewType(position);
+				if(type == CardListAdapter.CARD_ITEM_TYPE) {
+					Card card = (Card)parent.getAdapter().getItem(position);
+					CardInformationDialog dialog = CardInformationDialog.getCardInformationDialog(card);
+					dialog.show(getSupportFragmentManager(), "CardInformationDialog");
+				}
+			}
+        });
     }
     
 	@Override
@@ -61,12 +83,6 @@ public class MainScreenActivity extends ActionBarActivity {
         		loadGameButton.setEnabled(false);
         	}
         }
-        findViewById(R.id.choose_sets_button).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				openChooseSets();
-			}
-        });
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if(preferences.getBoolean("keep_screen_on", false)) {

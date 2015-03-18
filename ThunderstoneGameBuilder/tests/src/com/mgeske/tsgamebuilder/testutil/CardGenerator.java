@@ -91,7 +91,7 @@ public class CardGenerator {
 		List<ThunderstoneCard> thunderstoneCards = new ArrayList<ThunderstoneCard>();
 		for(int i = 0; i < total_thunderstone; i++) {
 			String cardId = Integer.toString(i);
-			ThunderstoneCard thunderstone = new ThunderstoneCard(cardId, "Thunderstone "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements);
+			ThunderstoneCard thunderstone = new ThunderstoneCard(cardId, "Thunderstone "+i, "test", "", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements);
 			thunderstoneCards.add(thunderstone);
 		}
 		
@@ -106,7 +106,7 @@ public class CardGenerator {
 		List<HeroCard> heroCards = new ArrayList<HeroCard>();
 		for(int i = 0; i < total_hero; i++) {
 			String cardId = Integer.toString(i);
-			HeroCard hero = new HeroCard(cardId, "Hero "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements, 5);
+			HeroCard hero = new HeroCard(cardId, "Hero "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements, "", 5);
 			heroCards.add(hero);
 		}
 		
@@ -122,7 +122,7 @@ public class CardGenerator {
 		classes.add("Weapon");
 		for(int i = 0; i < total_weapons; i++) {
 			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Weapon "+i, "test", "", "", attributes, classes, requirements, 3, null);
+			VillageCard village = new VillageCard(cardId, "Weapon "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
@@ -130,7 +130,7 @@ public class CardGenerator {
 		classes.add("Item");
 		for(int i = 0; i < total_items; i++) {
 			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Item "+i, "test", "", "", attributes, classes, requirements, 3, null);
+			VillageCard village = new VillageCard(cardId, "Item "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
@@ -138,7 +138,7 @@ public class CardGenerator {
 		classes.add("Spell");
 		for(int i = 0; i < total_spells; i++) {
 			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Spell "+i, "test", "", "", attributes, classes, requirements, 3, null);
+			VillageCard village = new VillageCard(cardId, "Spell "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
@@ -146,7 +146,7 @@ public class CardGenerator {
 		classes.add("Villager");
 		for(int i = 0; i < total_villagers; i++) {
 			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Villager "+i, "test", "", "", attributes, classes, requirements, 3, null);
+			VillageCard village = new VillageCard(cardId, "Villager "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		

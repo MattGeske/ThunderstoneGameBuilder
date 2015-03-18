@@ -13,10 +13,12 @@ public class ThunderstoneCard extends Card {
 	static {
 		randomizerKeys.add("Thunderstone");
 	}
+	private String thunderstoneType;
 
 	public ThunderstoneCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
-			List<String> attributes, List<String> classes, List<Requirement> requirements) {
+			String thunderstoneType, List<String> attributes, List<String> classes, List<Requirement> requirements) {
 		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
+		this.thunderstoneType = thunderstoneType;
 	}
 
 	@Override
@@ -27,6 +29,10 @@ public class ThunderstoneCard extends Card {
 	@Override
 	public String getCardType() {
 		return "";
+	}
+	
+	public String getThunderstoneType() {
+		return thunderstoneType;
 	}
 	
 	private ThunderstoneCard(Parcel parcel) {

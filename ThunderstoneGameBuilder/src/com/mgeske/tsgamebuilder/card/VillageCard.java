@@ -14,9 +14,10 @@ public class VillageCard extends Card {
 	private Integer weight = null;
 	
 	public VillageCard(String cardId, String cardName, String setName, String setAbbreviation, String cardText,
-			List<String> attributes, List<String> classes, List<Requirement> requirements, int cost, Integer weight) {
+			List<String> attributes, List<String> classes, List<Requirement> requirements, int cost, Integer value, Integer weight) {
 		super(cardId, cardName, setName, setAbbreviation, cardText, attributes, classes, requirements);
 		this.cost = cost;
+		this.value = value;
 		this.weight = weight;
 	}
 	

@@ -196,9 +196,10 @@ class HeroCardBuilder extends CardBuilder {
 	@Override
 	public Card buildCard(Cursor c, String cardId, String cardName, String setName, String setAbbreviation, 
 			String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
+		String race = getString(c, "race");
 		int strength = getInt(c, "strength");
 		return new HeroCard(cardId, cardName, setName, setAbbreviation, cardDescription, attributes, classes,
-				cardRequirements, strength);
+				cardRequirements, race, strength);
 	}
 
 	@Override
@@ -209,6 +210,7 @@ class HeroCardBuilder extends CardBuilder {
 	@Override
 	protected List<String> getAdditionalColumns() {
 		List<String> additionalColumns = new ArrayList<String>();
+		additionalColumns.add("race");
 		additionalColumns.add("strength");
 		return additionalColumns;
 	}
@@ -223,9 +225,10 @@ class VillageCardBuilder extends CardBuilder {
 	public Card buildCard(Cursor c, String cardId, String cardName, String setName, String setAbbreviation,
 			String cardDescription, List<String> attributes, List<String> classes, List<Requirement> cardRequirements) {
 		int cost = getInt(c, "goldCost");
+		Integer value = getInteger(c, "goldValue");
 		Integer weight = getInteger(c, "weight");
 		return new VillageCard(cardId, cardName, setName, setAbbreviation, cardDescription, attributes, classes,
-				cardRequirements, cost, weight);
+				cardRequirements, cost, value, weight);
 	}
 
 	@Override
@@ -237,6 +240,7 @@ class VillageCardBuilder extends CardBuilder {
 	protected List<String> getAdditionalColumns() {
 		List<String> additionalColumns = new ArrayList<String>();
 		additionalColumns.add("goldCost");
+		additionalColumns.add("goldValue");
 		additionalColumns.add("weight");
 		return additionalColumns;
 	}
@@ -256,7 +260,7 @@ class ThunderstoneCardBuilder extends CardBuilder {
 					cardDescription, attributes, classes, cardRequirements);
 		} else {
 			return new ThunderstoneCard(cardId, cardName, setName, setAbbreviation,
-					cardDescription, attributes, classes, cardRequirements);
+					cardDescription, cardType, attributes, classes, cardRequirements);
 		}
 	}
 
