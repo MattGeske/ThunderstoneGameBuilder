@@ -24,11 +24,6 @@ public class CardListAdapter extends BaseAdapter {
 	private int headerItemResource;
 	private int headerNameResourceId;
 	private List<Object> items;
-	private int dungeonHeaderPosition;
-	private int guardianHeaderPosition;
-	private int thunderstoneHeaderPosition;
-	private int heroHeaderPosition;
-	private int villageHeaderPosition;
 	
 	public static final int HEADER_TYPE = 0;
 	public static final int CARD_ITEM_TYPE = 1;
@@ -45,11 +40,11 @@ public class CardListAdapter extends BaseAdapter {
 		this.headerNameResourceId = headerNameResourceId;
 		
 		items = new ArrayList<Object>();
-		this.dungeonHeaderPosition = addItems(R.string.dungeon_cards_header, cardList.getDungeonCards());
-		this.guardianHeaderPosition = addItems(R.string.guardian_cards_header, cardList.getGuardianCards());
-		this.thunderstoneHeaderPosition = addItems(R.string.thunderstone_cards_header, cardList.getThunderstoneCards());
-		this.heroHeaderPosition = addItems(R.string.hero_cards_header, cardList.getHeroCards());
-		this.villageHeaderPosition = addItems(R.string.village_cards_header, cardList.getVillageCards());
+		addItems(R.string.dungeon_cards_header, cardList.getDungeonCards());
+		addItems(R.string.guardian_cards_header, cardList.getGuardianCards());
+		addItems(R.string.thunderstone_cards_header, cardList.getThunderstoneCards());
+		addItems(R.string.hero_cards_header, cardList.getHeroCards());
+		addItems(R.string.village_cards_header, cardList.getVillageCards());
 	}
 	
 	private int addItems(int headerId, List<? extends Card> cards) {
@@ -62,6 +57,16 @@ public class CardListAdapter extends BaseAdapter {
 			return headerPosition;
 		}
 		return -1;
+	}
+	
+	public void remove(int position) {
+		items.remove(position);
+		if(getItemViewType(position-1) == HEADER_TYPE &&
+				(items.size() == position || getItemViewType(position) == HEADER_TYPE)) {
+			//this was the only item for this group - remove the header as well
+			items.remove(position-1);
+		}
+		notifyDataSetChanged();
 	}
 
 	@Override
@@ -115,9 +120,8 @@ public class CardListAdapter extends BaseAdapter {
 
 	@Override
 	public int getItemViewType(int position) {
-		if(position == dungeonHeaderPosition || position == guardianHeaderPosition 
-				|| position == thunderstoneHeaderPosition || position == heroHeaderPosition
-				|| position == villageHeaderPosition) {
+		Object item = getItem(position);
+		if(item instanceof String) {
 			return HEADER_TYPE;
 		} else {
 			return CARD_ITEM_TYPE;

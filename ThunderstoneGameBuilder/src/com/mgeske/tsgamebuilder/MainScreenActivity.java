@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +59,31 @@ public class MainScreenActivity extends ActionBarActivity {
 				}
 			}
         });
+        registerForContextMenu(cardList);
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    	if(v.getId() == R.id.card_list) {
+    		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+    		AdapterView<?> adapterView = (AdapterView<?>)v;
+    		int type = adapterView.getAdapter().getItemViewType(info.position);
+    		if(type == CardListAdapter.HEADER_TYPE) {
+    			return;
+    		}
+    		Card card = (Card)adapterView.getAdapter().getItem(info.position);
+    		menu.setHeaderTitle(card.getCardName());
+    		menu.add(Menu.NONE, 0, 0, "Remove card");
+    	}
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+    	AdapterView<?> adapterView = (AdapterView<?>)info.targetView.getParent();
+    	CardListAdapter adapter = (CardListAdapter)adapterView.getAdapter();
+    	adapter.remove(info.position);
+    	return true;
     }
     
 	@Override
