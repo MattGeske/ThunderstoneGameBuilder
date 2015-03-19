@@ -12,7 +12,7 @@ import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 
-public class SmartRandomizer implements IRandomizer {
+public class SmartRandomizer {
 	
 	//TODO while unlikely, it's still possible for this to fail to choose cards
 	//(e.g.: 4 heroes have already been chosen, none with physical attack, and another monster is needed but all remaining monsters require magic attack)
@@ -27,7 +27,6 @@ public class SmartRandomizer implements IRandomizer {
 		this.random = new Random();
 	}
 	
-	@Override
 	public CardList generateCardList(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean village_limits, boolean monster_levels) {
 		//set up min/max card requirements
 		Map<String,Integer> minimumCards = getMinimumCards(num_monster, num_thunderstone, num_hero, num_village, monster_levels);

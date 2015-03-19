@@ -4,7 +4,6 @@ package com.mgeske.tsgamebuilder;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
-import com.mgeske.tsgamebuilder.randomizer.IRandomizer;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
@@ -30,7 +29,7 @@ import android.widget.ListView;
 
 public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
-	private IRandomizer randomizer = null;
+	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
 	private MenuItem newGameButton = null;
 	private MenuItem loadGameButton = null;
