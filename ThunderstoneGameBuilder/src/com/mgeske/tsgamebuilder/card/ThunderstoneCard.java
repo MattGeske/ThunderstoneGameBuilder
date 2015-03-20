@@ -35,8 +35,15 @@ public class ThunderstoneCard extends Card {
 		return thunderstoneType;
 	}
 	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		super.writeToParcel(dest, flags);
+		dest.writeString(thunderstoneType);
+	}
+	
 	private ThunderstoneCard(Parcel parcel) {
 		super(parcel);
+		thunderstoneType = parcel.readString();
 	}
 
 	public static final Parcelable.Creator<ThunderstoneCard> CREATOR = new Parcelable.Creator<ThunderstoneCard>() {

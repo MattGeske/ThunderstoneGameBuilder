@@ -61,12 +61,7 @@ public class VillageCard extends Card {
 		}
 		return "";
 	}
-	/**
-	 * 
-	private int cost;
-	private Integer value = null;
-	private Integer weight = null;
-	 */
+	
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		super.writeToParcel(dest, flags);

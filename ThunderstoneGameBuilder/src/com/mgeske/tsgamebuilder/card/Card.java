@@ -85,6 +85,7 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(cardId);
 		dest.writeString(cardName);
+		dest.writeString(setAbbreviation);
 		dest.writeString(setName);
 		dest.writeString(cardText);
 		dest.writeStringList(attributes);
@@ -95,6 +96,7 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 	protected Card(Parcel parcel) {
 		cardId = parcel.readString();
 		cardName = parcel.readString();
+		setAbbreviation = parcel.readString();
 		setName = parcel.readString();
 		cardText = parcel.readString();
 		attributes = new ArrayList<String>();

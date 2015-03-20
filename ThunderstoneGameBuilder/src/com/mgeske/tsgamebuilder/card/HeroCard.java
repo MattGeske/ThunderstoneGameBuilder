@@ -45,11 +45,13 @@ public class HeroCard extends Card {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		super.writeToParcel(dest, flags);
+		dest.writeString(race);
 		dest.writeInt(strength);
 	}
 	
 	private HeroCard(Parcel parcel) {
 		super(parcel);
+		race = parcel.readString();
 		strength = parcel.readInt();
 	}
 
