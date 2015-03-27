@@ -112,7 +112,7 @@ public class CardListAdapter extends BaseAdapter {
 		TextView cardNameView = (TextView)view.findViewById(cardNameResourceId);
 		cardNameView.setText(card.getCardName());
 		TextView cardTypeView = (TextView)view.findViewById(cardTypeResourceId);
-		cardTypeView.setText(card.getCardType());
+		cardTypeView.setText(card.getCardSubtype());
 		TextView cardSetView = (TextView)view.findViewById(cardSetResourceId);
 		cardSetView.setText(card.getSetAbbreviation());
 	}

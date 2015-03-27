@@ -106,6 +106,6 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 	}
 	
 	public abstract List<String> getRandomizerKeys();
-	
 	public abstract String getCardType();
+	public abstract String getCardSubtype();
 }

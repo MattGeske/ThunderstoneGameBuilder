@@ -28,6 +28,7 @@ import android.widget.Toast;
 public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
 	private final int CONTEXT_MENU_REMOVE_CARD = 0;
+	private final int CONTEXT_MENU_REPLACE_CARD = 1;
 	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
 	private MenuItem addCardButton = null;
@@ -75,6 +76,7 @@ public class MainScreenActivity extends ActionBarActivity {
     		Card card = (Card)adapterView.getAdapter().getItem(info.position);
     		menu.setHeaderTitle(card.getCardName());
     		menu.add(Menu.NONE, CONTEXT_MENU_REMOVE_CARD, 0, "Remove card");
+    		menu.add(Menu.NONE, CONTEXT_MENU_REPLACE_CARD, 1, "Replace with random card");
     	}
     }
     
@@ -83,6 +85,9 @@ public class MainScreenActivity extends ActionBarActivity {
     	if(item.getItemId() == CONTEXT_MENU_REMOVE_CARD) {
 	    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 	    	removeCard(info.position);
+    	} else if(item.getItemId() == CONTEXT_MENU_REPLACE_CARD) {
+    		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	    	replaceCard(info.position);
     	}
     	return true;
     }
@@ -254,5 +259,12 @@ public class MainScreenActivity extends ActionBarActivity {
     
     private void removeCard(int position) {
     	cardListAdapter.remove(position);
+    }
+    
+    private void replaceCard(int position) {
+    	Card removedCard = (Card)cardListAdapter.getItem(position);
+    	String cardType = removedCard.getCardType();
+    	removeCard(position);
+    	addRandomCard(cardType);
     }
 }

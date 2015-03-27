@@ -56,7 +56,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		monsterLevelCounts.put(2, 0);
 		monsterLevelCounts.put(3, 0);
 		for(DungeonCard card : cardList.getDungeonCards()) {
-			String cardType = card.getDungeonType();
+			String cardType = card.getCardType();
 			
 			int currentCount = cardTypeCounts.get(cardType);
 			currentCount += 1;
@@ -412,8 +412,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		CardList cardList = new CardList(null, null);
 		Card card = randomizer.getRandomCard(cardList, "Monster");
 		assertTrue(card instanceof DungeonCard);
-		DungeonCard dungeonCard = (DungeonCard)card;
-		assertEquals("Monster", dungeonCard.getDungeonType());
+		assertEquals("Monster", card.getCardType());
 	}
 	
 	public void testGetRandomCardAvoidsDuplicates() {
@@ -470,8 +469,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
 		Card card = randomizer.getRandomCard(cardList, "Treasure");
 		assertTrue(card instanceof DungeonCard);
-		DungeonCard dungeonCard = (DungeonCard)card;
-		assertEquals("Treasure", dungeonCard.getDungeonType());
+		assertEquals("Treasure", card.getCardType());
 		assertEquals(treasureCard.getCardName(), card.getCardName());
 	}
 	
@@ -484,8 +482,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
 		Card card = randomizer.getRandomCard(cardList, "Trap");
 		assertTrue(card instanceof DungeonCard);
-		DungeonCard dungeonCard = (DungeonCard)card;
-		assertEquals("Trap", dungeonCard.getDungeonType());
+		assertEquals("Trap", card.getCardType());
 		assertEquals(trapCard.getCardName(), card.getCardName());
 	}
 	

@@ -24,12 +24,13 @@ public class DungeonCard extends Card {
 		return level;
 	}
 
-	public String getDungeonType() {
+	@Override
+	public String getCardType() {
 		return dungeonType;
 	}
 	
 	@Override
-	public String getCardType() {
+	public String getCardSubtype() {
 		if(level != null) {
 			return "Level "+level;
 		}
@@ -39,7 +40,7 @@ public class DungeonCard extends Card {
 	@Override
 	public List<String> getRandomizerKeys() {
 		List<String> keys = new ArrayList<String>(2); //we know there will never be more than 2 things in the list
-		String dungeonType = getDungeonType();
+		String dungeonType = getCardType();
 		if("Monster".equals(dungeonType)) {
 			keys.add("Level"+getLevel()+dungeonType);
 		}

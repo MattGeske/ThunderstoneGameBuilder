@@ -25,9 +25,14 @@ public class GuardianCard extends Card {
 	public List<String> getRandomizerKeys() {
 		return randomizerKeys;
 	}
-
+	
 	@Override
 	public String getCardType() {
+		return "Guardian";
+	}
+
+	@Override
+	public String getCardSubtype() {
 		return "";
 	}
 

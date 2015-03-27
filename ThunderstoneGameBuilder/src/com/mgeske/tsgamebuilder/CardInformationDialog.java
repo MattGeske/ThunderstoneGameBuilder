@@ -122,7 +122,7 @@ class DungeonCardInformationDialog extends CardInformationDialog {
 	
 	@Override
 	protected String getSubheaderText() {
-		String subheaderText = card.getDungeonType();
+		String subheaderText = card.getCardType();
 		if(subheaderText.startsWith("Monster")) {
 			subheaderText += " - Level "+card.getLevel();
 		}

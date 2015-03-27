@@ -36,9 +36,14 @@ public class HeroCard extends Card {
 	public int getStrength() {
 		return strength;
 	}
-
+	
 	@Override
 	public String getCardType() {
+		return "Hero";
+	}
+
+	@Override
+	public String getCardSubtype() {
 		return "";
 	}
 	

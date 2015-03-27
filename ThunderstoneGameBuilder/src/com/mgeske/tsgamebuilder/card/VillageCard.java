@@ -46,9 +46,14 @@ public class VillageCard extends Card {
 		}
 		return keys;
 	}
-
+	
 	@Override
 	public String getCardType() {
+		return "Village";
+	}
+
+	@Override
+	public String getCardSubtype() {
 		List<String> cardTypes = new ArrayList<String>();
 		cardTypes.add("Weapon");
 		cardTypes.add("Item");
