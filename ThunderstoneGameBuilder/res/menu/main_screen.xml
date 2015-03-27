@@ -3,8 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mgeske.tsgamebuilder.MainScreenActivity" >
     
-    <item android:id="@+id/action_newgame"
+    <item android:id="@+id/action_addcard"
           android:icon="@drawable/ic_action_new"
+          android:title="@string/add_card_button_text"
+          android:visible="false"
+          app:showAsAction="ifRoom"
+          />
+    
+    <item android:id="@+id/action_newgame"
+          android:icon="@drawable/ic_action_refresh"
           android:title="@string/new_game_button_text"
           app:showAsAction="ifRoom"  
           />

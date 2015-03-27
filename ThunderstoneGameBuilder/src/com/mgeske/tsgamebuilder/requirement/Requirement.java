@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
+import com.mgeske.tsgamebuilder.card.GuardianCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
@@ -112,6 +113,9 @@ public abstract class Requirement {
 	public boolean match(Card c) {
 		if(("Monster".equals(requiredOn) && c instanceof DungeonCard) ||
 				(requiredOn.startsWith("Level") && c instanceof DungeonCard) ||
+				("Treasure".equals(requiredOn) && c instanceof DungeonCard) ||
+				("Trap".equals(requiredOn) && c instanceof DungeonCard) ||
+				("Guardian".equals(requiredOn) && c instanceof GuardianCard) ||
 				("Thunderstone".equals(requiredOn) && c instanceof ThunderstoneCard) ||
 				("Hero".equals(requiredOn) && c instanceof HeroCard) ||
 				("Village".equals(requiredOn) && c instanceof VillageCard)) {

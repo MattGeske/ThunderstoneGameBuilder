@@ -15,6 +15,7 @@ import android.util.SparseIntArray;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.card.DungeonCard;
+import com.mgeske.tsgamebuilder.card.GuardianCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
@@ -118,9 +119,13 @@ public class SmartRandomizerTest extends AndroidTestCase {
 	}
 	
 	
-	private SmartRandomizer getConfiguredRandomizer(List<DungeonCard> dungeonCards, List<ThunderstoneCard> thunderstoneCards, List<HeroCard> heroCards, List<VillageCard> villageCards) {
+	private SmartRandomizer getConfiguredRandomizer(List<DungeonCard> dungeonCards, List<GuardianCard> guardianCards, 
+			List<ThunderstoneCard> thunderstoneCards, List<HeroCard> heroCards, List<VillageCard> villageCards) {
 		if(dungeonCards == null) {
 			dungeonCards = CardGenerator.getDungeonCards();
+		}
+		if(guardianCards == null) {
+			guardianCards = CardGenerator.getGuardianCards();
 		}
 		if(thunderstoneCards == null) {
 			thunderstoneCards = CardGenerator.getThunderstoneCards();
@@ -133,18 +138,21 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		}
 		CardDatabase mockDb = mock(CardDatabase.class);
 		when(mockDb.getMatchingCards(any(Requirement.class), any(CardList.class))).then(
-				returnMatchingCards(dungeonCards, thunderstoneCards, heroCards, villageCards));
+				returnMatchingCards(dungeonCards, guardianCards, thunderstoneCards, heroCards, villageCards));
 		SmartRandomizer randomizer = new SmartRandomizer(mockDb);
 		return randomizer;
 	}
 	
-	private Answer<Iterator<Card>> returnMatchingCards(List<DungeonCard> dungeonCards, List<ThunderstoneCard> thunderstoneCards,
-			List<HeroCard> heroCards, List<VillageCard> villageCards) {
+	private Answer<Iterator<Card>> returnMatchingCards(List<DungeonCard> dungeonCards, List<GuardianCard> guardianCards,
+			List<ThunderstoneCard> thunderstoneCards, List<HeroCard> heroCards, List<VillageCard> villageCards) {
 		final Map<String,List<? extends Card>> cardTypeMap = new HashMap<String,List<? extends Card>>();
 		cardTypeMap.put("Monster", dungeonCards);
 		cardTypeMap.put("Level1Monster", dungeonCards);
 		cardTypeMap.put("Level2Monster", dungeonCards);
 		cardTypeMap.put("Level3Monster", dungeonCards);
+		cardTypeMap.put("Treasure", dungeonCards);
+		cardTypeMap.put("Trap", dungeonCards);
+		cardTypeMap.put("Guardian", guardianCards);
 		cardTypeMap.put("Thunderstone", thunderstoneCards);
 		cardTypeMap.put("Hero", heroCards);
 		cardTypeMap.put("Village", villageCards);
@@ -168,7 +176,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 	}
 	
 	public void testBasicRandomize() {
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, null, null);
 		getAndAssertCardList(randomizer);
 	}
 	
@@ -184,7 +192,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		HeroCard magicAttackHero = new HeroCard("1", "MagicAttackHero", "test", "", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), "", 1);
 		heroCards.add(magicAttackHero);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, heroCards, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, heroCards, null);
 		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Monster");
 		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
 		boolean result = randomizer.chooseCards(requireMonster, cardList);
@@ -206,7 +214,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		VillageCard lightCard = new VillageCard("1", "LightCard", "test", "", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1, null, null);
 		villageCards.add(lightCard);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, villageCards);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, villageCards);
 		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Monster");
 		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
 		boolean result = randomizer.chooseCards(requireMonster, cardList);
@@ -228,7 +236,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		HeroCard magicAttackHero = new HeroCard("1", "MagicAttackHero", "test", "", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), "", 1);
 		heroCards.add(magicAttackHero);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, heroCards, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, thunderstoneCards, heroCards, null);
 		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Thunderstone");
 		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
 		boolean result = randomizer.chooseCards(requireMonster, cardList);
@@ -250,7 +258,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		VillageCard lightCard = new VillageCard("1", "LightCard", "test", "", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), 1, null, null);
 		villageCards.add(lightCard);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, thunderstoneCards, null, villageCards);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, thunderstoneCards, null, villageCards);
 		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Thunderstone");
 		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
 		boolean result = randomizer.chooseCards(requireMonster, cardList);
@@ -272,7 +280,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		VillageCard bowCard = new VillageCard("1", "BowCard", "test", "", "", new ArrayList<String>(), classNames, new ArrayList<Requirement>(), 1, null, null);
 		villageCards.add(bowCard);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, heroCards, villageCards);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, heroCards, villageCards);
 		Requirement requireMonster = Requirement.buildRequirement("CardType", "CardType", null, "Hero");
 		CardList cardList = new CardList(new HashMap<String,Integer>(), new HashMap<String,Integer>());
 		boolean result = randomizer.chooseCards(requireMonster, cardList);
@@ -317,7 +325,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		}
 		List<VillageCard> villageCards = CardGenerator.getVillageCards(num_weapon, num_item, num_spell, num_villager);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, villageCards);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, null, villageCards);
 		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 8, village_limits, true);
 		
 		List<VillageCard> chosenVillageCards = cardList.getVillageCards();
@@ -382,7 +390,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		allMonsters.addAll(level2);
 		allMonsters.addAll(level3);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(allMonsters, null, null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(allMonsters, null, null, null, null);
 		CardList cardList = getAndAssertCardList(randomizer, 3, 1, 4, 8, true, true);
 		
 		assertContains(cardList.getDungeonCards(), level2.get(0));
@@ -393,7 +401,131 @@ public class SmartRandomizerTest extends AndroidTestCase {
 		//creates a set of dungeon cards with only level 1 monsters - the randomizer should still be able to produce a valid game
 		List<DungeonCard> monsters = CardGenerator.getMonsters(10, 1);
 		
-		SmartRandomizer randomizer = getConfiguredRandomizer(monsters, null, null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(monsters, null, null, null, null);
 		getAndAssertCardList(randomizer, 3, 1, 4, 8, true, false); //this does all the asserts we need
+	}
+	
+	public void testGetRandomCardChoosesCorrectType() {
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(0, 30, 30, null, 1);
+		dungeonCards.addAll(CardGenerator.getMonsters(1, 1)); //make sure this gets put at the end
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
+		CardList cardList = new CardList(null, null);
+		Card card = randomizer.getRandomCard(cardList, "Monster");
+		assertTrue(card instanceof DungeonCard);
+		DungeonCard dungeonCard = (DungeonCard)card;
+		assertEquals("Monster", dungeonCard.getDungeonType());
+	}
+	
+	public void testGetRandomCardAvoidsDuplicates() {
+		List<DungeonCard> dungeonCards = CardGenerator.getMonsters(2, 1);
+		DungeonCard monster1 = dungeonCards.get(0);
+		DungeonCard monster2 = dungeonCards.get(1);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
+		CardList cardList = new CardList(null, null);
+		cardList.addCard(monster1, false);
+		Card card = randomizer.getRandomCard(cardList, "Monster");
+		assertTrue(card instanceof DungeonCard);
+		assertEquals(monster2.getCardName(), card.getCardName());
+		cardList.addCard(card, false);
+		
+		card = randomizer.getRandomCard(cardList, "Monster");
+		assertNull(card);
+	}
+	
+	public void testGetRandomCardPrefersFulfilledRequirements() {
+		List<String> attributeNames = new ArrayList<String>();
+		attributeNames.add("HAS_MAGIC_ATTACK");
+		Requirement requireMagicAttack = Requirement.buildRequirement("REQUIRES_MAGIC_ATTACK", "HasAnyAttributes", attributeNames, "Hero");
+		HeroCard magicAttackHero = new HeroCard("1", "MagicAttackHero", "test", "", "", attributeNames, new ArrayList<String>(), new ArrayList<Requirement>(), "", 1);
+		
+		attributeNames = new ArrayList<String>();
+		attributeNames.add("HAS_PHYSICAL_ATTACK");
+		Requirement requirePhysicalAttack = Requirement.buildRequirement("REQUIRES_PHYSICAL_ATTACK", "HasAnyAttributes", attributeNames, "Hero");
+		
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(1, 0, 0, requirePhysicalAttack, 1);
+		dungeonCards.addAll(CardGenerator.getDungeonCards(1, 0, 0, requireMagicAttack, 1));
+		DungeonCard physicalAttackMonster = dungeonCards.get(0);
+		DungeonCard magicAttackMonster = dungeonCards.get(1);
+		
+		CardList cardList = new CardList(null, null);
+		cardList.addCard(magicAttackHero, false);
+		
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
+		Card card = randomizer.getRandomCard(cardList, "Monster");
+		assertTrue(card instanceof DungeonCard);
+		assertEquals(magicAttackMonster.getCardName(), card.getCardName());
+		cardList.addCard(card, false);
+		
+		card = randomizer.getRandomCard(cardList, "Monster");
+		assertTrue(card instanceof DungeonCard);
+		assertEquals(physicalAttackMonster.getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardTreasure() {
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(30, 0, 30, null, 1);
+		DungeonCard treasureCard = CardGenerator.getDungeonCards(0, 1, 0, null, 1).get(0);
+		dungeonCards.add(treasureCard);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
+		Card card = randomizer.getRandomCard(cardList, "Treasure");
+		assertTrue(card instanceof DungeonCard);
+		DungeonCard dungeonCard = (DungeonCard)card;
+		assertEquals("Treasure", dungeonCard.getDungeonType());
+		assertEquals(treasureCard.getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardTrap() {
+		List<DungeonCard> dungeonCards = CardGenerator.getDungeonCards(30, 30, 0, null, 1);
+		DungeonCard trapCard = CardGenerator.getDungeonCards(0, 0, 1, null, 1).get(0);
+		dungeonCards.add(trapCard);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(dungeonCards, null, null, null, null);
+		Card card = randomizer.getRandomCard(cardList, "Trap");
+		assertTrue(card instanceof DungeonCard);
+		DungeonCard dungeonCard = (DungeonCard)card;
+		assertEquals("Trap", dungeonCard.getDungeonType());
+		assertEquals(trapCard.getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardGuardian() {
+		List<GuardianCard> guardianCards = CardGenerator.getGuardianCards(1);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, guardianCards, null, null, null);
+		Card card = randomizer.getRandomCard(cardList, "Guardian");
+		assertTrue(card instanceof GuardianCard);
+		assertEquals(guardianCards.get(0).getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardThunderstone() {
+		List<ThunderstoneCard> thunderstoneCards = CardGenerator.getThunderstoneCards(1, null);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, thunderstoneCards, null, null);
+		Card card = randomizer.getRandomCard(cardList, "Thunderstone");
+		assertTrue(card instanceof ThunderstoneCard);
+		assertEquals(thunderstoneCards.get(0).getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardHero() {
+		List<HeroCard> heroCards = CardGenerator.getHeroCards(1, null);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, heroCards, null);
+		Card card = randomizer.getRandomCard(cardList, "Hero");
+		assertTrue(card instanceof HeroCard);
+		assertEquals(heroCards.get(0).getCardName(), card.getCardName());
+	}
+	
+	public void testGetRandomCardVillage() {
+		List<VillageCard> villageCards = CardGenerator.getVillageCards(1, 0, 0, 0);
+		
+		CardList cardList = new CardList(null, null);
+		SmartRandomizer randomizer = getConfiguredRandomizer(null, null, null, null, villageCards);
+		Card card = randomizer.getRandomCard(cardList, "Village");
+		assertTrue(card instanceof VillageCard);
+		assertEquals(villageCards.get(0).getCardName(), card.getCardName());
 	}
 }

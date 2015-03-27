@@ -24,6 +24,7 @@ public class CardListAdapter extends BaseAdapter {
 	private int headerItemResource;
 	private int headerNameResourceId;
 	private List<Object> items;
+	private CardList cardList;
 	
 	public static final int HEADER_TYPE = 0;
 	public static final int CARD_ITEM_TYPE = 1;
@@ -38,7 +39,11 @@ public class CardListAdapter extends BaseAdapter {
 		this.cardSetResourceId = cardSetResourceId;
 		this.headerItemResource = headerItemResource;
 		this.headerNameResourceId = headerNameResourceId;
-		
+		this.cardList = cardList;
+		initItemList();
+	}
+	
+	private void initItemList() {
 		items = new ArrayList<Object>();
 		addItems(R.string.dungeon_cards_header, cardList.getDungeonCards());
 		addItems(R.string.guardian_cards_header, cardList.getGuardianCards());
@@ -47,19 +52,24 @@ public class CardListAdapter extends BaseAdapter {
 		addItems(R.string.village_cards_header, cardList.getVillageCards());
 	}
 	
-	private int addItems(int headerId, List<? extends Card> cards) {
+	private void addItems(int headerId, List<? extends Card> cards) {
 		if(!cards.isEmpty()) {
-			int headerPosition = items.size();
 			String header = context.getString(headerId);
 			items.add(header);
 			Collections.sort(cards);
 			items.addAll(cards);
-			return headerPosition;
 		}
-		return -1;
+	}
+	
+	public void addCard(Card card) {
+		cardList.addCard(card, false);
+		initItemList();
+		notifyDataSetChanged();
 	}
 	
 	public void remove(int position) {
+		Card card = (Card)getItem(position);
+		cardList.removeCard(card);
 		items.remove(position);
 		if(getItemViewType(position-1) == HEADER_TYPE &&
 				(items.size() == position || getItemViewType(position) == HEADER_TYPE)) {
@@ -67,6 +77,10 @@ public class CardListAdapter extends BaseAdapter {
 			items.remove(position-1);
 		}
 		notifyDataSetChanged();
+	}
+	
+	public CardList getCardList() {
+		return cardList;
 	}
 
 	@Override

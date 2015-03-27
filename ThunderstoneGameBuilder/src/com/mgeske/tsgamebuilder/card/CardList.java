@@ -28,7 +28,7 @@ public class CardList implements Parcelable {
 	}
 	
 	public List<? extends Card> getCardsByType(String cardType) {
-		if("Monster".equals(cardType)) {
+		if("Monster".equals(cardType) || "Treasure".equals(cardType) || "Trap".equals(cardType)) {
 			return getDungeonCards();
 		} else if(cardType != null && cardType.startsWith("Level")) {
 			return getDungeonCards();
@@ -108,8 +108,16 @@ public class CardList implements Parcelable {
 	}
 	
 	public boolean addCard(Card card) {
+		return addCard(card, true);
+	}
+	
+	public boolean addCard(Card card, boolean obeyMaximums) {
+		if(card == null) {
+			return false;
+		}
+
 		//make sure it wouldn't violate the maximums
-		if(!cardCanBeAdded(card)) {
+		if(obeyMaximums && !cardCanBeAdded(card)) {
 			return false;
 		}
 		
@@ -159,27 +167,29 @@ public class CardList implements Parcelable {
 		}
 		while(!cardOrder.isEmpty()) {
 			Card lastCard = cardOrder.pop();
-			
-			if(lastCard instanceof DungeonCard) {
-				dungeonCards.remove(lastCard);
-			} else if(lastCard instanceof GuardianCard) {
-				guardianCards.remove(lastCard);
-			} else if(lastCard instanceof ThunderstoneCard) {
-				thunderstoneCards.remove(lastCard);
-			} else if(lastCard instanceof HeroCard) {
-				heroCards.remove(lastCard);
-			} else if(lastCard instanceof VillageCard) {
-				villageCards.remove(lastCard);
-			}
-			
-			for(String key : lastCard.getRandomizerKeys()) {
-				int currentAmount = foundKeys.get(key);
-				foundKeys.put(key, currentAmount-1);
-			}
-			
+			removeCard(lastCard);
 			if(lastCard.equals(card)) {
 				break;
 			}
+		}
+	}
+	
+	public void removeCard(Card card) {
+		if(card instanceof DungeonCard) {
+			dungeonCards.remove(card);
+		} else if(card instanceof GuardianCard) {
+			guardianCards.remove(card);
+		} else if(card instanceof ThunderstoneCard) {
+			thunderstoneCards.remove(card);
+		} else if(card instanceof HeroCard) {
+			heroCards.remove(card);
+		} else if(card instanceof VillageCard) {
+			villageCards.remove(card);
+		}
+		
+		for(String key : card.getRandomizerKeys()) {
+			int currentAmount = foundKeys.get(key);
+			foundKeys.put(key, currentAmount-1);
 		}
 	}
 

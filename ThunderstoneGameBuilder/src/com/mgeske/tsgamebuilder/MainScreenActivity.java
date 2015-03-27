@@ -7,33 +7,35 @@ import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-
-
+import android.widget.Toast;
 
 public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
+	private final int CONTEXT_MENU_REMOVE_CARD = 0;
 	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
+	private MenuItem addCardButton = null;
 	private MenuItem newGameButton = null;
 	private MenuItem loadGameButton = null;
 	private boolean userHasChosenSets = true;
+	private ListView cardListView = null;
+	private CardListAdapter cardListAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +48,8 @@ public class MainScreenActivity extends ActionBarActivity {
 				openChooseSets();
 			}
         });
-        ListView cardList = (ListView)findViewById(R.id.card_list);
-        cardList.setOnItemClickListener(new OnItemClickListener() {
+        cardListView = (ListView)findViewById(R.id.card_list);
+        cardListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				int type = parent.getAdapter().getItemViewType(position);
@@ -58,7 +60,7 @@ public class MainScreenActivity extends ActionBarActivity {
 				}
 			}
         });
-        registerForContextMenu(cardList);
+        registerForContextMenu(cardListView);
     }
     
     @Override
@@ -72,16 +74,16 @@ public class MainScreenActivity extends ActionBarActivity {
     		}
     		Card card = (Card)adapterView.getAdapter().getItem(info.position);
     		menu.setHeaderTitle(card.getCardName());
-    		menu.add(Menu.NONE, 0, 0, "Remove card");
+    		menu.add(Menu.NONE, CONTEXT_MENU_REMOVE_CARD, 0, "Remove card");
     	}
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-    	AdapterView<?> adapterView = (AdapterView<?>)info.targetView.getParent();
-    	CardListAdapter adapter = (CardListAdapter)adapterView.getAdapter();
-    	adapter.remove(info.position);
+    	if(item.getItemId() == CONTEXT_MENU_REMOVE_CARD) {
+	    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	    	removeCard(info.position);
+    	}
     	return true;
     }
     
@@ -91,7 +93,7 @@ public class MainScreenActivity extends ActionBarActivity {
         String[] chosenSets = Util.getChosenSets(this);
     	userHasChosenSets = (chosenSets.length > 0);
         if(userHasChosenSets) {
-        	findViewById(R.id.card_list).setVisibility(View.VISIBLE);
+        	cardListView.setVisibility(View.VISIBLE);
         	findViewById(R.id.no_sets_warning).setVisibility(View.INVISIBLE);
         	if(newGameButton != null) {
         		newGameButton.setEnabled(true);
@@ -100,7 +102,7 @@ public class MainScreenActivity extends ActionBarActivity {
         		loadGameButton.setEnabled(true);
         	}
         } else {
-        	findViewById(R.id.card_list).setVisibility(View.INVISIBLE);
+        	cardListView.setVisibility(View.INVISIBLE);
         	findViewById(R.id.no_sets_warning).setVisibility(View.VISIBLE);
         	if(newGameButton != null) {
         		newGameButton.setEnabled(false);
@@ -161,6 +163,7 @@ public class MainScreenActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_screen, menu);
+        addCardButton = menu.findItem(R.id.action_addcard);
         newGameButton = menu.findItem(R.id.action_newgame);
         loadGameButton = menu.findItem(R.id.action_loadgame);
     	newGameButton.setEnabled(userHasChosenSets);
@@ -178,6 +181,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			case R.id.action_choosesets: openChooseSets(); return true;
 			case R.id.action_newgame: buildNewGame(); return true;
 			case R.id.action_loadgame: loadGame(); return true;
+			case R.id.action_addcard: showAddCardContext(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
@@ -205,28 +209,50 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     private void displayGame(CardList cardList) {
-    	ListView lv = (ListView) findViewById(R.id.card_list);
-		lv.setAdapter(new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList));
+    	cardListAdapter = new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList);
+		cardListView.setAdapter(cardListAdapter);
+		addCardButton.setVisible(true);
     }
     
     private void loadGame() {
     	Intent intent = new Intent(this, LoadGameActivity.class);
     	startActivityForResult(intent, REQUEST_CODE_LOAD_GAME);
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main_screen, container, false);
-            return rootView;
-        }
+    
+    private void showAddCardContext() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Add card...");
+    	final String[] cardTypes = {"Monster", "Treasure", "Trap", "Guardian", "Thunderstone", "Hero", "Village"};
+    	CharSequence[] dialogChoices = new CharSequence[cardTypes.length];
+    	for(int i = 0; i < cardTypes.length; i++) {
+    		String cardType = cardTypes[i];
+    		dialogChoices[i] = "Random "+cardType+" card";
+    	}
+    	builder.setItems(dialogChoices, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String cardType = cardTypes[which];
+				addRandomCard(cardType);
+			}
+    	});
+    	builder.show();
+    }
+    
+    private void addRandomCard(String cardType) {
+    	CardList currentCards = cardListAdapter.getCardList();
+		Card newCard = randomizer.getRandomCard(currentCards, cardType);
+		String toastText;
+		if(newCard == null) {
+			toastText = "No remaining "+cardType+" cards to add";
+		} else {
+			cardListAdapter.addCard(newCard);
+			toastText = "Added card '"+newCard.getCardName()+"'";
+		}
+		Toast t = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
+		t.show();
+    }
+    
+    private void removeCard(int position) {
+    	cardListAdapter.remove(position);
     }
 }

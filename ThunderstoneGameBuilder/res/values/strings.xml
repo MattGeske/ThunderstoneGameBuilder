@@ -7,6 +7,7 @@
     <string name="action_loadgame">Load Game</string>
 
     <!-- main screen -->
+    <string name="add_card_button_text">Add Card</string>
     <string name="new_game_button_text">New Game</string>
     <string name="load_game_button_text">Load Game</string>
     

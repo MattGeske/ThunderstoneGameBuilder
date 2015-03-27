@@ -46,6 +46,44 @@ public class SmartRandomizer {
 		return cardList;
 	}
 	
+
+
+	public Card getRandomCard(CardList cardList, String cardType) {
+		Requirement requirement = getRequirementForCardType(cardType);
+		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(requirement, cardList);
+		Card previousCard = null;
+		Card potentialCard = null;
+		while(matchingCards.hasNext()) {
+			previousCard = potentialCard;
+			potentialCard = matchingCards.next();
+			
+			//because of the way getMatchingCards works, when we ask for a Monster we might get a trap/treasure
+			//that's fine for random games, but not for explicitly requested Monsters - don't allow them to be added
+			if(!potentialCard.getRandomizerKeys().contains(cardType)) {
+				potentialCard = previousCard;
+				continue;
+			}
+
+			//try to find a card whose requirements have already been met
+			if(!allRequirementsMet(potentialCard, cardList)) {
+				continue;
+			}
+			
+			return potentialCard;
+		}
+		//if we get here, we haven't found a card whose requirements are all met... so just use the last one
+		return potentialCard;
+	}
+	
+	private boolean allRequirementsMet(Card potentialCard, CardList cardList) {
+		for(Requirement currentRequirement : potentialCard.getRequirements()) {
+			if(!currentRequirement.match(cardList)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	private Map<String,Integer> getMinimumCards(int num_monster, int num_thunderstone, int num_hero, int num_village, boolean monster_levels) {
 		Map<String,Integer> minimumCards = new HashMap<String,Integer>();
 		minimumCards.put("Monster", num_monster);
@@ -126,6 +164,10 @@ public class SmartRandomizer {
 	
 	private Requirement getRandomCardRequirement(List<String> remainingCardTypes) {
 		String cardType = remainingCardTypes.get(random.nextInt(remainingCardTypes.size()));
+		return getRequirementForCardType(cardType);
+	}
+	
+	private Requirement getRequirementForCardType(String cardType) {
 		return Requirement.buildRequirement("CardType", "CardType", null, cardType);
 	}
 }

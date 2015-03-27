@@ -38,6 +38,9 @@ public abstract class RequirementQueryBuilder {
 		tableNameMap.put("Level1Monster", "DungeonCard");
 		tableNameMap.put("Level2Monster", "DungeonCard");
 		tableNameMap.put("Level3Monster", "DungeonCard");
+		tableNameMap.put("Treasure", "DungeonCard");
+		tableNameMap.put("Trap", "DungeonCard");
+		tableNameMap.put("Guardian", "DungeonBossCard");
 		tableNameMap.put("Thunderstone", "DungeonBossCard");
 		tableNameMap.put("Hero", "HeroCard");
 		tableNameMap.put("Village", "VillageCard");

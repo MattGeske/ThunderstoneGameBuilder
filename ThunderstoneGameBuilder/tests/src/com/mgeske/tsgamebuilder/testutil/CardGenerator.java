@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mgeske.tsgamebuilder.card.DungeonCard;
+import com.mgeske.tsgamebuilder.card.GuardianCard;
 import com.mgeske.tsgamebuilder.card.HeroCard;
 import com.mgeske.tsgamebuilder.card.ThunderstoneCard;
 import com.mgeske.tsgamebuilder.card.VillageCard;
@@ -12,7 +13,7 @@ import com.mgeske.tsgamebuilder.requirement.Requirement;
 public class CardGenerator {
 
 	/*
-	 * Defaults for something resembling a basic thunderstone set: 8 monsters, 1 treasure, 1 trap, 2 thunderstones, 11 heroes, 19 village cards
+	 * Defaults for something resembling a basic thunderstone set: 8 monsters, 1 treasure, 1 trap, 1 guardian, 2 thunderstones, 11 heroes, 19 village cards
 	 */
 	public static List<DungeonCard> getDungeonCards() {
 		return getDungeonCards(8, 1, 1, null, null);
@@ -23,6 +24,10 @@ public class CardGenerator {
 	
 	public static List<DungeonCard> getMonsters(int num_monster, int level) {
 		return getDungeonCards(num_monster, 0, 0, null, level);
+	}
+	
+	public static List<GuardianCard> getGuardianCards() {
+		return getGuardianCards(1);
 	}
 	
 	public static List<ThunderstoneCard> getThunderstoneCards() {
@@ -83,6 +88,17 @@ public class CardGenerator {
 		
 		return dungeonCards;
 	}
+	
+	public static List<GuardianCard> getGuardianCards(int total_guardian) {
+		List<GuardianCard> guardianCards = new ArrayList<GuardianCard>();
+		for(int i = 0; i < total_guardian; i++) {
+			String cardId = Integer.toString(i);
+			GuardianCard guardian = new GuardianCard(cardId, "Guardian "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<Requirement>());
+			guardianCards.add(guardian);
+		}
+		return guardianCards;
+	}
+	
 	public static List<ThunderstoneCard> getThunderstoneCards(int total_thunderstone, Requirement globalRequirement) {
 		List<Requirement> requirements = new ArrayList<Requirement>();
 		if(globalRequirement != null) {
