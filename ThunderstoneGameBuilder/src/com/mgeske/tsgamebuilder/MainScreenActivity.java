@@ -29,6 +29,7 @@ public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
 	private final int CONTEXT_MENU_REMOVE_CARD = 0;
 	private final int CONTEXT_MENU_REPLACE_CARD = 1;
+	private final int CONTEXT_MENU_CARD_DETAILS = 2;
 	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
 	private MenuItem addCardButton = null;
@@ -53,12 +54,7 @@ public class MainScreenActivity extends ActionBarActivity {
         cardListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				int type = parent.getAdapter().getItemViewType(position);
-				if(type == CardListAdapter.CARD_ITEM_TYPE) {
-					Card card = (Card)parent.getAdapter().getItem(position);
-					CardInformationDialog dialog = CardInformationDialog.getCardInformationDialog(card);
-					dialog.show(getSupportFragmentManager(), "CardInformationDialog");
-				}
+				viewCardDetails(position);
 			}
         });
         registerForContextMenu(cardListView);
@@ -68,21 +64,24 @@ public class MainScreenActivity extends ActionBarActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     	if(v.getId() == R.id.card_list) {
     		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-    		AdapterView<?> adapterView = (AdapterView<?>)v;
-    		int type = adapterView.getAdapter().getItemViewType(info.position);
+    		int type = cardListAdapter.getItemViewType(info.position);
     		if(type == CardListAdapter.HEADER_TYPE) {
     			return;
     		}
-    		Card card = (Card)adapterView.getAdapter().getItem(info.position);
+    		Card card = (Card)cardListAdapter.getItem(info.position);
     		menu.setHeaderTitle(card.getCardName());
-    		menu.add(Menu.NONE, CONTEXT_MENU_REMOVE_CARD, 0, "Remove card");
-    		menu.add(Menu.NONE, CONTEXT_MENU_REPLACE_CARD, 1, "Replace with random card");
+    		menu.add(Menu.NONE, CONTEXT_MENU_CARD_DETAILS, 0, "View card details");
+    		menu.add(Menu.NONE, CONTEXT_MENU_REMOVE_CARD, 1, "Remove card");
+    		menu.add(Menu.NONE, CONTEXT_MENU_REPLACE_CARD, 2, "Replace with random card");
     	}
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-    	if(item.getItemId() == CONTEXT_MENU_REMOVE_CARD) {
+    	if(item.getItemId() == CONTEXT_MENU_CARD_DETAILS) {
+    		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	    	viewCardDetails(info.position);
+    	} else if(item.getItemId() == CONTEXT_MENU_REMOVE_CARD) {
 	    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 	    	removeCard(info.position);
     	} else if(item.getItemId() == CONTEXT_MENU_REPLACE_CARD) {
@@ -222,6 +221,15 @@ public class MainScreenActivity extends ActionBarActivity {
     private void loadGame() {
     	Intent intent = new Intent(this, LoadGameActivity.class);
     	startActivityForResult(intent, REQUEST_CODE_LOAD_GAME);
+    }
+    
+    private void viewCardDetails(int position) {
+		int type = cardListAdapter.getItemViewType(position);
+		if(type == CardListAdapter.CARD_ITEM_TYPE) {
+			Card card = (Card)cardListAdapter.getItem(position);
+			CardInformationDialog dialog = CardInformationDialog.getCardInformationDialog(card);
+			dialog.show(getSupportFragmentManager(), "CardInformationDialog");
+		}
     }
     
     private void showAddCardContext() {
