@@ -1,12 +1,16 @@
 package com.mgeske.tsgamebuilder;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,12 +31,14 @@ import android.widget.Toast;
 
 public class MainScreenActivity extends ActionBarActivity {
 	private final int REQUEST_CODE_LOAD_GAME = 1;
+	private final int REQUEST_SEARCH_CARD = 2;
 	private final int CONTEXT_MENU_REMOVE_CARD = 0;
 	private final int CONTEXT_MENU_REPLACE_CARD = 1;
 	private final int CONTEXT_MENU_CARD_DETAILS = 2;
 	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
 	private MenuItem addCardButton = null;
+	private MenuItem searchCardButton = null;
 	private MenuItem newGameButton = null;
 	private MenuItem loadGameButton = null;
 	private boolean userHasChosenSets = true;
@@ -142,6 +148,22 @@ public class MainScreenActivity extends ActionBarActivity {
 		if(requestCode == REQUEST_CODE_LOAD_GAME && resultCode == 1) {
 			CardList cardList = data.getParcelableExtra("cardList");
 			displayGame(cardList);
+		} else if(requestCode == REQUEST_SEARCH_CARD && resultCode == 1) {
+			ArrayList<Card> cards = data.getParcelableArrayListExtra("cardsToAdd");
+			
+			List<String> cardNames = new ArrayList<String>();
+			for(Card card : cards) {
+				if(cardListAdapter.addCard(card)) {
+					cardNames.add(card.getCardName());
+				}
+			}
+
+			if(cardNames.size() > 0) {
+				String plural = (cardNames.size() > 1)? "s" : "";
+				String message = "Added card"+plural+" '"+TextUtils.join("', '", cardNames)+"'";
+				Toast t = Toast.makeText(this, message, Toast.LENGTH_LONG);
+				t.show();
+			}
 		}
 	}
 
@@ -168,6 +190,7 @@ public class MainScreenActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_screen, menu);
         addCardButton = menu.findItem(R.id.action_addcard);
+        searchCardButton = menu.findItem(R.id.action_searchcard);
         newGameButton = menu.findItem(R.id.action_newgame);
         loadGameButton = menu.findItem(R.id.action_loadgame);
     	newGameButton.setEnabled(userHasChosenSets);
@@ -186,6 +209,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			case R.id.action_newgame: buildNewGame(); return true;
 			case R.id.action_loadgame: loadGame(); return true;
 			case R.id.action_addcard: showAddCardContext(); return true;
+			case R.id.action_searchcard: showSearchCardActivity(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
@@ -216,6 +240,7 @@ public class MainScreenActivity extends ActionBarActivity {
     	cardListAdapter = new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList);
 		cardListView.setAdapter(cardListAdapter);
 		addCardButton.setVisible(true);
+		searchCardButton.setVisible(true);
     }
     
     private void loadGame() {
@@ -261,7 +286,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			cardListAdapter.addCard(newCard);
 			toastText = "Added card '"+newCard.getCardName()+"'";
 		}
-		Toast t = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
+		Toast t = Toast.makeText(this, toastText, Toast.LENGTH_LONG);
 		t.show();
     }
     
@@ -274,5 +299,10 @@ public class MainScreenActivity extends ActionBarActivity {
     	String cardType = removedCard.getCardType();
     	removeCard(position);
     	addRandomCard(cardType);
+    }
+    
+    private void showSearchCardActivity() {
+    	Intent intent = new Intent(this, SearchCardActivity.class);
+    	startActivityForResult(intent, REQUEST_SEARCH_CARD);
     }
 }

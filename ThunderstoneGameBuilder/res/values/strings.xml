@@ -5,9 +5,12 @@
     <string name="action_settings">Settings</string>
     <string name="action_choosesets">Choose Expansions</string>
     <string name="action_loadgame">Load Game</string>
+    <string name="title_activity_search_card">SearchCardActivity</string>
+    <string name="title_activity_search_results">SearchResultsActivity</string>
 
     <!-- main screen -->
     <string name="add_card_button_text">Add Card</string>
+    <string name="search_card_button_text">Search For Card</string>
     <string name="new_game_button_text">New Game</string>
     <string name="load_game_button_text">Load Game</string>
     
@@ -49,8 +52,14 @@
     <string name="default_num_village">8</string>
     <string name="default_village_limits">true</string>
     <string name="default_monster_levels">true</string>
-    
+
     <!-- load game screen -->
     <string name="load_game_show_all">Show games for all expansions</string>
+    
+    <!-- search screen -->
+    <string name="search_card_type_prompt">Card Type</string>
+    <string name="search_card_text_hint">Card Text</string>
+    <string name="search_card_include_all_text">Include cards from all expansions</string>
+    <string name="search_card_search_button_text">Search</string>
 
 </resources>

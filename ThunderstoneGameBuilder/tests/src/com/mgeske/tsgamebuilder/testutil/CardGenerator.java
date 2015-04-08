@@ -2,6 +2,7 @@ package com.mgeske.tsgamebuilder.testutil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.mgeske.tsgamebuilder.card.DungeonCard;
 import com.mgeske.tsgamebuilder.card.GuardianCard;
@@ -67,22 +68,22 @@ public class CardGenerator {
 			} else {
 				monster_level = (i%3)+1;
 			}
-			String cardId = Integer.toString(i);
-			DungeonCard monster = new DungeonCard(cardId, "Monster "+i, "test", "", "", "Monster", monster_level, attributes, classes, requirements);
+			String cardId = UUID.randomUUID().toString();
+			DungeonCard monster = new DungeonCard(cardId, "Monster "+cardId, "test", "", "", "Monster", monster_level, attributes, classes, requirements);
 			dungeonCards.add(monster);
 		}
 		
 		//create some treasure cards
 		for(int i = 0; i < total_treasure; i++) {
-			String cardId = Integer.toString(i);
-			DungeonCard treasure = new DungeonCard(cardId, "Treasure "+i, "test", "", "", "Treasure", null, attributes, classes, requirements);
+			String cardId = UUID.randomUUID().toString();
+			DungeonCard treasure = new DungeonCard(cardId, "Treasure "+cardId, "test", "", "", "Treasure", null, attributes, classes, requirements);
 			dungeonCards.add(treasure);
 		}
 		
 		//create some trap cards
 		for(int i = 0; i < total_trap; i++) {
-			String cardId = Integer.toString(i);
-			DungeonCard trap = new DungeonCard(cardId, "Trap "+i, "test", "", "", "Trap", null, attributes, classes, requirements);
+			String cardId = UUID.randomUUID().toString();
+			DungeonCard trap = new DungeonCard(cardId, "Trap "+cardId, "test", "", "", "Trap", null, attributes, classes, requirements);
 			dungeonCards.add(trap);
 		}
 		
@@ -92,8 +93,8 @@ public class CardGenerator {
 	public static List<GuardianCard> getGuardianCards(int total_guardian) {
 		List<GuardianCard> guardianCards = new ArrayList<GuardianCard>();
 		for(int i = 0; i < total_guardian; i++) {
-			String cardId = Integer.toString(i);
-			GuardianCard guardian = new GuardianCard(cardId, "Guardian "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<Requirement>());
+			String cardId = UUID.randomUUID().toString();
+			GuardianCard guardian = new GuardianCard(cardId, "Guardian "+cardId, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), new ArrayList<Requirement>());
 			guardianCards.add(guardian);
 		}
 		return guardianCards;
@@ -106,8 +107,8 @@ public class CardGenerator {
 		}
 		List<ThunderstoneCard> thunderstoneCards = new ArrayList<ThunderstoneCard>();
 		for(int i = 0; i < total_thunderstone; i++) {
-			String cardId = Integer.toString(i);
-			ThunderstoneCard thunderstone = new ThunderstoneCard(cardId, "Thunderstone "+i, "test", "", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements);
+			String cardId = UUID.randomUUID().toString();
+			ThunderstoneCard thunderstone = new ThunderstoneCard(cardId, "Thunderstone "+cardId, "test", "", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements);
 			thunderstoneCards.add(thunderstone);
 		}
 		
@@ -121,8 +122,8 @@ public class CardGenerator {
 		}
 		List<HeroCard> heroCards = new ArrayList<HeroCard>();
 		for(int i = 0; i < total_hero; i++) {
-			String cardId = Integer.toString(i);
-			HeroCard hero = new HeroCard(cardId, "Hero "+i, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements, "", 5);
+			String cardId = UUID.randomUUID().toString();
+			HeroCard hero = new HeroCard(cardId, "Hero "+cardId, "test", "", "", new ArrayList<String>(), new ArrayList<String>(), requirements, "", 5);
 			heroCards.add(hero);
 		}
 		
@@ -137,32 +138,32 @@ public class CardGenerator {
 		List<String> classes = new ArrayList<String>();
 		classes.add("Weapon");
 		for(int i = 0; i < total_weapons; i++) {
-			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Weapon "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
+			String cardId = UUID.randomUUID().toString();
+			VillageCard village = new VillageCard(cardId, "Weapon "+cardId, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
 		classes = new ArrayList<String>();
 		classes.add("Item");
 		for(int i = 0; i < total_items; i++) {
-			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Item "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
+			String cardId = UUID.randomUUID().toString();
+			VillageCard village = new VillageCard(cardId, "Item "+cardId, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
 		classes = new ArrayList<String>();
 		classes.add("Spell");
 		for(int i = 0; i < total_spells; i++) {
-			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Spell "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
+			String cardId = UUID.randomUUID().toString();
+			VillageCard village = new VillageCard(cardId, "Spell "+cardId, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		
 		classes = new ArrayList<String>();
 		classes.add("Villager");
 		for(int i = 0; i < total_villagers; i++) {
-			String cardId = Integer.toString(i);
-			VillageCard village = new VillageCard(cardId, "Villager "+i, "test", "", "", attributes, classes, requirements, 3, null, null);
+			String cardId = UUID.randomUUID().toString();
+			VillageCard village = new VillageCard(cardId, "Villager "+cardId, "test", "", "", attributes, classes, requirements, 3, null, null);
 			villageCards.add(village);
 		}
 		

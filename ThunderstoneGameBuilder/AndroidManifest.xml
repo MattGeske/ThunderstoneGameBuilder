@@ -43,6 +43,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
         </activity>
+        <activity
+            android:name=".SearchCardActivity"
+            android:label="@string/title_activity_search_card"
+            android:parentActivityName=".MainScreenActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
+        <activity
+            android:name=".SearchResultsActivity"
+            android:label="@string/title_activity_search_results"
+            android:parentActivityName=".SearchCardActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.SearchCardActivity" />
+        </activity>
     </application>
 
 </manifest>

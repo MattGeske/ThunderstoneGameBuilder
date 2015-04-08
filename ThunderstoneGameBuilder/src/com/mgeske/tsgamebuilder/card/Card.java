@@ -72,6 +72,33 @@ public abstract class Card implements Comparable<Card>,Parcelable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((cardName == null) ? 0 : cardName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		//assumption: no 2 different cards will have the same name (enforced by unique constraint in db)
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Card other = (Card) obj;
+		if (cardName == null) {
+			if (other.cardName != null)
+				return false;
+		} else if (!cardName.equals(other.cardName))
+			return false;
+		return true;
+	}
+
+	@Override
 	public int compareTo(Card another) {
 		return this.cardName.compareTo(another.cardName);
 	}

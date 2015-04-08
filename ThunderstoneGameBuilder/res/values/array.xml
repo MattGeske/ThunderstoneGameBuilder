@@ -11,4 +11,14 @@
         <item>@string/rule_type_advance</item>
         <item>@string/rule_type_custom</item>
     </array>
+    
+    <array name="card_types">
+        <item>Monster</item>
+        <item>Treasure</item>
+        <item>Trap</item>
+        <item>Guardian</item>
+        <item>Thunderstone</item>
+        <item>Hero</item>
+        <item>Village</item>
+    </array>
 </resources>

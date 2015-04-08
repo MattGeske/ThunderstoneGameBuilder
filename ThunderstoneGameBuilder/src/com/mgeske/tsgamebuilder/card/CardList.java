@@ -44,6 +44,28 @@ public class CardList implements Parcelable {
 			throw new RuntimeException("Unexpected card type: "+cardType);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends Card> List<T> getCardListForCard(T card) {
+		if(card instanceof DungeonCard) {
+			return (List<T>) dungeonCards;
+		} else if(card instanceof GuardianCard) {
+			return (List<T>) guardianCards;
+		} else if(card instanceof ThunderstoneCard) {
+			return (List<T>) thunderstoneCards;
+		} else if(card instanceof HeroCard) {
+			return (List<T>) heroCards;
+		} else if(card instanceof VillageCard) {
+			return (List<T>) villageCards;
+		} else {
+			return null;
+		}
+	}
+	
+	public <T extends Card> boolean contains(T card) {
+		List<T> cards = getCardListForCard(card);
+		return cards.contains(card);
+	}
 
 	public List<DungeonCard> getDungeonCards() {
 		return dungeonCards;
@@ -111,7 +133,7 @@ public class CardList implements Parcelable {
 		return addCard(card, true);
 	}
 	
-	public boolean addCard(Card card, boolean obeyMaximums) {
+	public <T extends Card> boolean addCard(T card, boolean obeyMaximums) {
 		if(card == null) {
 			return false;
 		}
@@ -122,19 +144,11 @@ public class CardList implements Parcelable {
 		}
 		
 		//add it to the appropriate list
-		if(card instanceof DungeonCard) {
-			dungeonCards.add((DungeonCard)card);
-		} else if(card instanceof GuardianCard) {
-			guardianCards.add((GuardianCard)card);
-		} else if(card instanceof ThunderstoneCard) {
-			thunderstoneCards.add((ThunderstoneCard)card);
-		} else if(card instanceof HeroCard) {
-			heroCards.add((HeroCard)card);
-		} else if(card instanceof VillageCard) {
-			villageCards.add((VillageCard)card);
-		} else {
+		List<T> cards = getCardListForCard(card);
+		if(cards == null || cards.contains(card)) {
 			return false;
 		}
+		cards.add(card);
 		cardOrder.push(card);
 		
 		//update foundKeys
@@ -174,18 +188,12 @@ public class CardList implements Parcelable {
 		}
 	}
 	
-	public void removeCard(Card card) {
-		if(card instanceof DungeonCard) {
-			dungeonCards.remove(card);
-		} else if(card instanceof GuardianCard) {
-			guardianCards.remove(card);
-		} else if(card instanceof ThunderstoneCard) {
-			thunderstoneCards.remove(card);
-		} else if(card instanceof HeroCard) {
-			heroCards.remove(card);
-		} else if(card instanceof VillageCard) {
-			villageCards.remove(card);
+	public <T extends Card> void removeCard(T card) {
+		List<T> cards = getCardListForCard(card);
+		if(cards == null || !cards.contains(card)) {
+			return;
 		}
+		cards.remove(card);
 		
 		for(String key : card.getRandomizerKeys()) {
 			int currentAmount = foundKeys.get(key);

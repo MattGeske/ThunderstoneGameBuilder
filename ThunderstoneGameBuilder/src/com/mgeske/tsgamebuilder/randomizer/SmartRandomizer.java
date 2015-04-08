@@ -49,20 +49,11 @@ public class SmartRandomizer {
 
 
 	public Card getRandomCard(CardList cardList, String cardType) {
-		Requirement requirement = getRequirementForCardType(cardType);
-		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(requirement, cardList);
-		Card previousCard = null;
+		Requirement requirement = Requirement.buildRequirement("SpecificCardType", "SpecificCardType", null, cardType);
+		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(requirement, cardList, false);
 		Card potentialCard = null;
 		while(matchingCards.hasNext()) {
-			previousCard = potentialCard;
 			potentialCard = matchingCards.next();
-			
-			//because of the way getMatchingCards works, when we ask for a Monster we might get a trap/treasure
-			//that's fine for random games, but not for explicitly requested Monsters - don't allow them to be added
-			if(!potentialCard.getRandomizerKeys().contains(cardType)) {
-				potentialCard = previousCard;
-				continue;
-			}
 
 			//try to find a card whose requirements have already been met
 			if(!allRequirementsMet(potentialCard, cardList)) {
@@ -130,7 +121,7 @@ public class SmartRandomizer {
 	}
 	
 	protected boolean chooseCards(Requirement currentRequirement, CardList currentCards) {
-		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(currentRequirement, currentCards);
+		Iterator<? extends Card> matchingCards = cardDb.getMatchingCards(currentRequirement, currentCards, false);
 		while(matchingCards.hasNext()) {
 			Card potentialCard = matchingCards.next();
 			
@@ -164,10 +155,7 @@ public class SmartRandomizer {
 	
 	private Requirement getRandomCardRequirement(List<String> remainingCardTypes) {
 		String cardType = remainingCardTypes.get(random.nextInt(remainingCardTypes.size()));
-		return getRequirementForCardType(cardType);
-	}
-	
-	private Requirement getRequirementForCardType(String cardType) {
 		return Requirement.buildRequirement("CardType", "CardType", null, cardType);
 	}
+	
 }

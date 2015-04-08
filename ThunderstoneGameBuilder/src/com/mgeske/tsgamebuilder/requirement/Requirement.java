@@ -27,6 +27,10 @@ public abstract class Requirement {
 			return new LightweightEdgedWeaponRequirement(requirementName, requiredOn, values);
 		} else if("CardType".equals(requirementType)) {
 			return new CardTypeRequirement(requirementName, requiredOn, values);
+		} else if("SpecificCardType".equals(requirementType)) {
+			return new SpecificCardTypeRequirement(requirementName, requiredOn, values);
+		} else if("CardText".equals(requirementType)) {
+			return new CardTextRequirement(requirementName, requiredOn, values);
 		} else {
 			throw new RuntimeException("Unknown requirement type: "+requirementType);
 		}

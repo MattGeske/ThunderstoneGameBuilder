@@ -120,12 +120,12 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 	
-	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards) {
+	public Iterator<? extends Card> getMatchingCards(Requirement requirement, CardList currentCards, boolean includeAllSets) {
 		String[] chosenSets = Util.getChosenSets(context);
 		RequirementQueryBuilder queryBuilder = RequirementQueryBuilder.getRequirementQueryBuilder(chosenSets, requirement);
 		
 		SQLiteDatabase db = getReadableDatabase();
-		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements());
+		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements(), includeAllSets);
 	}
 
 	public List<SavedGame> getSavedGames() {

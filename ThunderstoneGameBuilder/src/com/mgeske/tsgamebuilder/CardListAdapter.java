@@ -61,10 +61,13 @@ public class CardListAdapter extends BaseAdapter {
 		}
 	}
 	
-	public void addCard(Card card) {
-		cardList.addCard(card, false);
-		initItemList();
-		notifyDataSetChanged();
+	public boolean addCard(Card card) {
+		if(cardList.addCard(card, false)) {
+			initItemList();
+			notifyDataSetChanged();
+			return true;
+		}
+		return false;
 	}
 	
 	public void remove(int position) {

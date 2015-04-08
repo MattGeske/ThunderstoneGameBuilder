@@ -1,5 +1,6 @@
 package com.mgeske.tsgamebuilder.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import com.mgeske.tsgamebuilder.db.CardBuilder;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.requirement.CardTextRequirement;
 import com.mgeske.tsgamebuilder.requirement.CardTypeRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAllClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyAttributesRequirement;
@@ -21,6 +23,7 @@ import com.mgeske.tsgamebuilder.requirement.HasAnyClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasStrengthRequirement;
 import com.mgeske.tsgamebuilder.requirement.LightweightEdgedWeaponRequirement;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
+import com.mgeske.tsgamebuilder.requirement.SpecificCardTypeRequirement;
 
 public abstract class RequirementQueryBuilder {
 	private static Map<String,String> tableNameMap;
@@ -46,8 +49,9 @@ public abstract class RequirementQueryBuilder {
 		tableNameMap.put("Village", "VillageCard");
 	}
 	
-	public Iterator<? extends Card> queryMatchingCards(CardList currentCards, SQLiteDatabase db, Map<String, Requirement> allRequirements) {
-		String[] cardIds = getMatchingCardIds(currentCards, db);
+	public Iterator<? extends Card> queryMatchingCards(CardList currentCards, SQLiteDatabase db,
+			Map<String, Requirement> allRequirements, boolean includeAllSets) {
+		String[] cardIds = getMatchingCardIds(currentCards, db, includeAllSets);
 		
 		String mainTableName = getMainTableName();
 		CardBuilder cardBuilder = CardBuilder.getCardBuilder(mainTableName, db, allRequirements, chosenSets);
@@ -60,18 +64,25 @@ public abstract class RequirementQueryBuilder {
 		return tableNameMap.get(cardType);
 	}
 	
-	protected String[] getMatchingCardIds(CardList currentCards, SQLiteDatabase db) {
+	protected String[] getMatchingCardIds(CardList currentCards, SQLiteDatabase db, boolean includeAllSets) {
 		String tableName = getTableName()+", Card_ThunderstoneSet, ThunderstoneSet";
 		String cardIdColumn = getCardIdColumn();
 		String[] columns = new String[]{"distinct("+cardIdColumn+") as cardId"};
-		String selection = getSelection(currentCards);
-		String[] selectionArgs = getSelectionArgs(currentCards);
+		String selection = getSelection();
+		String[] selectionArgs = getSelectionArgs();
 
-		List<? extends Card> currentCardsOfSameType = currentCards.getCardsByType(requirement.getRequiredOn());
+		List<? extends Card> currentCardsOfSameType;
+		if(currentCards != null) {
+			currentCardsOfSameType = currentCards.getCardsByType(requirement.getRequiredOn());
+		} else {
+			currentCardsOfSameType = new ArrayList<Card>();
+		}
 		
-		String additionalWhere = buildWhereNotInCurrentCards(cardIdColumn, currentCardsOfSameType) +
-								" and Card_ThunderstoneSet.cardId="+cardIdColumn+" and Card_ThunderstoneSet.cardTableName='"+getMainTableName() +
-								"' and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+buildInClause("ThunderstoneSet.setName", chosenSets, false);
+		String additionalWhere = buildWhereNotInCurrentCards(cardIdColumn, currentCardsOfSameType);
+		if(!includeAllSets) {
+			additionalWhere += " and Card_ThunderstoneSet.cardId="+cardIdColumn+" and Card_ThunderstoneSet.cardTableName='"+getMainTableName() +
+							   "' and Card_ThunderstoneSet.setId=ThunderstoneSet._ID and "+buildInClause("ThunderstoneSet.setName", chosenSets, false);
+		}
 		
 		String[] matchingCardIds = null;
 		Cursor c = null;
@@ -95,8 +106,8 @@ public abstract class RequirementQueryBuilder {
 	
 	protected abstract String getTableName();
 	protected abstract String getCardIdColumn();
-	protected abstract String getSelection(CardList currentCards);
-	protected abstract String[] getSelectionArgs(CardList currentCards);
+	protected abstract String getSelection();
+	protected abstract String[] getSelectionArgs();
 	
 	private String buildWhereNotInCurrentCards(String cardIdColumn, List<? extends Card> currentCards) {
 		String[] values = new String[currentCards.size()];
@@ -139,6 +150,10 @@ public abstract class RequirementQueryBuilder {
 			return new LightweightEdgedWeaponRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof CardTypeRequirement) {
 			return new CardTypeRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof SpecificCardTypeRequirement) {
+			return new SpecificCardTypeRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof CardTextRequirement) {
+			return new CardTextRequirementQueryBuilder(chosenSets, requirement);
 		} else {
 			throw new RuntimeException("Unknown requirement type "+requirement.getClass());
 		}
@@ -161,14 +176,14 @@ class HasAnyAttributesRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		int num_attributes = requirement.getValues().size();
 		return CardDatabase.buildInClausePlaceholders("CardAttribute.attributeName", num_attributes, false)+ 
 				" and Card_CardAttribute.cardTableName = ? and Card_CardAttribute.attributeId = CardAttribute._ID";
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		String mainTableName = getMainTableName();
 		int num_attributes = requirement.getValues().size();
 		String[] selectionArgs = new String[num_attributes+1];
@@ -194,14 +209,14 @@ class HasAnyClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		int num_classes = requirement.getValues().size();
 		return CardDatabase.buildInClausePlaceholders("CardClass.className", num_classes, false)+ 
 				" and Card_CardClass.cardTableName = ? and Card_CardClass.classId = CardClass._ID";
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		String mainTableName = getMainTableName();
 		int num_classes = requirement.getValues().size();
 		String[] selectionArgs = new String[num_classes+1];
@@ -241,7 +256,7 @@ class HasAllClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		int num_classes = requirement.getValues().size();
 		
 		String selection = buildSubQueryPlaceholders(num_classes)+" and Card_CardClass.cardTableName = ?";
@@ -249,7 +264,7 @@ class HasAllClassesRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		String mainTableName = getMainTableName();
 		int num_classes = requirement.getValues().size();
 		String[] selectionArgs = new String[num_classes+1];
@@ -275,12 +290,12 @@ class HasStrengthRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		return "strength=?";
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		HasStrengthRequirement strengthRequirement = (HasStrengthRequirement)requirement;
 		int strength = strengthRequirement.getStrength();
 		return new String[]{Integer.toString(strength)};
@@ -303,13 +318,13 @@ class LightweightEdgedWeaponRequirementQueryBuilder extends HasAllClassesRequire
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		return "VillageCard._ID=Card_CardClass.cardId and Card_CardClass.cardTableName='VillageCard' and " +
 				"VillageCard.weight <= 3 and "+buildSubQueryPlaceholders(2);
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		return new String[]{"Weapon","Edged"};
 	}
 }
@@ -330,13 +345,64 @@ class CardTypeRequirementQueryBuilder extends RequirementQueryBuilder {
 	}
 
 	@Override
-	protected String getSelection(CardList currentCards) {
+	protected String getSelection() {
 		return null;
 	}
 
 	@Override
-	protected String[] getSelectionArgs(CardList currentCards) {
+	protected String[] getSelectionArgs() {
 		return null;
+	}
+}
+
+class SpecificCardTypeRequirementQueryBuilder extends CardTypeRequirementQueryBuilder {
+	protected SpecificCardTypeRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getSelection() {
+		if(getMainTableName() == "DungeonCard" || getMainTableName() == "DungeonBossCard") {
+			return "cardType = ?";
+		}
+		return null;
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		if(getMainTableName() == "DungeonCard" || getMainTableName() == "DungeonBossCard") {
+			return new String[]{requirement.getRequiredOn()};
+		}
+		return null;
+	}
+}
+
+class CardTextRequirementQueryBuilder extends RequirementQueryBuilder {
+
+	protected CardTextRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return getTableName()+"._ID";
+	}
+	
+	@Override
+	protected String getTableName() {
+		return getMainTableName();
+	}
+
+	@Override
+	protected String getSelection() {
+		return "cardName like ? or description like ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		CardTextRequirement cardTextRequirement = (CardTextRequirement)requirement;
+		String searchText = "%"+cardTextRequirement.getSearchText()+"%";
+		return new String[]{searchText, searchText};
 	}
 }
 

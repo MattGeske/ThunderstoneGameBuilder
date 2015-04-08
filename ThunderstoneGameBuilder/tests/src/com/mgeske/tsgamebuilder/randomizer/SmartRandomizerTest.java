@@ -137,7 +137,7 @@ public class SmartRandomizerTest extends AndroidTestCase {
 			villageCards = CardGenerator.getVillageCards();
 		}
 		CardDatabase mockDb = mock(CardDatabase.class);
-		when(mockDb.getMatchingCards(any(Requirement.class), any(CardList.class))).then(
+		when(mockDb.getMatchingCards(any(Requirement.class), any(CardList.class), any(Boolean.class))).then(
 				returnMatchingCards(dungeonCards, guardianCards, thunderstoneCards, heroCards, villageCards));
 		SmartRandomizer randomizer = new SmartRandomizer(mockDb);
 		return randomizer;
