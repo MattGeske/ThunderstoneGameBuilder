@@ -5,18 +5,19 @@ import java.util.List;
 
 import com.mgeske.tsgamebuilder.card.Card;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-public class SearchResultsActivity extends Activity {
+public class SearchResultsActivity extends FragmentActivity {
 	private List<Card> cardResults;
 
 	@Override
@@ -26,14 +27,20 @@ public class SearchResultsActivity extends Activity {
 		Intent intent = getIntent();
 		cardResults = intent.getParcelableArrayListExtra("cardResults");
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice);
-		for(Card card : cardResults) {
-			adapter.add(card.getCardName());
-		}
+		SearchResultAdapter adapter = new SearchResultAdapter(this, R.layout.search_results_list_item, R.id.card_name,
+				R.id.card_type, cardResults);
 		
 		ListView lv = (ListView)findViewById(R.id.search_result_list);
-		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		lv.setItemsCanFocus(false);
 		lv.setAdapter(adapter);
+		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				Card card = (Card)parent.getItemAtPosition(position);
+				viewCardDetails(card);
+				return true;
+			}
+		});
 		
 		Button modifySearchButton = (Button)findViewById(R.id.results_modify_search_button);
 		modifySearchButton.setOnClickListener(new OnClickListener() {
@@ -51,6 +58,11 @@ public class SearchResultsActivity extends Activity {
 			}
 		});
 	}
+    
+    private void viewCardDetails(Card card) {
+		CardInformationDialog dialog = CardInformationDialog.getCardInformationDialog(card);
+		dialog.show(getSupportFragmentManager(), "CardInformationDialog");
+    }
 	
 	private void returnData() {
 		ListView lv = (ListView)findViewById(R.id.search_result_list);

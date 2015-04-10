@@ -61,5 +61,9 @@
     <string name="search_card_text_hint">Card Text</string>
     <string name="search_card_include_all_text">Include cards from all expansions</string>
     <string name="search_card_search_button_text">Search</string>
+    
+    <!-- results screen -->
+    <string name="results_modify_search_button_text">Modify Search</string>
+    <string name="results_add_button_text">Add Selected Cards</string>
 
 </resources>
