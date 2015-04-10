@@ -356,14 +356,24 @@ class CardTypeRequirementQueryBuilder extends RequirementQueryBuilder {
 }
 
 class SpecificCardTypeRequirementQueryBuilder extends CardTypeRequirementQueryBuilder {
+	private String[] cardTypes;
+	
 	protected SpecificCardTypeRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
 		super(chosenSets, requirement);
+		String cardType = requirement.getRequiredOn();
+		if("Thunderstone".equals(cardType)) {
+			//special case: "Thunderstone" and "ThunderstoneBearer" are the same
+			cardTypes = new String[]{cardType, "ThunderstoneBearer"};
+		} else {
+			cardTypes = new String[]{cardType};
+		}
 	}
 
 	@Override
 	protected String getSelection() {
 		if(getMainTableName() == "DungeonCard" || getMainTableName() == "DungeonBossCard") {
-			return "cardType = ?";
+			String selection = CardDatabase.buildInClausePlaceholders("cardType", cardTypes.length, false);
+			return selection;
 		}
 		return null;
 	}
@@ -371,7 +381,7 @@ class SpecificCardTypeRequirementQueryBuilder extends CardTypeRequirementQueryBu
 	@Override
 	protected String[] getSelectionArgs() {
 		if(getMainTableName() == "DungeonCard" || getMainTableName() == "DungeonBossCard") {
-			return new String[]{requirement.getRequiredOn()};
+			return cardTypes;
 		}
 		return null;
 	}
