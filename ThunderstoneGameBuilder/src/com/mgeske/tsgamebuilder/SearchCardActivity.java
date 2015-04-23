@@ -2,8 +2,10 @@ package com.mgeske.tsgamebuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.db.CardDatabase;
@@ -14,6 +16,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -21,11 +25,32 @@ import android.widget.Spinner;
 
 public class SearchCardActivity extends Activity {
 	private static final int REQUEST_CODE_SEARCH_RESULT = 1;
+	private Map<String,View> searchFieldsMap = new HashMap<String,View>();
+	private View currentShownView = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search_card);
+		
+		searchFieldsMap.put("Monster", findViewById(R.id.search_monster_fields));
+		searchFieldsMap.put("Hero", findViewById(R.id.search_hero_fields));
+		searchFieldsMap.put("Village", findViewById(R.id.search_village_fields));
+		
+		Spinner cardTypeSpinner = (Spinner)findViewById(R.id.search_card_type);
+		cardTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				String cardType = (String)parent.getItemAtPosition(position);
+				updateSearchFields(cardType);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				//do nothing
+			}
+		});
+		
 		Button searchButton = (Button)findViewById(R.id.search_card);
 		searchButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -33,6 +58,16 @@ public class SearchCardActivity extends Activity {
 				searchForCard();
 			}
 		});
+	}
+	
+	private void updateSearchFields(String cardType) {
+		if(currentShownView != null) {
+			currentShownView.setVisibility(View.GONE);
+		}
+		currentShownView = searchFieldsMap.get(cardType);
+		if(currentShownView != null) {
+			currentShownView.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	private void searchForCard() {
@@ -46,6 +81,8 @@ public class SearchCardActivity extends Activity {
 		
 		//build requirements - append to list in order of most specific to least specific
 		List<Requirement> searchRequirements = new ArrayList<Requirement>();
+		//search card type specific fields
+		addCardTypeSpecificRequirements(cardType, searchRequirements);
 		//search card text if specified
 		if(cardSearchText != null && !"".equals(cardSearchText)) {
 			List<String> requirementValues = new ArrayList<String>();
@@ -94,6 +131,51 @@ public class SearchCardActivity extends Activity {
 		Intent searchResultsIntent = new Intent(this, SearchResultsActivity.class);
 		searchResultsIntent.putParcelableArrayListExtra("cardResults", cardResults);
 		startActivityForResult(searchResultsIntent, REQUEST_CODE_SEARCH_RESULT);
+	}
+	
+	private void addCardTypeSpecificRequirements(String cardType, List<Requirement> searchRequirements) {
+		if("Monster".equals(cardType)) {
+			addMonsterRequirements(searchRequirements);
+		} else if("Hero".equals(cardType)) {
+			addHeroRequirements(searchRequirements);
+		} else if("Village".equals(cardType)) {
+			addVillageRequirements(searchRequirements);
+		}
+	}
+	
+	private void addMonsterRequirements(List<Requirement> searchRequirements) {
+		//order of most specific to least specific: doomladen, ambusher, gives disease, monster level
+		addAttributeRequirementIfChecked(R.id.search_monster_doomladen, "HAS_DOOMLADEN", "Monster", searchRequirements);
+		addAttributeRequirementIfChecked(R.id.search_monster_ambusher, "HAS_AMBUSHER", "Monster", searchRequirements);
+		addAttributeRequirementIfChecked(R.id.search_monster_disease, "GIVES_DISEASE", "Monster", searchRequirements);
+		
+		Spinner monsterLevelSpinner = (Spinner)findViewById(R.id.search_monster_level);
+		String monsterLevel = (String)monsterLevelSpinner.getSelectedItem();
+		if(monsterLevel != null && !"Any".equals(monsterLevel)) {
+			List<String> values = new ArrayList<String>();
+			values.add(monsterLevel);
+			Requirement levelRequirement = Requirement.buildRequirement("MonsterLevel", "MonsterLevel", values, "Monster");
+			searchRequirements.add(levelRequirement);
+		}
+	}
+	
+	private void addHeroRequirements(List<Requirement> searchRequirements) {
+		
+	}
+	
+	private void addVillageRequirements(List<Requirement> searchRequirements) {
+		
+	}
+	
+	private void addAttributeRequirementIfChecked(int checkBoxId, String attributeName, String cardType,
+			List<Requirement> searchRequirements) {
+		CheckBox checkbox = (CheckBox)findViewById(checkBoxId);
+		if(checkbox.isChecked()) {
+			List<String> values = new ArrayList<String>();
+			values.add(attributeName);
+			Requirement requirement = Requirement.buildRequirement(attributeName, "HasAnyAttributes", values, cardType);
+			searchRequirements.add(requirement);
+		}
 	}
 	
 	@Override

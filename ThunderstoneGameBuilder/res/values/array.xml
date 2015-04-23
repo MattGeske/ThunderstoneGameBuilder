@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <array name="rule_types">
+    <string-array name="rule_types">
         <item>Original Thunderstone</item>
         <item>Thunderstone Advance</item>
         <item>Custom Rules</item>
-    </array>
+    </string-array>
     
-    <array name="rule_types_values">
+    <string-array name="rule_types_values">
         <item>@string/rule_type_original</item>
         <item>@string/rule_type_advance</item>
         <item>@string/rule_type_custom</item>
-    </array>
+    </string-array>
     
-    <array name="card_types">
+    <string-array name="card_types">
         <item>Monster</item>
         <item>Treasure</item>
         <item>Trap</item>
@@ -20,5 +20,12 @@
         <item>Thunderstone</item>
         <item>Hero</item>
         <item>Village</item>
-    </array>
+    </string-array>
+    
+    <string-array name="monster_levels">
+        <item>Any</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>

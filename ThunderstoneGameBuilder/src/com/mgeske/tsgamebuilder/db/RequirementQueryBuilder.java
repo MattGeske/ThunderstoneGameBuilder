@@ -22,6 +22,7 @@ import com.mgeske.tsgamebuilder.requirement.HasAnyAttributesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasStrengthRequirement;
 import com.mgeske.tsgamebuilder.requirement.LightweightEdgedWeaponRequirement;
+import com.mgeske.tsgamebuilder.requirement.MonsterLevelRequirement;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
 import com.mgeske.tsgamebuilder.requirement.SpecificCardTypeRequirement;
 
@@ -154,6 +155,8 @@ public abstract class RequirementQueryBuilder {
 			return new SpecificCardTypeRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof CardTextRequirement) {
 			return new CardTextRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof MonsterLevelRequirement) {
+			return new MonsterLevelRequirementQueryBuilder(chosenSets, requirement);
 		} else {
 			throw new RuntimeException("Unknown requirement type "+requirement.getClass());
 		}
@@ -414,6 +417,35 @@ class CardTextRequirementQueryBuilder extends RequirementQueryBuilder {
 		String searchText = "%"+cardTextRequirement.getSearchText()+"%";
 		return new String[]{searchText, searchText};
 	}
+}
+
+class MonsterLevelRequirementQueryBuilder extends RequirementQueryBuilder {
+
+	protected MonsterLevelRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getTableName() {
+		return "DungeonCard";
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return "DungeonCard._ID";
+	}
+
+	@Override
+	protected String getSelection() {
+		return "level = ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		MonsterLevelRequirement monsterLevelRequirement = (MonsterLevelRequirement)requirement;
+		return new String[]{Integer.toString(monsterLevelRequirement.getMonsterLevel())};
+	}
+	
 }
 
 class CardResultIterator implements Iterator<Card> {

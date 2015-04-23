@@ -61,6 +61,10 @@
     <string name="search_card_text_hint">Card Text</string>
     <string name="search_card_include_all_text">Include cards from all expansions</string>
     <string name="search_card_search_button_text">Search</string>
+    <string name="search_card_disease_text">Gives Disease</string>
+    <string name="search_monster_level_prompt">Monster Level</string>
+    <string name="search_monster_ambusher_text">Ambusher</string>
+    <string name="search_monster_doomladen_text">Doomladen</string>
     
     <!-- results screen -->
     <string name="results_modify_search_button_text">Modify Search</string>

@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,43 +6,129 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
     tools:context="com.mgeske.tsgamebuilder.SearchCardActivity" >
     
-    <LinearLayout
-        android:layout_width="fill_parent"
+    <TextView android:id="@+id/search_card_type_prompt"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_card_type_prompt"
-            />
-	    <Spinner android:id="@+id/search_card_type"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:entries="@array/card_types"
-	        android:prompt="@string/search_card_type_prompt"
-	        />
-    </LinearLayout>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/search_card_type"
+        android:layout_alignTop="@id/search_card_type"
+        android:layout_alignBottom="@id/search_card_type"
+        android:text="@string/search_card_type_prompt"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        />
+    <Spinner android:id="@id/search_card_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/search_card_type_prompt"
+        android:layout_alignParentTop="true"
+        android:entries="@array/card_types"
+        android:prompt="@string/search_card_type_prompt"
+        />
     
+    
+	<View android:id="@+id/card_type_divider" style="@style/Divider" android:layout_below="@id/search_card_type_prompt"/>
+	
     <EditText android:id="@+id/card_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/card_type_divider"
+        android:layout_alignParentLeft="true"
         android:inputType="text"
         android:hint="@string/search_card_text_hint"
         />
     
+    <!-- Begin cardType-specific search fields (hidden by default) -->
+    <!-- Monster card -->
+    <RelativeLayout android:id="@+id/search_monster_fields"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_text"
+        android:layout_alignParentLeft="true"
+        android:visibility="gone" >
+        
+        <TextView android:id="@+id/search_monster_level_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignBaseline="@+id/search_monster_level"
+            android:layout_alignTop="@id/search_monster_level"
+            android:layout_alignBottom="@id/search_monster_level"
+            android:text="@string/search_monster_level_prompt"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            />
+	    <Spinner android:id="@id/search_monster_level"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+	        android:layout_toRightOf="@id/search_monster_level_label"
+	        android:entries="@array/monster_levels"
+	        android:prompt="@string/search_monster_level_prompt"
+	        />
+	    
+	    <CheckBox android:id="@+id/search_monster_ambusher"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_monster_level_label"
+	        android:text="@string/search_monster_ambusher_text"
+	        android:checked="false"/>
+	    
+	    <CheckBox android:id="@+id/search_monster_doomladen"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_monster_ambusher"
+	        android:text="@string/search_monster_doomladen_text"
+	        android:checked="false"/>
+	    
+	    
+	    <CheckBox android:id="@+id/search_monster_disease"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_monster_doomladen"
+	        android:text="@string/search_card_disease_text"
+	        android:checked="false"/>
+	    
+	</RelativeLayout>
+        
+    
+    <RelativeLayout android:id="@+id/search_hero_fields"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_monster_fields"
+        android:layout_alignParentLeft="true"
+        android:visibility="gone" >
+	    
+    </RelativeLayout>
+    
+    <RelativeLayout android:id="@+id/search_village_fields"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_hero_fields"
+        android:layout_alignParentLeft="true"
+        android:visibility="gone">
+        
+    </RelativeLayout>
+    <!-- End cardType-specific search fields -->
+    
+	<View android:id="@+id/specific_fields_divider" style="@style/Divider" android:layout_below="@id/search_village_fields"/>
+    
     <CheckBox android:id="@+id/include_all_sets"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/specific_fields_divider"
+        android:layout_alignParentLeft="true"
         android:text="@string/search_card_include_all_text"
         android:checked="false"/>
     
     <Button android:id="@+id/search_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/include_all_sets"
+        android:layout_alignParentLeft="true"
         android:text="@string/search_card_search_button_text"
         />
 
-</LinearLayout>
+</RelativeLayout>

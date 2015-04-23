@@ -31,6 +31,8 @@ public abstract class Requirement {
 			return new SpecificCardTypeRequirement(requirementName, requiredOn, values);
 		} else if("CardText".equals(requirementType)) {
 			return new CardTextRequirement(requirementName, requiredOn, values);
+		} else if("MonsterLevel".equals(requirementType)) {
+			return new MonsterLevelRequirement(requirementName, requiredOn, values);
 		} else {
 			throw new RuntimeException("Unknown requirement type: "+requirementType);
 		}
