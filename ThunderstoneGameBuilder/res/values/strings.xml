@@ -58,13 +58,20 @@
     
     <!-- search screen -->
     <string name="search_card_type_prompt">Card Type</string>
-    <string name="search_card_text_hint">Card Text</string>
+    <string name="search_card_text_hint">Card Name/Text</string>
     <string name="search_card_include_all_text">Include cards from all expansions</string>
     <string name="search_card_search_button_text">Search</string>
     <string name="search_card_disease_text">Gives Disease</string>
     <string name="search_monster_level_prompt">Monster Level</string>
     <string name="search_monster_ambusher_text">Ambusher</string>
     <string name="search_monster_doomladen_text">Doomladen</string>
+    <string name="search_hero_race_prompt">Race</string>
+    <string name="search_hero_class_prompt">Class</string>
+    <string name="search_hero_strength_hint">Minimum Strength</string>
+    <string name="search_hero_light_text">Provides Light</string>
+    <string name="search_hero_magic_attack_text">Has Magic Attack</string>
+    <string name="search_hero_physical_attack_text">Has Physical Attack</string>
+    <string name="search_hero_removes_disease_text">Removes Disease</string>
     
     <!-- results screen -->
     <string name="results_modify_search_button_text">Modify Search</string>

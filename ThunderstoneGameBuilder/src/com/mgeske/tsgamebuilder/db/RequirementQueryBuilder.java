@@ -20,6 +20,7 @@ import com.mgeske.tsgamebuilder.requirement.CardTypeRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAllClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyAttributesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyClassesRequirement;
+import com.mgeske.tsgamebuilder.requirement.HasRaceRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasStrengthRequirement;
 import com.mgeske.tsgamebuilder.requirement.LightweightEdgedWeaponRequirement;
 import com.mgeske.tsgamebuilder.requirement.MonsterLevelRequirement;
@@ -147,6 +148,8 @@ public abstract class RequirementQueryBuilder {
 			return new HasAllClassesRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasStrengthRequirement) {
 			return new HasStrengthRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof HasRaceRequirement) {
+			return new HasRaceRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof LightweightEdgedWeaponRequirement) {
 			return new LightweightEdgedWeaponRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof CardTypeRequirement) {
@@ -294,7 +297,7 @@ class HasStrengthRequirementQueryBuilder extends RequirementQueryBuilder {
 
 	@Override
 	protected String getSelection() {
-		return "strength=?";
+		return "strength >= ?";
 	}
 
 	@Override
@@ -302,6 +305,33 @@ class HasStrengthRequirementQueryBuilder extends RequirementQueryBuilder {
 		HasStrengthRequirement strengthRequirement = (HasStrengthRequirement)requirement;
 		int strength = strengthRequirement.getStrength();
 		return new String[]{Integer.toString(strength)};
+	}
+}
+
+class HasRaceRequirementQueryBuilder extends RequirementQueryBuilder {
+	protected HasRaceRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return "HeroCard._ID";
+	}
+	
+	@Override
+	protected String getTableName() {
+		return "HeroCard";
+	}
+
+	@Override
+	protected String getSelection() {
+		return "race = ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		HasRaceRequirement raceRequirement = (HasRaceRequirement)requirement;
+		return new String[]{raceRequirement.getRace()};
 	}
 }
 

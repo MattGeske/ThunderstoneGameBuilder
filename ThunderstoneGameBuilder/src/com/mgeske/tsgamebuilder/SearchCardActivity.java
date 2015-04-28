@@ -84,7 +84,7 @@ public class SearchCardActivity extends Activity {
 		//search card type specific fields
 		addCardTypeSpecificRequirements(cardType, searchRequirements);
 		//search card text if specified
-		if(cardSearchText != null && !"".equals(cardSearchText)) {
+		if(!"".equals(cardSearchText)) {
 			List<String> requirementValues = new ArrayList<String>();
 			requirementValues.add(cardSearchText);
 			searchRequirements.add(Requirement.buildRequirement("CardText", "CardText", requirementValues, cardType));
@@ -150,8 +150,8 @@ public class SearchCardActivity extends Activity {
 		addAttributeRequirementIfChecked(R.id.search_monster_disease, "GIVES_DISEASE", "Monster", searchRequirements);
 		
 		Spinner monsterLevelSpinner = (Spinner)findViewById(R.id.search_monster_level);
-		String monsterLevel = (String)monsterLevelSpinner.getSelectedItem();
-		if(monsterLevel != null && !"Any".equals(monsterLevel)) {
+		String monsterLevel = ((String)monsterLevelSpinner.getSelectedItem()).replaceAll("[^\\d]", "");
+		if(monsterLevelSpinner.getSelectedItemPosition() > 0) {
 			List<String> values = new ArrayList<String>();
 			values.add(monsterLevel);
 			Requirement levelRequirement = Requirement.buildRequirement("MonsterLevel", "MonsterLevel", values, "Monster");
@@ -160,7 +160,38 @@ public class SearchCardActivity extends Activity {
 	}
 	
 	private void addHeroRequirements(List<Requirement> searchRequirements) {
+		//order of most specific to least specific: removes disease, provides light, magic attack, class, race, physical attack, strength
+		addAttributeRequirementIfChecked(R.id.search_hero_removes_disease, "REMOVES_DISEASE", "Hero", searchRequirements);
+		addAttributeRequirementIfChecked(R.id.search_hero_light, "HAS_LIGHT", "Hero", searchRequirements);
+		addAttributeRequirementIfChecked(R.id.search_hero_magic_attack, "HAS_MAGIC_ATTACK", "Hero", searchRequirements);
 		
+		Spinner heroClassSpinner = (Spinner)findViewById(R.id.search_hero_class);
+		if(heroClassSpinner.getSelectedItemPosition() > 0) {
+			String heroClass = (String)heroClassSpinner.getSelectedItem();
+			List<String> values = new ArrayList<String>();
+			values.add(heroClass);
+			Requirement heroClassRequirement = Requirement.buildRequirement("heroClass", "HasAllClasses", values, "Hero");
+			searchRequirements.add(heroClassRequirement);
+		}
+		Spinner heroRaceSpinner = (Spinner)findViewById(R.id.search_hero_race);
+		if(heroRaceSpinner.getSelectedItemPosition() > 0) {
+			String heroRace = (String)heroRaceSpinner.getSelectedItem();
+			List<String> values = new ArrayList<String>();
+			values.add(heroRace);
+			Requirement heroRaceRequirement = Requirement.buildRequirement("heroRace", "HasRace", values, "Hero");
+			searchRequirements.add(heroRaceRequirement);
+		}
+
+		addAttributeRequirementIfChecked(R.id.search_hero_physical_attack, "HAS_PHYSICAL_ATTACK", "Hero", searchRequirements);
+		
+		EditText strengthSearchField = (EditText)findViewById(R.id.search_hero_strength);
+		String strengthSearchText = strengthSearchField.getText().toString().trim();
+		if(!"".equals(strengthSearchText)) {
+			List<String> values = new ArrayList<String>();
+			values.add(strengthSearchText);
+			Requirement heroStrengthRequirement = Requirement.buildRequirement("heroStrength", "HasStrength", values, "Hero");
+			searchRequirements.add(heroStrengthRequirement);
+		}
 	}
 	
 	private void addVillageRequirements(List<Requirement> searchRequirements) {

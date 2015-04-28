@@ -49,30 +49,18 @@
         android:layout_alignParentLeft="true"
         android:visibility="gone" >
         
-        <TextView android:id="@+id/search_monster_level_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignBaseline="@+id/search_monster_level"
-            android:layout_alignTop="@id/search_monster_level"
-            android:layout_alignBottom="@id/search_monster_level"
-            android:text="@string/search_monster_level_prompt"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            />
-	    <Spinner android:id="@id/search_monster_level"
+	    <Spinner android:id="@+id/search_monster_level"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-	        android:layout_toRightOf="@id/search_monster_level_label"
+            android:layout_alignParentLeft="true"
 	        android:entries="@array/monster_levels"
-	        android:prompt="@string/search_monster_level_prompt"
-	        />
+	        android:prompt="@string/search_monster_level_prompt"/>
 	    
 	    <CheckBox android:id="@+id/search_monster_ambusher"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@id/search_monster_level_label"
+	        android:layout_below="@id/search_monster_level"
 	        android:text="@string/search_monster_ambusher_text"
 	        android:checked="false"/>
 	    
@@ -101,6 +89,57 @@
         android:layout_alignParentLeft="true"
         android:visibility="gone" >
 	    
+	    <Spinner android:id="@+id/search_hero_race"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+	        android:layout_alignParentLeft="true"
+	        android:entries="@array/hero_races"
+	        android:prompt="@string/search_hero_race_prompt"/>
+	    
+	    <Spinner android:id="@+id/search_hero_class"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_toRightOf="@id/search_hero_race"
+	        android:entries="@array/hero_classes"
+	        android:prompt="@string/search_hero_class_prompt"/>
+	    
+	    <EditText android:id="@+id/search_hero_strength"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+            android:layout_below="@id/search_hero_race"
+	        android:hint="@string/search_hero_strength_hint"
+	        android:inputType="number"/>
+	    
+	    <CheckBox android:id="@+id/search_hero_light"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_hero_strength"
+	        android:text="@string/search_hero_light_text"
+	        android:checked="false"/>
+	    
+	    <CheckBox android:id="@+id/search_hero_magic_attack"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_hero_light"
+	        android:text="@string/search_hero_magic_attack_text"
+	        android:checked="false"/>
+	    
+	    <CheckBox android:id="@+id/search_hero_physical_attack"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_hero_magic_attack"
+	        android:text="@string/search_hero_physical_attack_text"
+	        android:checked="false"/>
+	    
+	    <CheckBox android:id="@+id/search_hero_removes_disease"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_hero_physical_attack"
+	        android:text="@string/search_hero_removes_disease_text"
+	        android:checked="false"/>
+	    
+	    <!-- TODO: add checkbox for lvl 4 heroes? (not in db) -->
     </RelativeLayout>
     
     <RelativeLayout android:id="@+id/search_village_fields"

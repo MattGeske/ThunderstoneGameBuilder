@@ -23,6 +23,8 @@ public abstract class Requirement {
 			return new HasAllClassesRequirement(requirementName, requiredOn, values);
 		} else if("HasStrength".equals(requirementType)) {
 			return new HasStrengthRequirement(requirementName, requiredOn, values);
+		} else if("HasRace".equals(requirementType)) {
+			return new HasRaceRequirement(requirementName, requiredOn, values);
 		} else if("LightweightEdgedWeapon".equals(requirementType)) {
 			return new LightweightEdgedWeaponRequirement(requirementName, requiredOn, values);
 		} else if("CardType".equals(requirementType)) {
