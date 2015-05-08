@@ -23,6 +23,8 @@ public abstract class Requirement {
 			return new HasAllClassesRequirement(requirementName, requiredOn, values);
 		} else if("HasStrength".equals(requirementType)) {
 			return new HasStrengthRequirement(requirementName, requiredOn, values);
+		} else if("HasWeight".equals(requirementType)) {
+			return new HasWeightRequirement(requirementName, requiredOn, values);
 		} else if("HasRace".equals(requirementType)) {
 			return new HasRaceRequirement(requirementName, requiredOn, values);
 		} else if("LightweightEdgedWeapon".equals(requirementType)) {
@@ -35,6 +37,10 @@ public abstract class Requirement {
 			return new CardTextRequirement(requirementName, requiredOn, values);
 		} else if("MonsterLevel".equals(requirementType)) {
 			return new MonsterLevelRequirement(requirementName, requiredOn, values);
+		} else if("CardCost".equals(requirementType)) {
+			return new CardCostRequirement(requirementName, requiredOn, values);
+		} else if("CardValue".equals(requirementType)) {
+			return new CardValueRequirement(requirementName, requiredOn, values);
 		} else {
 			throw new RuntimeException("Unknown requirement type: "+requirementType);
 		}

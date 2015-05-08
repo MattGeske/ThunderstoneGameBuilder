@@ -47,4 +47,25 @@
 		<item>Thief</item>
 		<item>Wizard</item>
     </string-array>
+    
+    <string-array name="village_classes">
+        <item>Attack</item>
+		<item>Auxiliary</item>
+		<item>Blunt</item>
+		<item>Bow</item>
+		<item>Edged</item>
+		<item>Food</item>
+		<item>Hero</item>
+		<item>Item</item>
+		<item>Light</item>
+		<item>Magic</item>
+		<item>Mercenary</item>
+		<item>Militia</item>
+		<item>Polearm</item>
+		<item>Spell</item>
+		<item>Support</item>
+		<item>Thief</item>
+		<item>Villager</item>
+		<item>Weapon</item>
+    </string-array>
 </resources>

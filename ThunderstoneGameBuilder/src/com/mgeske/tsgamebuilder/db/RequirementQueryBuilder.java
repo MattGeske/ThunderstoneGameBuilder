@@ -15,13 +15,16 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import com.mgeske.tsgamebuilder.db.CardBuilder;
 import com.mgeske.tsgamebuilder.card.Card;
 import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.requirement.CardCostRequirement;
 import com.mgeske.tsgamebuilder.requirement.CardTextRequirement;
 import com.mgeske.tsgamebuilder.requirement.CardTypeRequirement;
+import com.mgeske.tsgamebuilder.requirement.CardValueRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAllClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyAttributesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasAnyClassesRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasRaceRequirement;
 import com.mgeske.tsgamebuilder.requirement.HasStrengthRequirement;
+import com.mgeske.tsgamebuilder.requirement.HasWeightRequirement;
 import com.mgeske.tsgamebuilder.requirement.LightweightEdgedWeaponRequirement;
 import com.mgeske.tsgamebuilder.requirement.MonsterLevelRequirement;
 import com.mgeske.tsgamebuilder.requirement.Requirement;
@@ -148,6 +151,8 @@ public abstract class RequirementQueryBuilder {
 			return new HasAllClassesRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasStrengthRequirement) {
 			return new HasStrengthRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof HasWeightRequirement) {
+			return new HasWeightRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof HasRaceRequirement) {
 			return new HasRaceRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof LightweightEdgedWeaponRequirement) {
@@ -160,6 +165,10 @@ public abstract class RequirementQueryBuilder {
 			return new CardTextRequirementQueryBuilder(chosenSets, requirement);
 		} else if(requirement instanceof MonsterLevelRequirement) {
 			return new MonsterLevelRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof CardCostRequirement) {
+			return new CardCostRequirementQueryBuilder(chosenSets, requirement);
+		} else if(requirement instanceof CardValueRequirement) {
+			return new CardValueRequirementQueryBuilder(chosenSets, requirement);
 		} else {
 			throw new RuntimeException("Unknown requirement type "+requirement.getClass());
 		}
@@ -305,6 +314,34 @@ class HasStrengthRequirementQueryBuilder extends RequirementQueryBuilder {
 		HasStrengthRequirement strengthRequirement = (HasStrengthRequirement)requirement;
 		int strength = strengthRequirement.getStrength();
 		return new String[]{Integer.toString(strength)};
+	}
+}
+
+class HasWeightRequirementQueryBuilder extends RequirementQueryBuilder {
+	protected HasWeightRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return "VillageCard._ID";
+	}
+	
+	@Override
+	protected String getTableName() {
+		return "VillageCard";
+	}
+
+	@Override
+	protected String getSelection() {
+		return "weight is not null and weight = ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		HasWeightRequirement weightRequirement = (HasWeightRequirement)requirement;
+		int weight = weightRequirement.getWeight();
+		return new String[]{Integer.toString(weight)};
 	}
 }
 
@@ -476,6 +513,60 @@ class MonsterLevelRequirementQueryBuilder extends RequirementQueryBuilder {
 		return new String[]{Integer.toString(monsterLevelRequirement.getMonsterLevel())};
 	}
 	
+}
+
+class CardCostRequirementQueryBuilder extends RequirementQueryBuilder {
+	protected CardCostRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getTableName() {
+		return "VillageCard";
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return "VillageCard._ID";
+	}
+
+	@Override
+	protected String getSelection() {
+		return "goldCost = ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		CardCostRequirement cardCostRequirement = (CardCostRequirement)requirement;
+		return new String[]{Integer.toString(cardCostRequirement.getCost())};
+	}
+}
+
+class CardValueRequirementQueryBuilder extends RequirementQueryBuilder {
+	protected CardValueRequirementQueryBuilder(String[] chosenSets, Requirement requirement) {
+		super(chosenSets, requirement);
+	}
+
+	@Override
+	protected String getTableName() {
+		return "VillageCard";
+	}
+
+	@Override
+	protected String getCardIdColumn() {
+		return "VillageCard._ID";
+	}
+
+	@Override
+	protected String getSelection() {
+		return "goldValue = ?";
+	}
+
+	@Override
+	protected String[] getSelectionArgs() {
+		CardValueRequirement cardValueRequirement = (CardValueRequirement)requirement;
+		return new String[]{Integer.toString(cardValueRequirement.getValue())};
+	}
 }
 
 class CardResultIterator implements Iterator<Card> {

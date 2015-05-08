@@ -68,10 +68,16 @@
     <string name="search_hero_race_prompt">Race</string>
     <string name="search_hero_class_prompt">Class</string>
     <string name="search_hero_strength_hint">Minimum Strength</string>
-    <string name="search_hero_light_text">Provides Light</string>
-    <string name="search_hero_magic_attack_text">Has Magic Attack</string>
-    <string name="search_hero_physical_attack_text">Has Physical Attack</string>
-    <string name="search_hero_removes_disease_text">Removes Disease</string>
+    <string name="search_card_light_text">Provides Light</string>
+    <string name="search_card_magic_attack_text">Has Magic Attack</string>
+    <string name="search_card_physical_attack_text">Has Physical Attack</string>
+    <string name="search_card_removes_disease_text">Removes Disease</string>
+    <string name="search_village_cost_hint">Cost</string>
+    <string name="search_village_value_hint">Value</string>
+    <string name="search_village_weight_hint">Weight</string>
+    <string name="search_village_strength_text">Increases Hero Strength</string>
+    <string name="search_village_additional_buys_text">Allows you to buy an extra card</string>
+    <string name="search_village_destroys_cards_text">Allows you to destroy cards</string>
     
     <!-- results screen -->
     <string name="results_modify_search_button_text">Modify Search</string>
