@@ -14,6 +14,12 @@
     <string name="new_game_button_text">New Game</string>
     <string name="load_game_button_text">Load Game</string>
     
+    <!-- help info -->
+    <string name="help_random_card">Add a new random card</string>
+    <string name="help_search">Search for a card</string>
+    <string name="help_new_game">Generate a new random game</string>
+    <string name="help_load_game">Load a saved or preset game</string>
+    
     <!-- card list -->
     <string name="dungeon_cards_header">DUNGEON</string>
     <string name="guardian_cards_header">GUARDIAN</string>

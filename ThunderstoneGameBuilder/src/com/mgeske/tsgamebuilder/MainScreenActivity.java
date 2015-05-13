@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
@@ -37,10 +38,7 @@ public class MainScreenActivity extends ActionBarActivity {
 	private final int CONTEXT_MENU_CARD_DETAILS = 2;
 	private SmartRandomizer randomizer = null;
 	private CardDatabase cardDb = null;
-	private MenuItem addCardButton = null;
-	private MenuItem searchCardButton = null;
-	private MenuItem newGameButton = null;
-	private MenuItem loadGameButton = null;
+	private Menu actionMenu = null;
 	private boolean userHasChosenSets = true;
 	private ListView cardListView = null;
 	private CardListAdapter cardListAdapter = null;
@@ -56,7 +54,20 @@ public class MainScreenActivity extends ActionBarActivity {
 				openChooseSets();
 			}
         });
+        
+
+        CardList cardList = new CardList(null, null);
+        cardListAdapter = new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList);
+        cardListAdapter.registerDataSetObserver(new DataSetObserver() {
+			@Override
+			public void onChanged() {
+				super.onChanged();
+				chooseView();
+			}
+		});
+        
         cardListView = (ListView)findViewById(R.id.card_list);
+        cardListView.setAdapter(cardListAdapter);
         cardListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,25 +113,9 @@ public class MainScreenActivity extends ActionBarActivity {
     	super.onResume();
         String[] chosenSets = Util.getChosenSets(this);
     	userHasChosenSets = (chosenSets.length > 0);
-        if(userHasChosenSets) {
-        	cardListView.setVisibility(View.VISIBLE);
-        	findViewById(R.id.no_sets_warning).setVisibility(View.INVISIBLE);
-        	if(newGameButton != null) {
-        		newGameButton.setEnabled(true);
-        	}
-        	if(loadGameButton != null) {
-        		loadGameButton.setEnabled(true);
-        	}
-        } else {
-        	cardListView.setVisibility(View.INVISIBLE);
-        	findViewById(R.id.no_sets_warning).setVisibility(View.VISIBLE);
-        	if(newGameButton != null) {
-        		newGameButton.setEnabled(false);
-        	}
-        	if(loadGameButton != null) {
-        		loadGameButton.setEnabled(false);
-        	}
-        }
+    	if(actionMenu != null) {
+    		actionMenu.setGroupEnabled(R.id.set_dependent_actions, userHasChosenSets);
+    	}
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if(preferences.getBoolean("keep_screen_on", false)) {
@@ -135,11 +130,11 @@ public class MainScreenActivity extends ActionBarActivity {
         if(randomizer == null) {
         	randomizer = new SmartRandomizer(cardDb);
         }
+        chooseView();
     }
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		
 		super.onSaveInstanceState(outState);
 	}
 	
@@ -189,12 +184,8 @@ public class MainScreenActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_screen, menu);
-        addCardButton = menu.findItem(R.id.action_addcard);
-        searchCardButton = menu.findItem(R.id.action_searchcard);
-        newGameButton = menu.findItem(R.id.action_newgame);
-        loadGameButton = menu.findItem(R.id.action_loadgame);
-    	newGameButton.setEnabled(userHasChosenSets);
-    	loadGameButton.setEnabled(userHasChosenSets);
+        actionMenu = menu;
+        actionMenu.setGroupEnabled(R.id.set_dependent_actions, userHasChosenSets);
         return true;
     }
 
@@ -237,10 +228,7 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     private void displayGame(CardList cardList) {
-    	cardListAdapter = new CardListAdapter(this, R.layout.card_list_item, R.id.card_name, R.id.card_type, R.id.card_set, R.layout.card_header_item, R.id.header_name, cardList);
-		cardListView.setAdapter(cardListAdapter);
-		addCardButton.setVisible(true);
-		searchCardButton.setVisible(true);
+    	cardListAdapter.setCardList(cardList);
     }
     
     private void loadGame() {
@@ -255,6 +243,30 @@ public class MainScreenActivity extends ActionBarActivity {
 			CardInformationDialog dialog = CardInformationDialog.getCardInformationDialog(card);
 			dialog.show(getSupportFragmentManager(), "CardInformationDialog");
 		}
+    }
+    
+    private void chooseView() {
+    	//if the user has not chosen any expansions yet, show the Choose Expansions button
+    	//if the user has loaded/generated/created a game, show the card list
+    	//otherwise show the help info
+    	View chosenView;
+    	View[] viewChoices = {
+    			findViewById(R.id.choose_sets_button),
+    			findViewById(R.id.card_list),
+    			findViewById(R.id.help_info),
+    	};
+    	if(!userHasChosenSets) {
+    		chosenView = viewChoices[0];
+    	} else if(this.cardListAdapter.getCount() > 0) {
+    		chosenView = viewChoices[1];
+    	} else {
+    		chosenView = viewChoices[2];
+    	}
+    	
+    	for(View view : viewChoices) {
+    		view.setVisibility(View.INVISIBLE);
+    	}
+    	chosenView.setVisibility(View.VISIBLE);
     }
     
     private void showAddCardContext() {

@@ -3,31 +3,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mgeske.tsgamebuilder.MainScreenActivity" >
     
-    <item android:id="@+id/action_addcard"
-          android:icon="@drawable/ic_action_new"
-          android:title="@string/add_card_button_text"
-          android:visible="false"
-          app:showAsAction="ifRoom"
-          />
-    
-    <item android:id="@+id/action_searchcard"
-          android:icon="@drawable/ic_action_search"
-          android:title="@string/search_card_button_text"
-          android:visible="false"
-          app:showAsAction="ifRoom"
-          />
-    
-    <item android:id="@+id/action_newgame"
-          android:icon="@drawable/ic_action_refresh"
-          android:title="@string/new_game_button_text"
-          app:showAsAction="ifRoom"  
-          />
-    
-    <item android:id="@+id/action_loadgame"
-          android:icon="@drawable/ic_action_collection"
-          android:title="@string/load_game_button_text"
-          app:showAsAction="ifRoom"
-          />
+    <group android:id="@+id/set_dependent_actions">
+	    <item android:id="@+id/action_addcard"
+	          android:icon="@drawable/ic_action_new"
+	          android:title="@string/add_card_button_text"
+	          app:showAsAction="always"
+	          />
+	    
+	    <item android:id="@+id/action_searchcard"
+	          android:icon="@drawable/ic_action_search"
+	          android:title="@string/search_card_button_text"
+	          app:showAsAction="always"
+	          />
+	    
+	    <item android:id="@+id/action_newgame"
+	          android:icon="@drawable/ic_action_refresh"
+	          android:title="@string/new_game_button_text"
+	          app:showAsAction="always"  
+	          />
+	    
+	    <item android:id="@+id/action_loadgame"
+	          android:icon="@drawable/ic_action_collection"
+	          android:title="@string/load_game_button_text"
+	          app:showAsAction="always"
+	          />
+	</group>
     
     <item
         android:id="@+id/action_settings"

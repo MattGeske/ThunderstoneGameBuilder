@@ -6,23 +6,73 @@
     tools:context="com.mgeske.tsgamebuilder.MainScreenActivity"
     tools:ignore="MergeRootFrame"
     android:background="@drawable/thunderstone">
-    
-    <LinearLayout
-        android:id="@+id/no_sets_warning"
-        android:visibility="invisible"
-        android:layout_centerVertical="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
         
 	    <Button
 	        android:id="@+id/choose_sets_button" 
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/action_choosesets"
-        />
-    </LinearLayout>
+        	android:layout_centerInParent="true"
+	        android:text="@string/action_choosesets" />
+    
+    <RelativeLayout
+        android:id="@+id/help_info"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:background="@android:drawable/screen_background_dark_transparent">
+	    <ImageView android:id="@+id/new_button_image"
+	        android:src="@drawable/ic_action_new"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:contentDescription="@string/add_card_button_text"/>
+	    <TextView android:text="@string/help_random_card"
+	        style="@android:style/TextAppearance.Medium"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_toRightOf="@id/new_button_image"
+	        android:layout_alignTop="@id/new_button_image"
+	        android:layout_alignBottom="@id/new_button_image"/>
+	    <ImageView android:id="@+id/search_button_image"
+	        android:src="@drawable/ic_action_search"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/new_button_image"
+	        android:contentDescription="@string/search_card_button_text"/>
+	    <TextView android:text="@string/help_search"
+	        style="@android:style/TextAppearance.Medium"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_toRightOf="@id/search_button_image"
+	        android:layout_alignTop="@id/search_button_image"
+	        android:layout_alignBottom="@id/search_button_image"/>
+        <ImageView android:id="@+id/random_button_image"
+            android:src="@drawable/ic_action_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/search_button_image"
+            android:contentDescription="@string/search_card_button_text"/>
+        <TextView android:text="@string/help_new_game"
+            style="@android:style/TextAppearance.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/random_button_image"
+	        android:layout_alignTop="@id/random_button_image"
+	        android:layout_alignBottom="@id/random_button_image"/>
+        <ImageView android:id="@+id/load_button_image"
+            android:src="@drawable/ic_action_collection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/random_button_image"
+            android:contentDescription="@string/search_card_button_text"/>
+        <TextView android:text="@string/help_load_game"
+            style="@android:style/TextAppearance.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/load_button_image"
+	        android:layout_alignTop="@id/load_button_image"
+	        android:layout_alignBottom="@id/load_button_image"/>
+            
+    </RelativeLayout>
     
 	<ListView
         android:id="@+id/card_list"

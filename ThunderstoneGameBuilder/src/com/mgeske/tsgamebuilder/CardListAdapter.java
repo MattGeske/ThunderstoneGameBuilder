@@ -61,6 +61,12 @@ public class CardListAdapter extends BaseAdapter {
 		}
 	}
 	
+	public void setCardList(CardList cardList) {
+		this.cardList = cardList;
+		initItemList();
+		notifyDataSetChanged();
+	}
+	
 	public boolean addCard(Card card) {
 		if(cardList.addCard(card, false)) {
 			initItemList();
