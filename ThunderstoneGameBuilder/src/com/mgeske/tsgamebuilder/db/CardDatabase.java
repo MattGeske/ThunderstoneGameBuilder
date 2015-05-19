@@ -10,10 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 
 import com.mgeske.tsgamebuilder.SavedGame;
 import com.mgeske.tsgamebuilder.Util;
@@ -127,6 +130,45 @@ public class CardDatabase extends SQLiteAssetHelper {
 		SQLiteDatabase db = getReadableDatabase();
 		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements(), includeAllSets);
 	}
+	
+	public long getSavedGameId(String gameName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteStatement statement = db.compileStatement("SELECT _ID FROM SavedGame WHERE source = 'user' and gameName = ?");
+		statement.bindString(1, gameName);
+		long savedGameId;
+		try {
+			savedGameId = statement.simpleQueryForLong();
+		} catch(SQLiteDoneException e) {
+			return -1;
+		}
+		return savedGameId;
+	}
+
+	public void saveCurrentGame(String gameName, CardList cardList) {
+		SQLiteDatabase db = getReadableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("source", "user");
+		values.put("gameName", gameName);
+		long savedGameId = db.insert("SavedGame", null, values);
+		
+		values.clear();
+		values.put("savedGameId", savedGameId);
+		
+		addCardsToSavedGame("DungeonCard", cardList.getDungeonCards(), db, values);
+		addCardsToSavedGame("DungeonBossCard", cardList.getGuardianCards(), db, values);
+		addCardsToSavedGame("DungeonBossCard", cardList.getThunderstoneCards(), db, values);
+		addCardsToSavedGame("HeroCard", cardList.getHeroCards(), db, values);
+		addCardsToSavedGame("VillageCard", cardList.getVillageCards(), db, values);
+	}
+	
+	private void addCardsToSavedGame(String cardTableName, List<? extends Card> cards, SQLiteDatabase db, 
+			ContentValues values) {
+		values.put("cardTableName", cardTableName);
+		for(Card card : cards) {
+			values.put("cardId", card.getCardId());
+			db.insert("Card_SavedGame", null, values);
+		}
+	}
 
 	public List<SavedGame> getSavedGames() {
 		String[] columns = {"_ID", "gameName"};
@@ -231,6 +273,13 @@ public class CardDatabase extends SQLiteAssetHelper {
 				c.close();
 			}
 		}
+	}
+
+	public void deleteSavedGame(long savedGameId) {
+		SQLiteDatabase db = getReadableDatabase();
+		String[] args = {Long.toString(savedGameId)};
+		db.delete("SavedGame", "_ID = ?", args);
+		db.delete("Card_SavedGame", "savedGameId = ?", args);
 	}
 }
 

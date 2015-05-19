@@ -12,12 +12,14 @@
     <string name="add_card_button_text">Add Card</string>
     <string name="search_card_button_text">Search For Card</string>
     <string name="new_game_button_text">New Game</string>
+    <string name="save_game_button_text">Save Game</string>
     <string name="load_game_button_text">Load Game</string>
     
     <!-- help info -->
     <string name="help_random_card">Add a new random card</string>
     <string name="help_search">Search for a card</string>
     <string name="help_new_game">Generate a new random game</string>
+    <string name="help_save_game">Save the currently shown game</string>
     <string name="help_load_game">Load a saved or preset game</string>
     
     <!-- card list -->

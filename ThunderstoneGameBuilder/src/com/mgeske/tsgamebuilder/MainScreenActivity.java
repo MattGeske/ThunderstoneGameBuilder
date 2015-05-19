@@ -10,7 +10,9 @@ import com.mgeske.tsgamebuilder.db.CardDatabase;
 import com.mgeske.tsgamebuilder.randomizer.SmartRandomizer;
 
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,10 +25,11 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -48,7 +51,7 @@ public class MainScreenActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
 
-        findViewById(R.id.choose_sets_button).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.choose_sets_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				openChooseSets();
@@ -68,7 +71,7 @@ public class MainScreenActivity extends ActionBarActivity {
         
         cardListView = (ListView)findViewById(R.id.card_list);
         cardListView.setAdapter(cardListAdapter);
-        cardListView.setOnItemClickListener(new OnItemClickListener() {
+        cardListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				viewCardDetails(position);
@@ -201,6 +204,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			case R.id.action_loadgame: loadGame(); return true;
 			case R.id.action_addcard: showAddCardContext(); return true;
 			case R.id.action_searchcard: showSearchCardActivity(); return true;
+			case R.id.action_savegame: openSaveGameDialog(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
@@ -229,6 +233,86 @@ public class MainScreenActivity extends ActionBarActivity {
     
     private void displayGame(CardList cardList) {
     	cardListAdapter.setCardList(cardList);
+    }
+    
+    private void openSaveGameDialog() {
+    	final EditText gameNameTextBox = new EditText(this);
+    	gameNameTextBox.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+    	gameNameTextBox.setHint("Game Name");
+    	
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Save current game");
+    	builder.setView(gameNameTextBox);
+    	builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String gameName = gameNameTextBox.getText().toString();
+				saveGame(gameName, false);
+			}
+		});
+    	builder.setNegativeButton("Cancel", null);
+
+		final AlertDialog dialog = builder.create();
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialogInterface) {
+				Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+				b.setEnabled(false);
+			}
+		});
+		
+    	gameNameTextBox.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+				if(s.length() > 0) {
+					b.setEnabled(true);
+				} else {
+					b.setEnabled(false);
+				}
+			}
+    	});
+    	
+    	dialog.show();
+    }
+    
+    private void openOverwriteGameDialog(final String gameName) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Save current game");
+		builder.setMessage("A game with the name '"+gameName+"' already exists. Overwrite?");
+		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				saveGame(gameName, true);
+			}
+		});
+		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				openSaveGameDialog();
+			}
+		});
+		builder.show();
+    }
+    
+    private void saveGame(String gameName, boolean overwrite) {
+    	long savedGameId = cardDb.getSavedGameId(gameName);
+    	if(savedGameId >= 0) {
+    		if(!overwrite) {
+	    		openOverwriteGameDialog(gameName);
+	    		return;
+    		} else {
+    			cardDb.deleteSavedGame(savedGameId);
+    		}
+    	}
+    	
+    	cardDb.saveCurrentGame(gameName, cardListAdapter.getCardList());
     }
     
     private void loadGame() {

@@ -22,6 +22,12 @@
 	          app:showAsAction="always"  
 	          />
 	    
+	    <item android:id="@+id/action_savegame"
+	          android:icon="@drawable/ic_action_save"
+	          android:title="@string/save_game_button_text"
+	          app:showAsAction="always"
+	          />
+	    
 	    <item android:id="@+id/action_loadgame"
 	          android:icon="@drawable/ic_action_collection"
 	          android:title="@string/load_game_button_text"
