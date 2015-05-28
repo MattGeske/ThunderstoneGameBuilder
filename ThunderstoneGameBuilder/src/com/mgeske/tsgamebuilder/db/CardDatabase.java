@@ -170,9 +170,11 @@ public class CardDatabase extends SQLiteAssetHelper {
 		}
 	}
 
-	public List<SavedGame> getSavedGames() {
+	public List<SavedGame> getSavedGames(String gameSource) {
 		String[] columns = {"_ID", "gameName"};
 		String tables = "SavedGame";
+		String selection = "source = ?";
+		String[] selectionArgs = {gameSource};
 		String orderBy = "gameName ASC";
 		
 		SQLiteDatabase db = null;
@@ -181,7 +183,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 			db = getReadableDatabase();
 			SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 			queryBuilder.setTables(tables);
-			c = queryBuilder.query(db, columns, null, null, null, null, orderBy);
+			c = queryBuilder.query(db, columns, selection, selectionArgs, null, null, orderBy);
 			List<SavedGame> gameInfo = new ArrayList<SavedGame>();
 			int gameNameIndex = c.getColumnIndexOrThrow("gameName");
 			int gameIdIndex = c.getColumnIndexOrThrow("_ID");
@@ -189,7 +191,7 @@ public class CardDatabase extends SQLiteAssetHelper {
 				String gameName = c.getString(gameNameIndex);
 				String gameId = c.getString(gameIdIndex);
 				String[] setNames = getSetNamesForSavedGame(gameId);
-				SavedGame savedGame = new SavedGame(gameName, setNames);
+				SavedGame savedGame = new SavedGame(gameName, gameSource, setNames);
 				gameInfo.add(savedGame);
 			}
 			return gameInfo;
@@ -242,14 +244,14 @@ public class CardDatabase extends SQLiteAssetHelper {
 		return foundSets.toArray(new String[foundSets.size()]);
 	}
 	
-	public CardList loadSavedGame(String gameName) {
+	public CardList loadSavedGame(String gameName, String gameSource) {
 		Map<String,Integer> emptyMap = Collections.emptyMap();
 		CardList cardList = new CardList(emptyMap, emptyMap);
 		
 		String[] columns = {"cardId", "cardTableName"};
 		String tables = "Card_SavedGame, SavedGame";
-		String selection = "Card_SavedGame.savedGameId=SavedGame._ID and SavedGame.gameName=?";
-		String[] selectionArgs = new String[]{gameName};
+		String selection = "Card_SavedGame.savedGameId=SavedGame._ID and SavedGame.gameName=? and SavedGame.source=?";
+		String[] selectionArgs = {gameName, gameSource};
 		
 		SQLiteDatabase db = null;
 		Cursor c = null;
