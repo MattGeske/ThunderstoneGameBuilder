@@ -205,6 +205,7 @@ public class MainScreenActivity extends ActionBarActivity {
 			case R.id.action_addcard: showAddCardContext(); return true;
 			case R.id.action_searchcard: showSearchCardActivity(); return true;
 			case R.id.action_savegame: openSaveGameDialog(); return true;
+			case R.id.action_load_last_game: loadAutosavedGame(); return true;
 		}
         return super.onOptionsItemSelected(item);
     }
@@ -220,6 +221,7 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     private void buildNewGame() {
+    	autosave();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
     	int num_monster = getIntPreference(preferences, "num_monster", R.string.default_num_monsters);
     	int num_thunderstone = getIntPreference(preferences, "num_thunderstone", R.string.default_num_thunderstone);
@@ -302,13 +304,10 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     private void saveGame(String gameName, boolean overwrite) {
-    	long savedGameId = cardDb.getSavedGameId(gameName);
-    	if(savedGameId >= 0) {
+    	if(cardDb.gameNameExists(gameName)) {
     		if(!overwrite) {
 	    		openOverwriteGameDialog(gameName);
 	    		return;
-    		} else {
-    			cardDb.deleteSavedGame(savedGameId);
     		}
     	}
     	
@@ -316,8 +315,20 @@ public class MainScreenActivity extends ActionBarActivity {
     }
     
     private void loadGame() {
+		autosave();
     	Intent intent = new Intent(this, LoadGameActivity.class);
     	startActivityForResult(intent, REQUEST_CODE_LOAD_GAME);
+    }
+    
+    private void autosave() {
+    	if(cardListAdapter.getCount() > 0) {
+	    	cardDb.autosave(cardListAdapter.getCardList());
+    	}
+    }
+    
+    private void loadAutosavedGame() {
+    	CardList cardList = cardDb.loadAutosavedGame();
+		displayGame(cardList);
     }
     
     private void viewCardDetails(int position) {

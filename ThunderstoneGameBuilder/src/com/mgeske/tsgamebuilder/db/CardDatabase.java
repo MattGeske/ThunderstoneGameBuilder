@@ -131,10 +131,15 @@ public class CardDatabase extends SQLiteAssetHelper {
 		return queryBuilder.queryMatchingCards(currentCards, db, getRequirements(), includeAllSets);
 	}
 	
-	public long getSavedGameId(String gameName) {
+	public boolean gameNameExists(String gameName) {
+		return getSavedGameId(gameName, "user") > -1;
+	}
+	
+	private long getSavedGameId(String gameName, String gameSource) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteStatement statement = db.compileStatement("SELECT _ID FROM SavedGame WHERE source = 'user' and gameName = ?");
+		SQLiteStatement statement = db.compileStatement("SELECT _ID FROM SavedGame WHERE gameName = ? and source = ?");
 		statement.bindString(1, gameName);
+		statement.bindString(2, gameSource);
 		long savedGameId;
 		try {
 			savedGameId = statement.simpleQueryForLong();
@@ -145,20 +150,39 @@ public class CardDatabase extends SQLiteAssetHelper {
 	}
 
 	public void saveCurrentGame(String gameName, CardList cardList) {
+		insertOrUpdateGame(gameName, "user", cardList);
+	}
+	
+	public void autosave(CardList cardList) {
+		insertOrUpdateGame("autosave", "autosave", cardList);
+	}
+	
+	private void insertOrUpdateGame(String gameName, String gameSource, CardList cardList) {
 		SQLiteDatabase db = getReadableDatabase();
 		ContentValues values = new ContentValues();
-		values.put("source", "user");
-		values.put("gameName", gameName);
-		long savedGameId = db.insert("SavedGame", null, values);
-		
-		values.clear();
-		values.put("savedGameId", savedGameId);
-		
-		addCardsToSavedGame("DungeonCard", cardList.getDungeonCards(), db, values);
-		addCardsToSavedGame("DungeonBossCard", cardList.getGuardianCards(), db, values);
-		addCardsToSavedGame("DungeonBossCard", cardList.getThunderstoneCards(), db, values);
-		addCardsToSavedGame("HeroCard", cardList.getHeroCards(), db, values);
-		addCardsToSavedGame("VillageCard", cardList.getVillageCards(), db, values);
+		db.beginTransaction();
+		try {
+			long gameId = getSavedGameId(gameName, gameSource);
+			if(gameId < 0) {
+				values.put("source", gameSource);
+				values.put("gameName", gameName);
+				gameId = db.insert("SavedGame", null, values);
+			}
+			
+			values.clear();
+			values.put("savedGameId", gameId);
+			
+			db.delete("Card_SavedGame", "savedGameId = ?", new String[]{Long.toString(gameId)});
+			addCardsToSavedGame("DungeonCard", cardList.getDungeonCards(), db, values);
+			addCardsToSavedGame("DungeonBossCard", cardList.getGuardianCards(), db, values);
+			addCardsToSavedGame("DungeonBossCard", cardList.getThunderstoneCards(), db, values);
+			addCardsToSavedGame("HeroCard", cardList.getHeroCards(), db, values);
+			addCardsToSavedGame("VillageCard", cardList.getVillageCards(), db, values);
+			
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
 	}
 	
 	private void addCardsToSavedGame(String cardTableName, List<? extends Card> cards, SQLiteDatabase db, 
@@ -242,6 +266,10 @@ public class CardDatabase extends SQLiteAssetHelper {
 			}
 		}
 		return foundSets.toArray(new String[foundSets.size()]);
+	}
+	
+	public CardList loadAutosavedGame() {
+		return loadSavedGame("autosave", "autosave");
 	}
 	
 	public CardList loadSavedGame(String gameName, String gameSource) {

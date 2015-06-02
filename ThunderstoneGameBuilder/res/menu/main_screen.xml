@@ -34,6 +34,11 @@
 	          app:showAsAction="always"
 	          />
 	</group>
+	
+    <item
+        android:id="@+id/action_load_last_game"
+        android:title="@string/action_load_last_game"
+        app:showAsAction="never"/>
     
     <item
         android:id="@+id/action_settings"
