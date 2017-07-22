@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/general_settings" android:key="general_settings_category">
+        <CheckBoxPreference android:title="@string/preference_general_keep_screen_on" android:key="keep_screen_on" android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/normal_game_settings" android:key="normal_game_settings_category">
+        <ListPreference 
+            android:title="Game Rules"
+            android:key="game_rules"
+            android:entries="@array/rule_types"
+            android:entryValues="@array/rule_types_values"
+            android:defaultValue="@string/rule_type_advance"
+        />
+        <EditTextPreference
+            android:title="@string/preference_monster_cards"
+            android:inputType="number"
+            android:key="num_monster"
+            android:defaultValue="@string/default_num_monsters"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_thunderstone_cards"
+            android:inputType="number"
+            android:key="num_thunderstone"
+            android:defaultValue="@string/default_num_thunderstone"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_hero_cards"
+            android:inputType="number"
+            android:key="num_hero"
+            android:defaultValue="@string/default_num_hero"
+            android:selectAllOnFocus="true"
+        />
+        <EditTextPreference
+            android:title="@string/preference_village_cards"
+            android:inputType="number"
+            android:key="num_village"
+            android:defaultValue="@string/default_num_village"
+            android:selectAllOnFocus="true"
+        />
+        <CheckBoxPreference
+            android:title="@string/preference_village_limits"
+            android:key="village_limits"
+            android:defaultValue="@string/default_village_limits"
+            android:summaryOn="@string/preference_village_limits_summary_on"
+            android:summaryOff="@string/preference_village_limits_summary_off"
+        />
+        <CheckBoxPreference 
+            android:title="@string/preference_monster_levels"
+            android:key="monster_levels"
+            android:defaultValue="@string/default_monster_levels"
+            android:summaryOn="@string/preference_monster_levels_summary_on"
+            android:summaryOff="@string/preference_monster_levels_summary_off"
+        />
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

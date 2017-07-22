@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mgeske.tsgamebuilder"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Base.AppCompat" >
+        <activity
+            android:name=".MainScreenActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/action_settings" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
+        <activity
+            android:name=".ChooseSetsActivity"
+            android:label="@string/action_choosesets" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
+        <activity
+            android:name=".LoadGameActivity"
+            android:label="@string/action_loadgame" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
+        <activity
+            android:name=".SearchCardActivity"
+            android:label="@string/title_activity_search_card"
+            android:parentActivityName=".MainScreenActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.MainScreenActivity" />
+        </activity>
+        <activity
+            android:name=".SearchResultsActivity"
+            android:label="@string/title_activity_search_results"
+            android:parentActivityName=".SearchCardActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mgeske.tsgamebuilder.SearchCardActivity" />
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Thunderstone Game Builder</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_choosesets">Choose Expansions</string>
+    <string name="action_loadgame">Load Game</string>
+    <string name="action_load_last_game">Load Last Game</string>
+    <string name="title_activity_search_card">SearchCardActivity</string>
+    <string name="title_activity_search_results">SearchResultsActivity</string>
+
+    <!-- main screen -->
+    <string name="add_card_button_text">Add Card</string>
+    <string name="search_card_button_text">Search For Card</string>
+    <string name="new_game_button_text">New Game</string>
+    <string name="save_game_button_text">Save Game</string>
+    <string name="load_game_button_text">Load Game</string>
+    
+    <!-- help info -->
+    <string name="help_random_card">Add a new random card</string>
+    <string name="help_search">Search for a card</string>
+    <string name="help_new_game">Generate a new random game</string>
+    <string name="help_save_game">Save the currently shown game</string>
+    <string name="help_load_game">Load a saved or preset game</string>
+    
+    <!-- card list -->
+    <string name="dungeon_cards_header">DUNGEON</string>
+    <string name="guardian_cards_header">GUARDIAN</string>
+    <string name="thunderstone_cards_header">THUNDERSTONE</string>
+    <string name="hero_cards_header">HERO</string>
+    <string name="village_cards_header">VILLAGE</string>
+    
+    <!-- card details -->
+    <string name="gives_disease">-Gives Disease</string>
+    <string name="provides_light">-Provides Light</string>
+
+    <!-- preferences screen -->
+    <string name="general_settings">General Settings</string>
+    <string name="preference_general_keep_screen_on">Keep Screen On</string>
+    <string name="normal_game_settings">Normal Game Settings</string>
+    <string name="preference_monster_cards">Monster Cards</string>
+    <string name="preference_thunderstone_cards">Thunderstone Cards</string>
+    <string name="preference_hero_cards">Hero Cards</string>
+    <string name="preference_village_cards">Village Cards</string>
+    <string name="preference_village_limits">Enforce Village Limits</string>
+    <string name="preference_village_limits_summary_on">3 weapons, 2 items, 3 spells, 3 villagers</string>
+    <string name="preference_village_limits_summary_off">No village limits</string>
+    <string name="preference_monster_levels">Enforce Monster Levels</string>
+    <string name="preference_monster_levels_summary_on">One monster of each level</string>
+    <string name="preference_monster_levels_summary_off">Random monster levels</string>
+
+    <!-- Game rule types -->
+    <string name="rule_type_original">original_thunderstone</string>
+    <string name="rule_type_advance">thunderstone_advance</string>
+    <string name="rule_type_custom">custom_rules</string>
+
+    <!-- default preferences -->
+    <string name="default_num_monsters">3</string>
+    <string name="default_num_thunderstone">1</string>
+    <string name="default_num_hero">4</string>
+    <string name="default_num_village">8</string>
+    <string name="default_village_limits">true</string>
+    <string name="default_monster_levels">true</string>
+
+    <!-- load game screen -->
+    <string name="load_game_show_all">Show games for all expansions</string>
+    
+    <!-- search screen -->
+    <string name="search_card_type_prompt">Card Type</string>
+    <string name="search_card_text_hint">Card Name/Text</string>
+    <string name="search_card_include_all_text">Include cards from all expansions</string>
+    <string name="search_card_search_button_text">Search</string>
+    <string name="search_card_disease_text">Gives Disease</string>
+    <string name="search_monster_level_prompt">Monster Level</string>
+    <string name="search_monster_ambusher_text">Ambusher</string>
+    <string name="search_monster_doomladen_text">Doomladen</string>
+    <string name="search_hero_race_prompt">Race</string>
+    <string name="search_hero_class_prompt">Class</string>
+    <string name="search_hero_strength_hint">Minimum Strength</string>
+    <string name="search_card_light_text">Provides Light</string>
+    <string name="search_card_magic_attack_text">Has Magic Attack</string>
+    <string name="search_card_physical_attack_text">Has Physical Attack</string>
+    <string name="search_card_removes_disease_text">Removes Disease</string>
+    <string name="search_village_cost_hint">Cost</string>
+    <string name="search_village_value_hint">Value</string>
+    <string name="search_village_weight_hint">Weight</string>
+    <string name="search_village_strength_text">Increases Hero Strength</string>
+    <string name="search_village_additional_buys_text">Allows you to buy an extra card</string>
+    <string name="search_village_destroys_cards_text">Allows you to destroy cards</string>
+    
+    <!-- results screen -->
+    <string name="results_modify_search_button_text">Modify Search</string>
+    <string name="results_add_button_text">Add Selected Cards</string>
+
+</resources>
