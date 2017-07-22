@@ -1,26 +1,24 @@
 package com.mgeske.tsgamebuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.mgeske.tsgamebuilder.card.CardList;
-import com.mgeske.tsgamebuilder.db.CardDatabase;
-
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ListFragment;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+
+import com.mgeske.tsgamebuilder.card.CardList;
+import com.mgeske.tsgamebuilder.db.CardDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadGameActivity extends ActionBarActivity {
 	private CardDatabase cardDb = null;
@@ -172,31 +170,4 @@ class GameListPagerAdapter extends FragmentPagerAdapter {
 	}
 }
 
-class ClickableListFragment extends ListFragment {
-	private AdapterView.OnItemClickListener mOnItemClickListener = null;
-	
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				performItemClick(parent, view, position, id);
-			}
-		});
-	}
-	
-    public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
 
-	public boolean performItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (mOnItemClickListener != null) {
-            mOnItemClickListener.onItemClick(parent, view, position, id);
-            return true;
-        }
-
-        return false;
-    }
-}

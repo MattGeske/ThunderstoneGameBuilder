@@ -1,0 +1,9 @@
+Database:
+Attributes to add later: Player Interaction, Draw Card, Rearrange Hall, Gain XP, Protect Heroes, Extra Gold?, VP, Curse Deck, Defeat Monster, Place Hero on Deck
+Add Hero cost/value
+Add monster abilities (Battle, Aftermath, etc)
+Find a better way to express WANTS_MAGIC_THINGS
+
+
+Randomizer:
+Add guardians

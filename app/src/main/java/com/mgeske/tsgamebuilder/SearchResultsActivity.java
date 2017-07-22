@@ -1,10 +1,5 @@
 package com.mgeske.tsgamebuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.mgeske.tsgamebuilder.card.Card;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -16,6 +11,12 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import com.mgeske.tsgamebuilder.card.Card;
+import com.mgeske.tsgamebuilder.dialogs.CardInformationDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchResultsActivity extends FragmentActivity {
 	private List<Card> cardResults;
